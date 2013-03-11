@@ -1,0 +1,15 @@
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
+
+	<f:entry title="NeoLoad Results Path" field="reportFileLocation">
+		<f:textbox field="reportFileLocation" />
+	</f:entry>
+
+	<f:entry title="Display Trend Graph: Average Response Time (all pages)" field="showTrendAverageResponse">
+		<f:checkbox field="showTrendAverageResponse" checked="${showTrendAverageResponse}" />
+	</f:entry>
+	
+	<f:entry title="Display Trend Graph: Error Rate %" field="showTrendErrorRate">
+		<f:checkbox field="showTrendErrorRate" checked="${showTrendErrorRate}" />
+	</f:entry>
+	
+</j:jelly>

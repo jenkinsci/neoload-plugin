@@ -1,0 +1,52 @@
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define"
+	xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
+	
+<script>
+
+// correct the size of the frame
+function correctSizeOfFrame() {
+    var neoReportIFrame = document.getElementById('neoReportIFrame');
+    neoReportIFrame.height = window.innerHeight - 150;
+}
+
+// add a window resize event
+if (window.onresize) {
+    var curronresize = window.onresize; // store the old function
+    window.onresize = function() {
+        curronresize();
+        correctSizeOfFrame();
+    };
+} else {
+    window.onresize = correctSizeOfFrame;
+}
+
+
+// add an onload event to resize the frame.
+// from http://stackoverflow.com/questions/807878/javascript-that-executes-after-page-load
+if (window.onload) {
+    var curronload = window.onload; // store the old function
+    window.onload = function() {
+        curronload();
+        correctSizeOfFrame();
+    };
+} else {
+    window.onload = correctSizeOfFrame;
+}
+
+</script>
+	
+	<l:layout css="/plugin/performance/css/style.css">
+		<st:include it="${it.build}" page="sidepanel.jelly" />
+		<l:main-panel>
+			
+			<iframe frameborder="0" id="neoReportIFrame"  
+					height="100%"
+					width="100%"
+					seamless="true"
+				src="../artifact/${it.HtmlReportFilePath}" />
+			
+			<br /><br /><br />
+		</l:main-panel>
+	</l:layout>
+</j:jelly>
+
