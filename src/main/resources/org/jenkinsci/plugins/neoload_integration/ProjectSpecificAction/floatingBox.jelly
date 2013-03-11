@@ -1,0 +1,29 @@
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define"
+	xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form"
+	xmlns:i="jelly:fmt">
+
+	<!-- Project disk usage information + trend graph -->
+
+		<j:if test="${from.showAvgGraph()}">
+			<div class="test-trend-caption">
+				Avg. Resp. Time (pages)
+			</div>
+
+			<div>
+				<!-- this links to a method which extends Graph and returns a JFreeChart -->
+				<img src="neoload-plugin/avgGraph/png" lazymap="neoload-plugin/graph/map" />
+			</div>
+		</j:if>
+		<j:if test="${from.showErrGraph()}">
+			
+			<div class="test-trend-caption">
+				Error Rate
+			</div>
+			<div>
+				<!-- this links to a method which extends Graph and returns a JFreeChart -->
+				<img src="neoload-plugin/errGraph/png" lazymap="neoload-plugin/graph/map" />
+			</div>
+
+		</j:if>
+
+</j:jelly>

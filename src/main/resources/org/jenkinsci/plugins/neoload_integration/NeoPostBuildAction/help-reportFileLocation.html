@@ -1,0 +1,13 @@
+<div>
+  This is the directory location of the xml test results file that was created by this job. 
+  This setting must match the output directory specified when NeoLoad is launched.
+  <br/>For trend graphs to be used the directory must include xml results.
+  <br/>
+  <br/>For a link from within Jenkins to the html results the directory must include html results and 
+  	the html results must be archived as an artifact by Jenkins. Note that all html files including 
+  	directories and images must be archived. In the post-build action for example, specifying a directory 
+  	such as "neoload-report\*.*" will not include subdirectories while "neoload-report\**" will include 
+  	subdirectories.
+  <br/>
+  Example: ${workspace}\neotys-report 
+</div>
