@@ -14,13 +14,13 @@ import org.xml.sax.SAXException;
 
 /** A wrapper for an xml document.
  * @author ajohnson
- *
+ * 
  */
 public class NeoLoadReportDoc {
-	
+
 	/** The actual xml document. */
 	private Document doc = null;
-	
+
 	/** Constructor.
 	 * @param xmlFilePath
 	 * @throws ParserConfigurationException
@@ -30,14 +30,14 @@ public class NeoLoadReportDoc {
 	public NeoLoadReportDoc(String xmlFilePath) throws ParserConfigurationException, SAXException, IOException {
 		if ((xmlFilePath != null) && 
 				("xml".equalsIgnoreCase(FilenameUtils.getExtension(xmlFilePath)))) {
-			
+
 			doc = XMLUtilities.readXmlFile(xmlFilePath);
 		} else {
 			// to avoid npe
 			doc = XMLUtilities.createNodeFromText("<empty></empty>").getOwnerDocument();
 		}
 	}
-	
+
 	public NeoLoadReportDoc(Document doc) {
 		this.doc = doc;
 	}
@@ -48,18 +48,18 @@ public class NeoLoadReportDoc {
 	 */
 	public boolean isValidReportDoc() throws XPathExpressionException {
 		List<Node> nodes = XMLUtilities.findByExpression("/report/summary/all-summary/statistic-item", doc);
-		
+
 		if ((nodes == null) || (nodes.size() == 0)) {
 			return false;
-			
+
 		}
-		
+
 		return true;
 	}
 
 	/**
 	 * @return
-	 * @throws XPathExpressionException 
+	 * @throws XPathExpressionException
 	 */
 	public Float getAverageResponseTime() throws XPathExpressionException {
 		return getGenericAvgValue("/report/summary/all-summary/statistic-item", "virtualuser");
@@ -67,7 +67,7 @@ public class NeoLoadReportDoc {
 
 	/**
 	 * @return
-	 * @throws XPathExpressionException 
+	 * @throws XPathExpressionException
 	 */
 	public Float getErrorRatePercentage() throws XPathExpressionException {
 		return getGenericAvgValue("/report/summary/all-summary/statistic-item", "httppage");
@@ -75,15 +75,15 @@ public class NeoLoadReportDoc {
 
 	/**
 	 * @return
-	 * @throws XPathExpressionException 
+	 * @throws XPathExpressionException
 	 */
 	public Float getGenericAvgValue(String path, String typeAttributeValue) throws XPathExpressionException {
 		List<Node> nodes = XMLUtilities.findByExpression(path, doc);
 		Float numVal = null;
 		String val = null;
-		
+
 		// look at the nodes we found
-		for (Node searchNode: nodes) {
+		for (Node searchNode : nodes) {
 			// look for the avg response time node
 			val = XMLUtilities.findFirstValueByExpression("@type", searchNode);
 			if (typeAttributeValue.equalsIgnoreCase(val)) {
@@ -93,7 +93,7 @@ public class NeoLoadReportDoc {
 				numVal = Float.valueOf(val);
 			}
 		}
-		
+
 		return numVal;
 	}
 

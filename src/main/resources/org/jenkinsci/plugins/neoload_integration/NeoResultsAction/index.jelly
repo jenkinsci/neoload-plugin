@@ -35,7 +35,7 @@ if (window.onload) {
 
 </script>
 	
-	<l:layout css="/plugin/performance/css/style.css">
+	<l:layout>
 		<st:include it="${it.build}" page="sidepanel.jelly" />
 		<l:main-panel>
 			

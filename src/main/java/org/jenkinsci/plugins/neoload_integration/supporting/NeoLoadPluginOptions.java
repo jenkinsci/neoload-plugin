@@ -1,7 +1,7 @@
 package org.jenkinsci.plugins.neoload_integration.supporting;
 
 public interface NeoLoadPluginOptions {
-	
+
 	/** @return the showTrendAverageResponse */
 	public abstract boolean isShowTrendAverageResponse();
 
