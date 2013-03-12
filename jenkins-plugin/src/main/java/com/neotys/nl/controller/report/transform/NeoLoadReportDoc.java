@@ -97,4 +97,9 @@ public class NeoLoadReportDoc {
 		return numVal;
 	}
 
+	/** @return the doc */
+	public Document getDoc() {
+		return doc;
+	}
+
 }

@@ -140,7 +140,7 @@ public final class NeoResultsAction implements Action {
 			
 		} catch (Exception e) {
 			// this operation is not important enough to throw an exception.
-			System.out.println("Couldn't add custom style to report files.");
+			System.out.println(NeoPostBuildAction.LOG_PREFIX + "Couldn't add custom style to report files.");
 		}
 	}
     

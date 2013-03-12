@@ -21,6 +21,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.jenkinsci.plugins.neoload_integration.supporting.NeoLoadGraph;
+import org.jenkinsci.plugins.neoload_integration.supporting.NeoLoadPluginOptions;
 import org.jenkinsci.plugins.neoload_integration.supporting.PluginUtils;
 import org.xml.sax.SAXException;
 
@@ -41,21 +42,32 @@ public class ProjectSpecificAction implements ProminentProjectAction {
         this.project = project;
     }
     
+    /** This corresponds to the url of the image files displayed on the job page.
+     * @see hudson.model.Action#getUrlName()
+     */
     @Override
     public String getUrlName() {
         return "neoload";
     }
     
+    /**
+     * @return true if we should show the graph
+     */
     public boolean showAvgGraph() {
-    	if (!PluginUtils.getPluginOptions(project).isShowTrendAverageResponse()) {
+    	NeoLoadPluginOptions npo = PluginUtils.getPluginOptions(project);
+    	if ((npo == null) || (!npo.isShowTrendAverageResponse())) {
     		return false;
     	}
     	
     	return graphDataExists();
     }
     
+    /**
+     * @return true if we should show the graph
+     */
     public boolean showErrGraph() {
-    	if (!PluginUtils.getPluginOptions(project).isShowTrendErrorRate()) {
+    	NeoLoadPluginOptions npo = PluginUtils.getPluginOptions(project);
+    	if ((npo == null) || (!npo.isShowTrendErrorRate())) {
     		return false;
     	}
     	
@@ -74,7 +86,7 @@ public class ProjectSpecificAction implements ProminentProjectAction {
     	try {
 			findNeoLoadXMLResults(project);
 		} catch (XPathExpressionException | ParserConfigurationException | SAXException | IOException e) {
-			logger.log(Level.SEVERE, "Error finding NeoLoad xml results. " + e.getMessage());
+			logger.log(Level.SEVERE, NeoPostBuildAction.LOG_PREFIX + "Error finding NeoLoad xml results. " + e.getMessage());
 			e.printStackTrace();
 		}
     	
@@ -93,7 +105,7 @@ public class ProjectSpecificAction implements ProminentProjectAction {
         for (AbstractBuild<?, ?> build : buildsAndDocs.keySet()) {
         	NumberOnlyBuildLabel label = new NumberOnlyBuildLabel(build);
         	errorRate = buildsAndDocs.get(build).getErrorRatePercentage();
-			logger.log(Level.FINE, "Error rate found for build " + build.number + ": " + errorRate);
+			logger.log(Level.FINE, NeoPostBuildAction.LOG_PREFIX + "Error rate found for build " + build.number + ": " + errorRate);
         	
         	if (errorRate != null) {
         		dsb.add(errorRate, "Time", label);
@@ -116,7 +128,8 @@ public class ProjectSpecificAction implements ProminentProjectAction {
         for (AbstractBuild<?, ?> build : buildsAndDocs.keySet()) {
         	NumberOnlyBuildLabel label = new NumberOnlyBuildLabel(build);
         	avgResponseTime = buildsAndDocs.get(build).getAverageResponseTime();
-			logger.log(Level.FINE, "Average response time found for build " + build.number + ": " + avgResponseTime);
+			logger.log(Level.FINE, NeoPostBuildAction.LOG_PREFIX + "Average response time found for build " + 
+					build.number + ": " + avgResponseTime);
         	
         	if (avgResponseTime != null) {
         		dsb.add(avgResponseTime, "Time", label);
@@ -138,16 +151,16 @@ public class ProjectSpecificAction implements ProminentProjectAction {
 		NeoLoadReportDoc doc = null;
 		Map<AbstractBuild<?,?>, NeoLoadReportDoc> newBuildsAndDocs = new LinkedHashMap<>();
 		
-		System.out.println("--------");
-		for (AbstractBuild build : project.getBuilds()) {
+		for (AbstractBuild<?,?> build : project.getBuilds()) {
 			doc = findXMLResultsFile(build);
 			
 			// if the correct file was found
 			if (doc != null) {
 				// only include successful builds
 				if (build.getResult().isBetterThan(Result.FAILURE)) {
-					System.out.println("");
 					newBuildsAndDocs.put(build, doc);
+				} else {
+					
 				}
 			}
 		}
@@ -166,6 +179,7 @@ public class ProjectSpecificAction implements ProminentProjectAction {
 	 * @throws ParserConfigurationException 
 	 * @throws XPathExpressionException 
 	 */
+	@SuppressWarnings("rawtypes")
 	private static NeoLoadReportDoc findXMLResultsFile(final AbstractBuild build) throws ParserConfigurationException, SAXException, IOException, XPathExpressionException {
 		Artifact artifact = null;
 		Iterator<Artifact> it = build.getArtifacts().iterator();
@@ -190,11 +204,17 @@ public class ProjectSpecificAction implements ProminentProjectAction {
 		return correctDoc;
 	}
         
+    /* (non-Javadoc)
+     * @see hudson.model.Action#getIconFileName()
+     */
     @Override
 	public String getIconFileName() {
         return null;
     }
 
+    /* (non-Javadoc)
+     * @see hudson.model.Action#getDisplayName()
+     */
     @Override
 	public String getDisplayName() {
         return "!" + this.getClass().getSimpleName() + "!";

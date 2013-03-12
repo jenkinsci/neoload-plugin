@@ -10,8 +10,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.logging.Logger;
 
-import org.apache.log4j.Level;
-
 /**
  * A very simple {@link hudson.model.TransientProjectActionFactory} which
  * creates new {@link NeoResultsAction}s for the target
@@ -32,10 +30,10 @@ public final class NeoTransientBuildActionFactory extends TransientBuildActionFa
     	
     	try {
 			if (nra.getHtmlReportFilePath() != null) {
-				return Collections.singleton(new NeoResultsAction(target));
+				return Collections.singleton(nra);
 			}
 		} catch (IOException e) {
-			logger.severe(e.getMessage());
+			logger.severe(NeoPostBuildAction.LOG_PREFIX + e.getMessage());
 			e.printStackTrace();
 		}
     	
