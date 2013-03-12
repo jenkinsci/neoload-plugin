@@ -11,7 +11,7 @@
 
 			<div>
 				<!-- this links to a method which extends Graph and returns a JFreeChart -->
-				<img src="neoload-plugin/avgGraph/png" lazymap="neoload-plugin/graph/map" />
+				<img src="neoload/avgGraph/png" lazymap="neoload/graph/map" />
 			</div>
 		</j:if>
 		<j:if test="${from.showErrGraph()}">
@@ -21,7 +21,7 @@
 			</div>
 			<div>
 				<!-- this links to a method which extends Graph and returns a JFreeChart -->
-				<img src="neoload-plugin/errGraph/png" lazymap="neoload-plugin/graph/map" />
+				<img src="neoload/errGraph/png" lazymap="neoload/graph/map" />
 			</div>
 
 		</j:if>

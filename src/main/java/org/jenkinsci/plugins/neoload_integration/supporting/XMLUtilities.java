@@ -38,67 +38,6 @@ public class XMLUtilities {
 	/** Used for XPATH expressions. */
 	private static final XPath XPATH = XPATHFACTORY.newXPath();
 
-    
-//	/**
-//	 * @param outfile destination
-//	 * @param document document to write
-//	 * @throws FileNotFoundException
-//	 * @throws IOException
-//	 */
-//	public static void writeXML(final File outfile, final Document document) throws FileNotFoundException, IOException {
-//		try (OutputStream out = new BufferedOutputStream(new FileOutputStream(outfile))) {
-//			final DOMImplementation domImplementation = document.getImplementation();
-//
-//			final DOMImplementationLS domImplementationLS = (DOMImplementationLS) domImplementation.getFeature("LS", "3.0");
-//			final LSSerializer lsSerializer = domImplementationLS.createLSSerializer();
-//
-//			lsSerializer.getDomConfig().setParameter("format-pretty-print", Boolean.TRUE);
-//			final LSOutput lsOutput = domImplementationLS.createLSOutput();
-//			lsOutput.setEncoding("UTF-8");
-//			lsOutput.setByteStream(out);
-//
-//			lsSerializer.write(document, lsOutput);
-//		}
-//	}
-//	
-//	/**
-//	 * @param node
-//	 * @return
-//	 * @throws ParserConfigurationException
-//	 */
-//	public static Document nodeToDocument(Node node) throws ParserConfigurationException {
-//		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-//		factory.setNamespaceAware(true);
-//
-//		DocumentBuilder builder = factory.newDocumentBuilder();
-//
-//		Document newDocument = builder.newDocument();
-//		newDocument = XMLUtilities.appendNode(newDocument, node).getOwnerDocument();
-//		
-//		return newDocument;
-//	}
-//
-//	/**
-//	 * @param parent
-//	 * @param newChild
-//	 * @return your newly imported child node. Your old reference is useless.
-//	 */
-//	public static Node appendNode(Node parent, Node newChild) {
-//		// find the correct document to work with.
-//		Document owner = parent.getOwnerDocument();
-//		
-//		if ((owner == null) && (parent instanceof Document)) {
-//			owner = (Document) parent;
-//		} else if (owner == null) {
-//			throw new NullPointerException("Can't find owner document for node.");
-//		}
-//		
-//		Node importedChild = owner.importNode(newChild, true);
-//		parent.appendChild(importedChild);
-//		
-//		return importedChild;
-//	}
-
 	/** Create an xml Node using the passed in text. Use getOwnerDocument() to get the document. 
 	 * @param xmlText
 	 * @return

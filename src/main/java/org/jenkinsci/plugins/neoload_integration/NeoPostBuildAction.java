@@ -11,8 +11,6 @@ import hudson.tasks.Notifier;
 import hudson.tasks.Publisher;
 
 import java.io.IOException;
-import java.io.PrintStream;
-import java.text.SimpleDateFormat;
 
 import org.jenkinsci.plugins.neoload_integration.supporting.NeoLoadPluginOptions;
 import org.kohsuke.stapler.DataBoundConstructor;
@@ -20,6 +18,9 @@ import org.kohsuke.stapler.DataBoundConstructor;
 @SuppressWarnings("unchecked")
 public class NeoPostBuildAction extends Notifier implements NeoLoadPluginOptions {
 	
+	/** Prefix log messages with this. */
+	public static final String LOG_PREFIX = "NeoLoad Integration: ";
+
 	/** User option presented in the GUI. Report file location(s). */
 	private final String reportFileLocation;
 
@@ -28,12 +29,6 @@ public class NeoPostBuildAction extends Notifier implements NeoLoadPluginOptions
 	
 	/** User option presented in the GUI. Show the average response time. */
 	private final boolean showTrendErrorRate;
-	
-	/** Log various messages. */
-	private PrintStream printStreamLogger = null;
-	
-	/** Format dates. */
-	private static final SimpleDateFormat sdf = new SimpleDateFormat("kk:mm:ss:SSS"); // TODO verify file creation time after build.startTime
 	
 	@DataBoundConstructor
 	public NeoPostBuildAction(String reportFileLocation, boolean showTrendAverageResponse, boolean showTrendErrorRate, 
@@ -52,7 +47,6 @@ public class NeoPostBuildAction extends Notifier implements NeoLoadPluginOptions
 	@SuppressWarnings("deprecation")
 	@Override
 	public boolean prebuild(AbstractBuild<?, ?> build, BuildListener listener) {
-		printStreamLogger = listener.getLogger();
 		return super.prebuild(build, listener);
 	}
 	
@@ -75,20 +69,9 @@ public class NeoPostBuildAction extends Notifier implements NeoLoadPluginOptions
         }
 
         @Override
-		public boolean isApplicable(Class<? extends AbstractProject> jobType) {
+		public boolean isApplicable(@SuppressWarnings("rawtypes") Class<? extends AbstractProject> jobType) {
             return true;
         }
-    }
-    
-    /**
-     * @param msg
-     */
-	public void logConsole(String msg) {
-    	final String prefix = "NeoLoad Integration: ";
-    	
-    	if (printStreamLogger != null) {
-    		printStreamLogger.println(prefix + msg);
-    	}
     }
 
 	/** @return the reportFileLocation */
