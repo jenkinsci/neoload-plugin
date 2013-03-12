@@ -20,15 +20,15 @@ import java.util.logging.Logger;
  */
 @Extension
 public final class NeoTransientBuildActionFactory extends TransientBuildActionFactory {
-	
+
 	/** Log various messages. */
 	private static final Logger logger = Logger.getLogger(NeoTransientBuildActionFactory.class.getName());
-    
-    @Override
-    public Collection<? extends Action> createFor(AbstractBuild target) {
-    	NeoResultsAction nra = new NeoResultsAction(target);
-    	
-    	try {
+
+	@Override
+	public Collection<? extends Action> createFor(AbstractBuild target) {
+		NeoResultsAction nra = new NeoResultsAction(target);
+
+		try {
 			if (nra.getHtmlReportFilePath() != null) {
 				return Collections.singleton(nra);
 			}
@@ -36,8 +36,8 @@ public final class NeoTransientBuildActionFactory extends TransientBuildActionFa
 			logger.severe(NeoPostBuildAction.LOG_PREFIX + e.getMessage());
 			e.printStackTrace();
 		}
-    	
-    	return Collections.EMPTY_LIST;
-    }
-    
+
+		return Collections.EMPTY_LIST;
+	}
+
 }

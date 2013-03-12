@@ -16,45 +16,44 @@ import org.kohsuke.stapler.StaplerRequest;
 
 @Extension
 public class ProjectSpecificActionFactory extends TransientProjectActionFactory
-        implements Describable<ProjectSpecificActionFactory> {
+		implements Describable<ProjectSpecificActionFactory> {
 
-    @Override
-    public Collection<? extends Action> createFor(AbstractProject job) {
-        return Collections.singleton(new ProjectSpecificAction(job));
-    }
+	@Override
+	public Collection<? extends Action> createFor(AbstractProject job) {
+		return Collections.singleton(new ProjectSpecificAction(job));
+	}
 
-    @Override
+	@Override
 	public Descriptor<ProjectSpecificActionFactory> getDescriptor() {
-        return DESCRIPTOR;
-    }
+		return DESCRIPTOR;
+	}
 
-    @Extension
-    public static final DescriptorImpl DESCRIPTOR = new DescriptorImpl();
+	@Extension
+	public static final DescriptorImpl DESCRIPTOR = new DescriptorImpl();
 
     public static final class DescriptorImpl extends Descriptor<ProjectSpecificActionFactory> {
 
-        public DescriptorImpl() {
-        }
+		public DescriptorImpl() {
+		}
 
-        @Override
-        public String getDisplayName() {
-            return "!" + this.getClass().getSimpleName() + "!";
-        }
+		@Override
+		public String getDisplayName() {
+			return "!" + this.getClass().getSimpleName() + "!";
+		}
 
-
-        @Override
+		@Override
         public ProjectSpecificActionFactory newInstance(StaplerRequest req, JSONObject formData) {
-            return new ProjectSpecificActionFactory();
-        }
+			return new ProjectSpecificActionFactory();
+		}
 
-        @Override
+		@Override
         public boolean configure(StaplerRequest req, JSONObject formData) throws FormException {
-            return super.configure(req, formData);
-        }
+			return super.configure(req, formData);
+		}
 
-        public static boolean isShowGraph() {
-            return true;
-        }
-    }
+		public static boolean isShowGraph() {
+			return true;
+		}
+	}
 
 }

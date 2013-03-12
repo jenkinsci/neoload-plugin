@@ -17,7 +17,7 @@ import org.kohsuke.stapler.DataBoundConstructor;
 
 @SuppressWarnings("unchecked")
 public class NeoPostBuildAction extends Notifier implements NeoLoadPluginOptions {
-	
+
 	/** Prefix log messages with this. */
 	public static final String LOG_PREFIX = "NeoLoad Integration: ";
 
@@ -26,53 +26,52 @@ public class NeoPostBuildAction extends Notifier implements NeoLoadPluginOptions
 
 	/** User option presented in the GUI. Show the average response time. */
 	private final boolean showTrendAverageResponse;
-	
+
 	/** User option presented in the GUI. Show the average response time. */
 	private final boolean showTrendErrorRate;
-	
+
 	@DataBoundConstructor
-	public NeoPostBuildAction(String reportFileLocation, boolean showTrendAverageResponse, boolean showTrendErrorRate, 
+	public NeoPostBuildAction(String reportFileLocation, boolean showTrendAverageResponse, boolean showTrendErrorRate,
 			String slaMapping) {
 		super();
 		this.reportFileLocation = reportFileLocation;
 		this.showTrendAverageResponse = showTrendAverageResponse;
 		this.showTrendErrorRate = showTrendErrorRate;
 	}
-	
+
 	@Override
 	public BuildStepMonitor getRequiredMonitorService() {
 		return BuildStepMonitor.NONE;
 	}
-	
+
 	@SuppressWarnings("deprecation")
 	@Override
 	public boolean prebuild(AbstractBuild<?, ?> build, BuildListener listener) {
 		return super.prebuild(build, listener);
 	}
-	
+
 	@Override
-    public boolean perform(AbstractBuild<?,?> build, Launcher launcher, BuildListener listener) throws InterruptedException, IOException {
+	public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) throws InterruptedException, IOException {
 		return true;
 	}
 
+	@Extension
+	public static final class DescriptorImpl extends BuildStepDescriptor<Publisher> {
 
-    @Extension
-    public static final class DescriptorImpl extends BuildStepDescriptor<Publisher> {
+		public DescriptorImpl() {
+			super(NeoPostBuildAction.class);
+		}
 
-        public DescriptorImpl() {
-            super(NeoPostBuildAction.class);
-        }
-
-        @Override
+		@Override
 		public String getDisplayName() {
-            return "Incorporate NeoLoad Results";
-        }
+			return "Incorporate NeoLoad Results";
+		}
 
-        @Override
+		@Override
 		public boolean isApplicable(@SuppressWarnings("rawtypes") Class<? extends AbstractProject> jobType) {
-            return true;
-        }
-    }
+			return true;
+		}
+	}
 
 	/** @return the reportFileLocation */
 	public String getReportFileLocation() {

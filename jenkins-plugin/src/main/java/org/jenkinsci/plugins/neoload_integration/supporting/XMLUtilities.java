@@ -34,7 +34,7 @@ public class XMLUtilities {
 
 	/** Used for XPATH expressions. */
 	private static final XPathFactory XPATHFACTORY = XPathFactory.newInstance();
-	
+
 	/** Used for XPATH expressions. */
 	private static final XPath XPATH = XPATHFACTORY.newXPath();
 
@@ -47,47 +47,47 @@ public class XMLUtilities {
 	 */
 	public static Node createNodeFromText(final String xmlText) throws ParserConfigurationException, SAXException, IOException {
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-	    DocumentBuilder db = dbf.newDocumentBuilder();
-	    InputSource is = new InputSource();
-	    is.setCharacterStream(new StringReader(xmlText));
-	
-	    Document doc = db.parse(is);
-	    
-	    return doc.getFirstChild();
+		DocumentBuilder db = dbf.newDocumentBuilder();
+		InputSource is = new InputSource();
+		is.setCharacterStream(new StringReader(xmlText));
+
+		Document doc = db.parse(is);
+
+		return doc.getFirstChild();
 	}
 
 	/** Return all nodes matching the passed in expression. Useful path expressions are listed below:<br/>
 	 * <table class="reference">
-	 *    <tbody>
-	 *       <tr>
-	 *          <th align="left" valign="top" width="25%">Expression</th>
-	 *          <th align="left" valign="top">Description</th>
-	 *       </tr>
-	 *       <tr>
-	 *          <td valign="top"><i>nodename</i></td>
-	 *          <td valign="top">Selects all nodes with the name "<i>nodename</i>"</td>
-	 *       </tr>
-	 *       <tr>
-	 *          <td valign="top">/</td>
-	 *          <td valign="top">Selects from the root node</td>
-	 *       </tr>
-	 *       <tr>
-	 *          <td valign="top">//</td>
+	 * <tbody>
+	 * <tr>
+	 * <th align="left" valign="top" width="25%">Expression</th>
+	 * <th align="left" valign="top">Description</th>
+	 * </tr>
+	 * <tr>
+	 * <td valign="top"><i>nodename</i></td>
+	 * <td valign="top">Selects all nodes with the name "<i>nodename</i>"</td>
+	 * </tr>
+	 * <tr>
+	 * <td valign="top">/</td>
+	 * <td valign="top">Selects from the root node</td>
+	 * </tr>
+	 * <tr>
+	 * <td valign="top">//</td>
 	 *          <td valign="top">Selects nodes in the document from the current node that match the selection no matter where they are </td>
-	 *       </tr>
-	 *       <tr>
-	 *          <td valign="top">.</td>
-	 *          <td valign="top">Selects the current node</td>
-	 *       </tr>
-	 *       <tr>
-	 *          <td valign="top">..</td>
-	 *          <td valign="top">Selects the parent of the current node</td>
-	 *       </tr>
-	 *       <tr>
-	 *          <td valign="top">@</td>
-	 *          <td valign="top">Selects attributes</td>
-	 *       </tr>
-	 *    </tbody>
+	 * </tr>
+	 * <tr>
+	 * <td valign="top">.</td>
+	 * <td valign="top">Selects the current node</td>
+	 * </tr>
+	 * <tr>
+	 * <td valign="top">..</td>
+	 * <td valign="top">Selects the parent of the current node</td>
+	 * </tr>
+	 * <tr>
+	 * <td valign="top">@</td>
+	 * <td valign="top">Selects attributes</td>
+	 * </tr>
+	 * </tbody>
 	 * </table>
 	 * 
 	 * @param expression search for this expression
@@ -98,7 +98,7 @@ public class XMLUtilities {
 	public static List<Node> findByExpression(final String expression, Node searchNode) throws XPathExpressionException {
 		final XPathExpression expr = XPATH.compile(expression);
 		final NodeList nl = (NodeList) expr.evaluate(searchNode, XPathConstants.NODESET);
-		
+
 		return toList(nl);
 	}
 
@@ -110,11 +110,11 @@ public class XMLUtilities {
 	 */
 	public static Node findFirstByExpression(final String expression, Node searchNode) throws XPathExpressionException {
 		List<Node> results = findByExpression(expression, searchNode);
-		
+
 		if ((results != null) && (results.size() > 0)) {
 			return results.get(0);
 		}
-		
+
 		return null;
 	}
 
@@ -122,31 +122,31 @@ public class XMLUtilities {
 	 * @param expression
 	 * @param searchNode
 	 * @return
-	 * @throws XPathExpressionException 
+	 * @throws XPathExpressionException
 	 */
 	public static String findFirstValueByExpression(String expression, Node searchNode) throws XPathExpressionException {
 		Node n = findFirstByExpression(expression, searchNode);
-		
+
 		if (n != null) {
 			return n.getNodeValue();
 		}
-		
+
 		return null;
 	}
 
 	/**
 	 * @param attributes
-	 * @return a map where the attribute is the key and the value is the value. 
+	 * @return a map where the attribute is the key and the value is the value.
 	 */
 	public static Map<String, String> getMap(NamedNodeMap attributes) {
 		Map<String, String> map = new HashMap<>();
-		
+
 		for (int i = 0; i < attributes.getLength(); i++) {
 			if ((attributes.item(i) != null) && (attributes.item(i).getNodeName() != null)) {
 				map.put(attributes.item(i).getNodeName(), attributes.item(i).getNodeValue());
 			}
 		}
-		
+
 		return map;
 	}
 
@@ -156,30 +156,30 @@ public class XMLUtilities {
 	 */
 	public static List<Node> toList(final NodeList nodeList) {
 		final List<Node> list = new ArrayList<>(nodeList.getLength());
-		
+
 		for (int nlIndex = 0; nlIndex < nodeList.getLength(); nlIndex++) {
 			list.add(nodeList.item(nlIndex));
 		}
-		
+
 		return list;
 	}
-	
+
 	/**
 	 * @param n
 	 * @return
 	 * @throws TransformerException
 	 */
 	public static String nodeToString(Node n) throws TransformerException {
-	        StringWriter sw = new StringWriter();
-	        TransformerFactory tf = TransformerFactory.newInstance();
-	        Transformer transformer = tf.newTransformer();
-	        transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "no");
-	        transformer.setOutputProperty(OutputKeys.METHOD, "xml");
-	        transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-	        transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
+		StringWriter sw = new StringWriter();
+		TransformerFactory tf = TransformerFactory.newInstance();
+		Transformer transformer = tf.newTransformer();
+		transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "no");
+		transformer.setOutputProperty(OutputKeys.METHOD, "xml");
+		transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+		transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
 
-	        transformer.transform(new DOMSource(n), new StreamResult(sw));
-	        return sw.toString();
+		transformer.transform(new DOMSource(n), new StreamResult(sw));
+		return sw.toString();
 	}
 
 	/** Read an xml file.
@@ -193,11 +193,11 @@ public class XMLUtilities {
 		final DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
 		final DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
 		final Document doc = docBuilder.parse(srcFile);
-		
+
 		// see http://stackoverflow.com/questions/13786607/normalization-in-dom-parsing-with-java-how-does-it-work
 		doc.getDocumentElement().normalize();
-		
+
 		return doc;
 	}
-	
+
 }
