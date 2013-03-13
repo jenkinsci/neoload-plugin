@@ -4,8 +4,7 @@
 	<parent>
 		<groupId>org.jenkins-ci.plugins</groupId>
 		<artifactId>plugin</artifactId>
-		<version>1.500</version><!-- which version of Jenkins is this plugin built 
-			against? -->
+		<version>1.504</version><!-- the version of Jenkins this plugin is built against -->
 	</parent>
 
 	<name>NeoLoad Plugin</name>
@@ -99,6 +98,17 @@
 	</pluginRepositories>
 
 	<dependencies>
+		<dependency><!-- included in distribution -->
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+			<version>2.4</version>
+		</dependency>
+		<dependency><!-- included in distribution for jenkins versions 1.458 to 1.481 -->
+			<groupId>xalan</groupId>
+			<artifactId>xalan</artifactId>
+			<version>2.7.1</version>
+			<scope>runtime</scope>
+		</dependency>
 		<dependency>
 			<groupId>org.jenkins-ci.main</groupId>
 			<artifactId>maven-plugin</artifactId>

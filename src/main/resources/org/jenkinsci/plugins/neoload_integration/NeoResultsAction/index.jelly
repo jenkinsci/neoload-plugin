@@ -39,12 +39,12 @@ if (window.onload) {
 		<st:include it="${it.build}" page="sidepanel.jelly" />
 		<l:main-panel>
 			
-			<iframe frameborder="0" id="neoReportIFrame"  
+ 			<iframe frameborder="0" id="neoReportIFrame"  
 					height="100%"
 					width="100%"
 					seamless="true"
 				src="../artifact/${it.HtmlReportFilePath}" />
-			
+	 		
 			<br /><br /><br />
 		</l:main-panel>
 	</l:layout>

@@ -18,7 +18,7 @@ import java.util.logging.Logger;
  * @author <a href="mailto:jieryn@gmail.com">Jesse Farinacci</a>
  * @since 1.0
  */
-@Extension
+@Extension(optional = true)
 public final class NeoTransientBuildActionFactory extends TransientBuildActionFactory {
 
 	/** Log various messages. */
