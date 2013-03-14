@@ -14,7 +14,8 @@ import net.sf.json.JSONObject;
 
 import org.kohsuke.stapler.StaplerRequest;
 
-@Extension
+/** Necessary Jenkins fluff to make the associated class actually be taken into account. */
+@Extension(optional = true)
 public class ProjectSpecificActionFactory extends TransientProjectActionFactory
 		implements Describable<ProjectSpecificActionFactory> {
 

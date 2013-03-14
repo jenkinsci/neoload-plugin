@@ -1,0 +1,16 @@
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define"
+	xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
+
+	<f:section title="NeoLoad Integration">
+
+		<f:optionalBlock checked="${showTrendAverageResponse}" inline="true"
+			field="showTrendAverageResponse"
+			title="Display Trend Graph: Average Response Time (all pages)" />
+
+		<f:optionalBlock checked="${showTrendErrorRate}" inline="true"
+			field="showTrendErrorRate" title="Display Trend Graph: Error Rate %"  />
+			
+	</f:section>
+
+	<f:section title=" "></f:section>
+</j:jelly>

@@ -27,6 +27,7 @@ import org.xml.sax.SAXException;
 
 import com.neotys.nl.controller.report.transform.NeoLoadReportDoc;
 
+/** Along with the jelly file this class adds the two trend graphs to a job page. */
 public class ProjectSpecificAction implements ProminentProjectAction {
 
 	/** A link to the Jenkins job. */
@@ -85,7 +86,7 @@ public class ProjectSpecificAction implements ProminentProjectAction {
 		try {
 			findNeoLoadXMLResults(project);
 		} catch (XPathExpressionException | ParserConfigurationException | SAXException | IOException e) {
-			logger.log(Level.SEVERE, NeoPostBuildAction.LOG_PREFIX + "Error finding NeoLoad xml results. " + e.getMessage());
+			logger.log(Level.SEVERE, NeoLoadPluginOptions.LOG_PREFIX + "Error finding NeoLoad xml results. " + e.getMessage());
 			e.printStackTrace();
 		}
 
@@ -104,7 +105,7 @@ public class ProjectSpecificAction implements ProminentProjectAction {
 		for (AbstractBuild<?, ?> build : buildsAndDocs.keySet()) {
 			NumberOnlyBuildLabel label = new NumberOnlyBuildLabel(build);
 			errorRate = buildsAndDocs.get(build).getErrorRatePercentage();
-			logger.log(Level.FINE, NeoPostBuildAction.LOG_PREFIX + "Error rate found for build " + build.number + ": " + errorRate);
+			logger.log(Level.FINE, NeoLoadPluginOptions.LOG_PREFIX + "Error rate found for build " + build.number + ": " + errorRate);
 
 			if (errorRate != null) {
 				dsb.add(errorRate, "Time", label);
@@ -125,7 +126,7 @@ public class ProjectSpecificAction implements ProminentProjectAction {
 		for (AbstractBuild<?, ?> build : buildsAndDocs.keySet()) {
 			NumberOnlyBuildLabel label = new NumberOnlyBuildLabel(build);
 			avgResponseTime = buildsAndDocs.get(build).getAverageResponseTime();
-			logger.log(Level.FINE, NeoPostBuildAction.LOG_PREFIX + "Average response time found for build " + 
+			logger.log(Level.FINE, NeoLoadPluginOptions.LOG_PREFIX + "Average response time found for build " + 
 					build.number + ": " + avgResponseTime);
 
 			if (avgResponseTime != null) {
