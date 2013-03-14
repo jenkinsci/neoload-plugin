@@ -10,14 +10,9 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.logging.Logger;
 
-/**
- * A very simple {@link hudson.model.TransientProjectActionFactory} which
- * creates new {@link NeoResultsAction}s for the target
- * {@link hudson.model.AbstractProject}.
- * 
- * @author <a href="mailto:jieryn@gmail.com">Jesse Farinacci</a>
- * @since 1.0
- */
+import org.jenkinsci.plugins.neoload_integration.supporting.NeoLoadPluginOptions;
+
+/** Necessary Jenkins fluff to make the associated class actually be taken into account. */
 @Extension(optional = true)
 public final class NeoTransientBuildActionFactory extends TransientBuildActionFactory {
 
@@ -33,7 +28,7 @@ public final class NeoTransientBuildActionFactory extends TransientBuildActionFa
 				return Collections.singleton(nra);
 			}
 		} catch (IOException e) {
-			logger.severe(NeoPostBuildAction.LOG_PREFIX + e.getMessage());
+			logger.severe(NeoLoadPluginOptions.LOG_PREFIX + e.getMessage());
 			e.printStackTrace();
 		}
 

@@ -4,11 +4,6 @@ import hudson.util.Graph;
 import hudson.util.ShiftedCategoryAxis;
 
 import java.awt.Color;
-import java.awt.image.BufferedImage;
-import java.io.IOException;
-
-import javax.imageio.ImageIO;
-import javax.servlet.ServletOutputStream;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
@@ -17,54 +12,27 @@ import org.jfree.chart.axis.CategoryLabelPositions;
 import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.category.CategoryDataset;
-import org.kohsuke.stapler.StaplerRequest;
-import org.kohsuke.stapler.StaplerResponse;
 
-/**
- * 
- * @author jbrazdil
- */
 public class NeoLoadGraph extends Graph {
+	
 	/** data to plot */
-	CategoryDataset dataset;
+	private CategoryDataset dataset;
 
 	/** y label */
-	String yAxisLabel;
+	private String yAxisLabel;
 
 	/** Line color to use. */
-	Color lineColor = null;
+	private Color lineColor = null;
 
 	public NeoLoadGraph(CategoryDataset dataset, String yAxisLabel, Color lineColor) {
-		super(-1, 350, 150);
+		super(-1, 500, 200);
 		this.dataset = dataset;
 		this.yAxisLabel = yAxisLabel;
 		this.lineColor = lineColor;
 	}
 
 	@Override
-	public void doPng(StaplerRequest req, StaplerResponse rsp)
-			throws IOException {
-
-		final JFreeChart chart = createChart();
-
-		// use this size to draw the graph (pixels)
-		BufferedImage bi = chart.createBufferedImage(500, 200);
-
-		rsp.setContentType("image/png");
-		ServletOutputStream os = rsp.getOutputStream();
-		ImageIO.write(bi, "PNG", os);
-		os.close();
-	}
-
-	@Override
 	protected JFreeChart createGraph() {
-		return createChart();
-	}
-
-	/**
-	 * @return
-	 */
-	protected JFreeChart createChart() {
 		final JFreeChart chart = ChartFactory.createLineChart(null, // chart title
 				null, // categoryAxisLabel
 				yAxisLabel, // range axis label
@@ -88,4 +56,5 @@ public class NeoLoadGraph extends Graph {
 
 		return chart;
 	}
+
 }
