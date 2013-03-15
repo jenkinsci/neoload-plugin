@@ -9,7 +9,6 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.commons.io.FilenameUtils;
-import org.jenkinsci.plugins.neoload_integration.ProjectSpecificAction;
 import org.jenkinsci.plugins.neoload_integration.supporting.XMLUtilities;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
