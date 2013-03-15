@@ -41,15 +41,15 @@ public final class NeoResultsAction implements Action {
 	}
 	
 	/** For storing artifact data. */
-	private class FileAndContent {
+	private static class FileAndContent {
 		/** Artifact data. */
-		public File file = null;
+		private File file = null;
 
 		/** URL to the artifact in Jenkins. */
-		public String href = null;
+		private String href = null;
 
 		/** Artifact data. */
-		public String content = null;
+		private String content = null;
 
 		/** Constructor.
 		 * 
@@ -167,7 +167,7 @@ public final class NeoResultsAction implements Action {
 			new File(styleLink).delete();
 			FileUtils.fileWrite(styleLink, styleContent);
 
-		} catch (Exception e) {
+		} catch (IOException e) {
 			// this operation is not important enough to throw an exception.
 			logger.log(Level.WARNING, "Couldn't add custom style to report files.");
 		}

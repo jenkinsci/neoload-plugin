@@ -84,10 +84,9 @@ public class ProjectSpecificAction implements ProminentProjectAction {
 	 */
 	public boolean graphDataExists() {
 		try {
-			findNeoLoadXMLResults(project);
+			findNeoLoadXMLResults();
 		} catch (XPathExpressionException | ParserConfigurationException | SAXException | IOException e) {
 			logger.log(Level.SEVERE, "Error finding NeoLoad xml results. " + e.getMessage(), e);
-			e.printStackTrace();
 		}
 
 		// there must be at least two results to create the graph
@@ -151,13 +150,12 @@ public class ProjectSpecificAction implements ProminentProjectAction {
 	}
 
 	/**
-	 * @param aProject
 	 * @throws XPathExpressionException
 	 * @throws IOException
 	 * @throws SAXException
 	 * @throws ParserConfigurationException
 	 */
-	private void findNeoLoadXMLResults(final AbstractProject<?, ?> aProject) throws XPathExpressionException, ParserConfigurationException, SAXException, IOException {
+	private void findNeoLoadXMLResults() throws XPathExpressionException, ParserConfigurationException, SAXException, IOException {
 		NeoLoadReportDoc doc = null;
 		Map<AbstractBuild<?, ?>, NeoLoadReportDoc> newBuildsAndDocs = new LinkedHashMap<>();
 
