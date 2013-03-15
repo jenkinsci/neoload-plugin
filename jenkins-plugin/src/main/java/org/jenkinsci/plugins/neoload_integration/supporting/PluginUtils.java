@@ -14,6 +14,11 @@ import org.jenkinsci.plugins.neoload_integration.NeoResultsAction;
 
 public class PluginUtils implements Serializable {
 	
+	/** "Utility classes should not have public constructors" according to findbugs. */
+	private PluginUtils() {
+		super();
+	}
+	
 	/** Log various messages. */
 	private static Logger logger = Logger.getLogger(PluginUtils.class.getName());
 

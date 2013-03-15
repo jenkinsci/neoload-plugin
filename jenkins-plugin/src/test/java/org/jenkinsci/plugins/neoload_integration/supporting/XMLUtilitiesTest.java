@@ -14,6 +14,7 @@ import javax.xml.xpath.XPathExpressionException;
 
 import junit.framework.TestCase;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
@@ -33,7 +34,11 @@ public class XMLUtilitiesTest extends TestCase {
 	private Document d = null;
 
 	
+	/* (non-Javadoc)
+	 * @see junit.framework.TestCase#setUp()
+	 */
 	@Override
+	@Before
 	protected void setUp() throws Exception {
 		super.setUp();
 		url = this.getClass().getResource("books.xml");
