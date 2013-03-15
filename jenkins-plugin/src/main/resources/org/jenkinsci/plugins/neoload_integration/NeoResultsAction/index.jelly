@@ -38,7 +38,6 @@ if (window.onload) {
 	<l:layout>
 		<st:include it="${it.build}" page="sidepanel.jelly" />
 		<l:main-panel>
-			
  			<iframe frameborder="0" id="neoReportIFrame"  
 					height="100%"
 					width="100%"

@@ -11,6 +11,7 @@ import hudson.tasks.Notifier;
 import hudson.tasks.Publisher;
 
 import org.jenkinsci.plugins.neoload_integration.supporting.PluginUtils;
+import org.kohsuke.stapler.DataBoundConstructor;
 
 /**
  * This class adds the link to the html report to a build after the build has
@@ -18,6 +19,11 @@ import org.jenkinsci.plugins.neoload_integration.supporting.PluginUtils;
  */
 @SuppressWarnings("unchecked")
 public class NeoPostBuildAction extends Notifier {
+	
+	@DataBoundConstructor
+	public NeoPostBuildAction() {
+		// required for jenkins 1.393
+	}
 
 	@Override
 	public BuildStepMonitor getRequiredMonitorService() {
