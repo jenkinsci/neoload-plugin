@@ -27,7 +27,10 @@ public final class NeoResultsAction implements Action {
 
 	/** The current build. */
 	private final AbstractBuild<?, ?> build;
-
+	
+	/** True if the report file is found without any issues. This allows us to only show the link when the report file is found. */
+	private Boolean foundReportFile = null;
+	
 	/** Log various messages. */
 	private static Logger logger = Logger.getLogger(NeoResultsAction.class.getName());
 
@@ -117,9 +120,11 @@ public final class NeoResultsAction implements Action {
 				applySpecialFormatting(ac);
 			}
 
+			foundReportFile = true;
 			return ac.href;
 		}
 
+		foundReportFile = false;
 		return null;
 	}
 
@@ -170,16 +175,35 @@ public final class NeoResultsAction implements Action {
 
 	@Override
 	public String getDisplayName() {
+		setFoundReportFile();
+		if (!foundReportFile) {
+			return null;
+		}
 		return "Performance Result";
 	}
 
 	@Override
 	public String getIconFileName() {
+		setFoundReportFile();
+		if (!foundReportFile) {
+			return null;
+		}
 		return "/plugin/neoload-jenkins-plugin/images/neoload-cropped.png";
 	}
 
 	@Override
 	public String getUrlName() {
+		setFoundReportFile();
+		if (!foundReportFile) {
+			return null;
+		}
 		return "neoload-report";
+	}
+
+	/** Set true if we can find the report file. */
+	private void setFoundReportFile() {
+		if (foundReportFile == null) {
+			getHtmlReportFilePath();
+		}
 	}
 }
