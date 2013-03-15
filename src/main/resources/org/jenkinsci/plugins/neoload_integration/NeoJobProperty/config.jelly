@@ -3,6 +3,10 @@
 
 	<f:section title="NeoLoad Integration">
 
+	<f:entry>
+		Note: Add the NeoLoad post-build step to include a link to a NeoLoad html report on the build page.
+	</f:entry>
+
 		<f:optionalBlock checked="${showTrendAverageResponse}" inline="true"
 			field="showTrendAverageResponse"
 			title="Display Trend Graph: Average Response Time (all pages)" />

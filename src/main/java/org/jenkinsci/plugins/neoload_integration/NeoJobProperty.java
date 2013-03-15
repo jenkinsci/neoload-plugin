@@ -30,7 +30,6 @@ public class NeoJobProperty extends JobProperty<AbstractProject<?,?>> implements
 	public static final class DescriptorImpl extends JobPropertyDescriptor {
 		@Override
 		public String getDisplayName() {
-			// TODO Auto-generated method stub
 			return "!" + this.getClass().getName() + "!";
 		}
     }

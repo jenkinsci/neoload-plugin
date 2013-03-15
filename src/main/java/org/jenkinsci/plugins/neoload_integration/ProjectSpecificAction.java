@@ -86,7 +86,7 @@ public class ProjectSpecificAction implements ProminentProjectAction {
 		try {
 			findNeoLoadXMLResults(project);
 		} catch (XPathExpressionException | ParserConfigurationException | SAXException | IOException e) {
-			logger.log(Level.SEVERE, NeoLoadPluginOptions.LOG_PREFIX + "Error finding NeoLoad xml results. " + e.getMessage());
+			logger.log(Level.SEVERE, "Error finding NeoLoad xml results. " + e.getMessage(), e);
 			e.printStackTrace();
 		}
 
@@ -98,14 +98,21 @@ public class ProjectSpecificAction implements ProminentProjectAction {
 	 * @return
 	 * @throws XPathExpressionException
 	 */
-	public Graph getErrGraph() throws XPathExpressionException {
+	public Graph getErrGraph() {
 		DataSetBuilder<String, NumberOnlyBuildLabel> dsb = new DataSetBuilder<>();
-		Float errorRate;
+		Float errorRate = null;
+		NeoLoadReportDoc nlrd = null;
 
 		for (AbstractBuild<?, ?> build : buildsAndDocs.keySet()) {
 			NumberOnlyBuildLabel label = new NumberOnlyBuildLabel(build);
-			errorRate = buildsAndDocs.get(build).getErrorRatePercentage();
-			logger.log(Level.FINE, NeoLoadPluginOptions.LOG_PREFIX + "Error rate found for build " + build.number + ": " + errorRate);
+			errorRate = null;
+			try {
+				nlrd = buildsAndDocs.get(build);
+				errorRate = nlrd.getErrorRatePercentage();
+				logger.log(Level.FINE, "Error rate found for build " + build.number + ": " + errorRate);
+			} catch (XPathExpressionException e) {
+				logger.log(Level.FINE, "Error reading error rate from " + nlrd.getDoc().getDocumentURI() + ". " + e.getMessage(), e);
+			}
 
 			if (errorRate != null) {
 				dsb.add(errorRate, "Time", label);
@@ -119,15 +126,20 @@ public class ProjectSpecificAction implements ProminentProjectAction {
 	/** Generates a graph 
 	 * @throws XPathExpressionException
 	 */
-	public Graph getAvgGraph() throws XPathExpressionException {
+	public Graph getAvgGraph() {
 		DataSetBuilder<String, NumberOnlyBuildLabel> dsb = new DataSetBuilder<>();
-		Float avgResponseTime;
+		Float avgResponseTime = null;
+		NeoLoadReportDoc nlrd = null;
 
 		for (AbstractBuild<?, ?> build : buildsAndDocs.keySet()) {
 			NumberOnlyBuildLabel label = new NumberOnlyBuildLabel(build);
-			avgResponseTime = buildsAndDocs.get(build).getAverageResponseTime();
-			logger.log(Level.FINE, NeoLoadPluginOptions.LOG_PREFIX + "Average response time found for build " + 
-					build.number + ": " + avgResponseTime);
+			try {
+				nlrd = buildsAndDocs.get(build);
+				avgResponseTime = nlrd.getAverageResponseTime();
+				logger.log(Level.FINE, "Average response time found for build " + build.number + ": " + avgResponseTime);
+			} catch (XPathExpressionException e) {
+				logger.log(Level.FINE, "Error reading average response time from " + nlrd.getDoc().getDocumentURI() + ". " + e.getMessage(), e);
+			}
 
 			if (avgResponseTime != null) {
 				dsb.add(avgResponseTime, "Time", label);
@@ -157,8 +169,6 @@ public class ProjectSpecificAction implements ProminentProjectAction {
 				// only include successful builds
 				if (build.getResult().isBetterThan(Result.FAILURE)) {
 					newBuildsAndDocs.put(build, doc);
-				} else {
-
 				}
 			}
 		}
