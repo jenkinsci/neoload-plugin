@@ -2,6 +2,13 @@
 	xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
 
 	<f:entry>
-		When selected, a link to the NeoLoad html report will be created for each job run. The report must be included as a build artifact.
+		Note: A link to the NeoLoad html reports will be created for each job run when the report files are included as build artifacts.
 	</f:entry>
+
+	<f:optionalBlock checked="${showTrendAverageResponse}" inline="true"
+		field="showTrendAverageResponse"
+		title="Display Trend Graph: Average Response Time (all pages)" />
+
+	<f:optionalBlock checked="${showTrendErrorRate}" inline="true"
+		field="showTrendErrorRate" title="Display Trend Graph: Error Rate %"  />	
 </j:jelly>

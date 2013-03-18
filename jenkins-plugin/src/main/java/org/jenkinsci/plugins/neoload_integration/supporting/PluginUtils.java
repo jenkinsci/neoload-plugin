@@ -1,12 +1,13 @@
 package org.jenkinsci.plugins.neoload_integration.supporting;
 
 import hudson.model.Action;
-import hudson.model.JobPropertyDescriptor;
 import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
+import hudson.model.Descriptor;
+import hudson.tasks.Publisher;
+import hudson.util.DescribableList;
 
 import java.io.Serializable;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -29,11 +30,11 @@ public class PluginUtils implements Serializable {
     public static NeoLoadPluginOptions getPluginOptions(AbstractProject<?, ?> project) {
 		NeoLoadPluginOptions npo = null;
 
-		// look through all job properties for the correct one
-		Map<JobPropertyDescriptor, ?> props = project.getProperties();
-		for (Object jobProperty: props.values()) {
-			if (jobProperty instanceof NeoLoadPluginOptions) {
-				npo = (NeoLoadPluginOptions) jobProperty;
+		// look through all post build steps for the correct one.
+    	DescribableList<Publisher,Descriptor<Publisher>> pubs = project.getPublishersList();
+		for (Publisher p : pubs) {
+			if (p instanceof NeoLoadPluginOptions) {
+				npo = (NeoLoadPluginOptions) p;
 				break;
 			}
 		}

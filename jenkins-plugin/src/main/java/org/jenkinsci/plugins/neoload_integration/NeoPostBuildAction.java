@@ -10,6 +10,7 @@ import hudson.tasks.BuildStepMonitor;
 import hudson.tasks.Notifier;
 import hudson.tasks.Publisher;
 
+import org.jenkinsci.plugins.neoload_integration.supporting.NeoLoadPluginOptions;
 import org.jenkinsci.plugins.neoload_integration.supporting.PluginUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
 
@@ -18,11 +19,19 @@ import org.kohsuke.stapler.DataBoundConstructor;
  * completed.
  */
 @SuppressWarnings("unchecked")
-public class NeoPostBuildAction extends Notifier {
+public class NeoPostBuildAction extends Notifier implements NeoLoadPluginOptions {
+	
+	/** User option presented in the GUI. Show the average response time. */
+	private final boolean showTrendAverageResponse;
+
+	/** User option presented in the GUI. Show the average response time. */
+	private final boolean showTrendErrorRate;
 	
 	@DataBoundConstructor
-	public NeoPostBuildAction() {
-		// required for jenkins 1.393
+	public NeoPostBuildAction(boolean showTrendAverageResponse, boolean showTrendErrorRate) {
+		// this method and the annotation @DataBoundConstructor are required for jenkins 1.393 even if no params are passed in.
+		this.showTrendAverageResponse = showTrendAverageResponse;
+		this.showTrendErrorRate = showTrendErrorRate;
 	}
 
 	@Override
@@ -44,7 +53,7 @@ public class NeoPostBuildAction extends Notifier {
 		return true;
 	}
 
-	@Extension
+	@Extension(optional = true)
 	public static final class DescriptorImpl extends BuildStepDescriptor<Publisher> {
 
 		public DescriptorImpl() {
@@ -61,6 +70,18 @@ public class NeoPostBuildAction extends Notifier {
 				@SuppressWarnings("rawtypes") Class<? extends AbstractProject> jobType) {
 			return true;
 		}
-
 	}
+	
+
+	/** @return the showTrendAverageResponse */
+	@Override
+	public boolean isShowTrendAverageResponse() {
+		return showTrendAverageResponse;
+	}
+
+	/** @return the showTrendErrorRate */
+	@Override
+	public boolean isShowTrendErrorRate() {
+		return showTrendErrorRate;
+	}	
 }

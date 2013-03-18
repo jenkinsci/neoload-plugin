@@ -29,7 +29,7 @@ public class ProjectSpecificActionFactory extends TransientProjectActionFactory
 		return DESCRIPTOR;
 	}
 
-	@Extension
+	@Extension(optional = true)
 	public static final DescriptorImpl DESCRIPTOR = new DescriptorImpl();
 
     public static final class DescriptorImpl extends Descriptor<ProjectSpecificActionFactory> {
