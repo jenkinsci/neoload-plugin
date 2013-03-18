@@ -86,7 +86,7 @@ public class NeoLoadReportDoc {
 	 * @return
 	 * @throws XPathExpressionException
 	 */
-	public Float getGenericAvgValue(String path, String typeAttributeValue) throws XPathExpressionException {
+	private Float getGenericAvgValue(String path, String typeAttributeValue) throws XPathExpressionException {
 		List<Node> nodes = XMLUtilities.findByExpression(path, doc);
 		Float numVal = null;
 		String val = null;
