@@ -27,6 +27,11 @@ public class NeoResultsActionTest extends TestCase {
 	}
 
 	@Test
+	public void testFileAndContent() {
+		NeoResultsAction.FileAndContent fac = new NeoResultsAction.FileAndContent(null, null, null);
+	}
+	
+	@Test
 	public void testGetBuild() {
 		NeoResultsAction nra = new NeoResultsAction(mo.getAbstractBuild());
 		assertTrue(nra.getBuild() == mo.getAbstractBuild());
