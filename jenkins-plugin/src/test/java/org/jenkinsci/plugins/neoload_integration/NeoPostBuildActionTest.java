@@ -1,12 +1,14 @@
 package org.jenkinsci.plugins.neoload_integration;
 
 import static org.junit.Assert.*;
+import hudson.Launcher;
 import hudson.tasks.BuildStepMonitor;
 import junit.framework.TestCase;
 
 import org.jenkinsci.plugins.neoload_integration.supporting.MockObjects;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 public class NeoPostBuildActionTest extends TestCase {
 	
@@ -25,6 +27,12 @@ public class NeoPostBuildActionTest extends TestCase {
 	@Test
 	public void testNeoPostBuildAction() {
 		NeoPostBuildAction npba = new NeoPostBuildAction(false, false);
+	}
+
+	@Test
+	public void testPerform() {
+		NeoPostBuildAction npba = new NeoPostBuildAction(false, false);
+		npba.perform(mo.getAbstractBuild(), null, null);
 	}
 
 	@Test

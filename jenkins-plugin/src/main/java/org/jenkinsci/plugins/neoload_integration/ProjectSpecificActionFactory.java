@@ -30,11 +30,11 @@ public class ProjectSpecificActionFactory extends TransientProjectActionFactory
 	}
 
 	@Extension(optional = true)
-	public static final DescriptorImpl DESCRIPTOR = new DescriptorImpl();
+	public static final DescriptorImplPSA DESCRIPTOR = new DescriptorImplPSA();
 
-    public static final class DescriptorImpl extends Descriptor<ProjectSpecificActionFactory> {
+    public static final class DescriptorImplPSA extends Descriptor<ProjectSpecificActionFactory> {
 
-		public DescriptorImpl() {
+		public DescriptorImplPSA() {
 		}
 
 		@Override
