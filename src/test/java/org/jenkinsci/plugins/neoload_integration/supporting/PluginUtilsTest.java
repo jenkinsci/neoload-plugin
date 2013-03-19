@@ -31,16 +31,7 @@ import org.mockito.Mockito;
 public class PluginUtilsTest extends TestCase {
 	
 	/** Mock project for testing. */
-	private AbstractProject apWithOptions = null;
-
-	/** Mock project for testing. */
-	private AbstractProject apWithoutOptions = null;
-
-	/** Mock object for testing. */
-	private Publisher publisherWithNeoOptions = mock(Publisher.class, withSettings().extraInterfaces(NeoLoadPluginOptions.class));
-	
-	/** Mock object for testing. */
-	private AbstractBuild abstractBuild = null;
+	private MockObjects mo = null;
 
 	/**
 	 * @throws java.lang.Exception
@@ -48,35 +39,7 @@ public class PluginUtilsTest extends TestCase {
 	@Override
 	@Before
 	public void setUp() throws Exception {
-		// ap without options
-		List<Publisher> publishersWithoutNeoOptions = new ArrayList<>();
-		publishersWithoutNeoOptions.add(mock(Publisher.class));
-		publishersWithoutNeoOptions.add(mock(Publisher.class));
-		publishersWithoutNeoOptions.add(mock(Publisher.class));
-		
-		DescribableList describableListWithoutNeoOptions = mock(DescribableList.class);
-		when(describableListWithoutNeoOptions.iterator()).thenReturn(publishersWithoutNeoOptions.iterator());
-		
-		apWithoutOptions = mock(AbstractProject.class, "AbstractProject no plugin options");
-		when(apWithoutOptions.getPublishersList()).thenReturn(describableListWithoutNeoOptions);
-		when(apWithoutOptions.getDisplayName()).thenReturn("projectNameAPWithoutOptions");
-		
-		// ap with options
-		List<Publisher> publishersWithNeoOptions = new ArrayList<>();
-		publishersWithNeoOptions.addAll(publishersWithoutNeoOptions);
-		publishersWithNeoOptions.add(publisherWithNeoOptions);
-
-		DescribableList describableListWithNeoOptions = mock(DescribableList.class);
-		when(describableListWithNeoOptions.iterator()).thenReturn(publishersWithNeoOptions.iterator());
-
-		apWithOptions = mock(AbstractProject.class, "AbstractProject with plugin options");
-		when(apWithOptions.getPublishersList()).thenReturn(describableListWithNeoOptions);
-		when(apWithOptions.getDisplayName()).thenReturn("projectNameAPWithOptions");
-		
-		// abstract build
-		abstractBuild = mock(AbstractBuild.class);
-		when(abstractBuild.getProject()).thenReturn(apWithOptions);
-
+		mo = new MockObjects();
 	}
 	
 	/**
@@ -84,11 +47,11 @@ public class PluginUtilsTest extends TestCase {
 	 */
 	@Test
 	public void testGetPluginOptions() {
-		NeoLoadPluginOptions npo = PluginUtils.getPluginOptions(apWithoutOptions);
+		NeoLoadPluginOptions npo = PluginUtils.getPluginOptions(mo.getApWithoutOptions());
 		assertTrue(npo == null);
 		
-		npo = PluginUtils.getPluginOptions(apWithOptions);
-		assertTrue(npo == publisherWithNeoOptions);
+		npo = PluginUtils.getPluginOptions(mo.getApWithOptions());
+		assertTrue(npo == mo.getPublisherWithNeoOptions());
 	}
 
 	/**
@@ -101,6 +64,7 @@ public class PluginUtilsTest extends TestCase {
 		actions.add(mock(Action.class));
 		actions.add(mock(Action.class));
 		
+		AbstractBuild abstractBuild = mo.getAbstractBuild();
 		when(abstractBuild.getActions()).thenReturn(actions);
 		
 		ArgumentCaptor<Action> argument = ArgumentCaptor.forClass(Action.class);
@@ -122,6 +86,7 @@ public class PluginUtilsTest extends TestCase {
 		actions.add(mock(Action.class));
 		actions.add(mock(NeoResultsAction.class));
 		
+		AbstractBuild abstractBuild = mo.getAbstractBuild();
 		when(abstractBuild.getActions()).thenReturn(actions);
 		
 		PluginUtils.addActionIfNotExists(abstractBuild);

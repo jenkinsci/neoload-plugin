@@ -132,7 +132,7 @@ public class NeoResultsAction implements Action {
 	 * @param ac
 	 * @throws IOException
 	 */
-	protected static void applySpecialFormatting(FileAndContent ac) {
+	private static void applySpecialFormatting(FileAndContent ac) {
 		try {
 			// adjust the content
 			ac.content = ac.content.replaceAll(Matcher.quoteReplacement("id=\"menu\""), "id=\"menu\" style='overflow-x: hidden;' ");
