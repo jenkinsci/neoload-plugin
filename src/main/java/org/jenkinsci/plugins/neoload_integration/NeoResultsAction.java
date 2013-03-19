@@ -41,7 +41,7 @@ public class NeoResultsAction implements Action {
 	}
 	
 	/** For storing artifact data. */
-	private static class FileAndContent {
+	static class FileAndContent {
 		/** Artifact data. */
 		private File file = null;
 
