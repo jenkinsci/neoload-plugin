@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
@@ -99,7 +101,18 @@ public class NeoLoadReportDoc {
 				// this is the correct node. get the avg response time value.
 				val = XMLUtilities.findFirstValueByExpression("@avg", searchNode);
 				val = val.replaceAll(",", ".").replaceAll(" ", ""); // remove spaces etc
-				numVal = Float.valueOf(val);
+				val = val.replaceAll(Pattern.quote("%"), ""); // special case for percentages
+				val = val.replaceAll(Pattern.quote("+"), ""); // special case for percentages
+				if ("<0.01".equals(val)) { // special case for less than 0.01%
+					numVal = 0f;
+				} else {
+					try {
+						numVal = Float.valueOf(val);
+					} catch (Exception e) {
+						// we couldn't convert the result to an actual number so the value will not be included.
+						// this could be +INF, -INF, " - ", NaN, etc. See com.neotys.nl.util.FormatUtils.java, getTextNumber().
+					}
+				}
 			}
 		}
 

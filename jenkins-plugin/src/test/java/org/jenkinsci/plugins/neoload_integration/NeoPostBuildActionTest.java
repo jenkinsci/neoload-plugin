@@ -23,10 +23,17 @@ public class NeoPostBuildActionTest extends TestCase {
 	public void setUp() throws Exception {
 		mo = new MockObjects();
 	}
-
+	
 	@Test
 	public void testNeoPostBuildAction() {
 		NeoPostBuildAction npba = new NeoPostBuildAction(false, false);
+	}
+
+	@Test
+	public void testNeoPostBuildActionDescriptorImpl() {
+		NeoPostBuildAction.DescriptorImpl di = new NeoPostBuildAction.DescriptorImpl();
+		di.getDisplayName();
+		di.isApplicable(null);
 	}
 
 	@Test

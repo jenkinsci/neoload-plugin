@@ -9,6 +9,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import junit.framework.TestCase;
@@ -17,6 +18,7 @@ import org.jenkinsci.plugins.neoload_integration.supporting.MockObjects;
 import org.jenkinsci.plugins.neoload_integration.supporting.ZipUtils;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 public class NeoResultsActionTest extends TestCase {
 	
@@ -45,7 +47,9 @@ public class NeoResultsActionTest extends TestCase {
 
 	@Test
 	public void testGetHtmlReportFilePath() throws FileNotFoundException, IOException {
-		NeoResultsAction nra = new NeoResultsAction(mo.getAbstractBuild());
+		AbstractBuild ab = mo.getAbstractBuild();
+		Mockito.when(ab.getArtifacts()).thenReturn(Collections.EMPTY_LIST);
+		NeoResultsAction nra = new NeoResultsAction(ab);
 		assertTrue(nra.getHtmlReportFilePath() == null);
 		
 		assertTrue(nra.getDisplayName() == null);
@@ -57,37 +61,33 @@ public class NeoResultsActionTest extends TestCase {
 	public void testGetHtmlReportFilePath2() throws FileNotFoundException, IOException {
 		AbstractBuild ab = mo.getAbstractBuild();
 		NeoResultsAction nra = new NeoResultsAction(ab);
-		List<Artifact> artifacts = new ArrayList<>();
-		artifacts.add(mo.getArtifact());
-		when(ab.getArtifacts()).thenReturn(artifacts);
-		
-		// create new test files
-		URL url = MockObjects.class.getResource("neoload-report.zip");
-		ZipUtils.unzip(url.getFile(), new File(url.getFile()).getParent());
-		assertTrue(mo.getArtifact().getHref().equals(nra.getHtmlReportFilePath()));
 		
 		assertTrue(nra.getDisplayName() != null);
 		assertTrue(nra.getUrlName() != null);
 		assertTrue(nra.getIconFileName() != null);
-		
-		assertTrue(mo.getArtifact().getHref().equals(nra.getHtmlReportFilePath()));
 	}
 
 	@Test
 	public void testGetDisplayName() {
-		NeoResultsAction nra = new NeoResultsAction(mo.getAbstractBuild());
+		AbstractBuild ab = mo.getAbstractBuild();
+		Mockito.when(ab.getArtifacts()).thenReturn(Collections.EMPTY_LIST);
+		NeoResultsAction nra = new NeoResultsAction(ab);
 		assertTrue(nra.getDisplayName() == null);
 	}
 
 	@Test
 	public void testGetIconFileName() {
-		NeoResultsAction nra = new NeoResultsAction(mo.getAbstractBuild());
+		AbstractBuild ab = mo.getAbstractBuild();
+		Mockito.when(ab.getArtifacts()).thenReturn(Collections.EMPTY_LIST);
+		NeoResultsAction nra = new NeoResultsAction(ab);
 		assertTrue(nra.getIconFileName() == null);
 	}
 
 	@Test
 	public void testGetUrlName() {
-		NeoResultsAction nra = new NeoResultsAction(mo.getAbstractBuild());
+		AbstractBuild ab = mo.getAbstractBuild();
+		Mockito.when(ab.getArtifacts()).thenReturn(Collections.EMPTY_LIST);
+		NeoResultsAction nra = new NeoResultsAction(ab);
 		assertTrue(nra.getUrlName() == null);
 	}
 

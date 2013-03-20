@@ -5,6 +5,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -14,10 +16,12 @@ public class ZipUtils {
 	/** Unzip the file to the specified directory.
 	 * @param zipFile
 	 * @param outputFolder
+	 * @return a list of the files that were unzipped
 	 * @throws FileNotFoundException
 	 * @throws IOException
 	 */
-	public static void unzip(String zipFile, String outputFolder) throws FileNotFoundException, IOException {
+	public static List<File> unzip(String zipFile, String outputFolder) throws FileNotFoundException, IOException {
+		List<File> unzippedFiles = new ArrayList<>();
 		try (ZipInputStream zis = new ZipInputStream(new FileInputStream(zipFile))) { // read the zip file
 			new File(outputFolder).mkdirs(); // create output directory
 			ZipEntry zipEntry = zis.getNextEntry();
@@ -38,10 +42,13 @@ public class ZipUtils {
 							fos.write(buffer, 0, len);
 						}
 					}
+					unzippedFiles.add(newFile);
 				}
 				zipEntry = zis.getNextEntry(); // next entry in the zip file
 			}
 		}
 		// done
+		
+		return unzippedFiles;
 	}
 }
