@@ -24,6 +24,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Matchers;
 import org.mockito.Mockito;
 
+import com.neotys.tools.unittest.UnitTests;
+
 /**
  * @author ajohnson
  *
@@ -40,6 +42,11 @@ public class PluginUtilsTest extends TestCase {
 	@Before
 	public void setUp() throws Exception {
 		mo = new MockObjects();
+	}
+	
+	@Test
+	public void testPluginUtils() throws ReflectiveOperationException {
+		UnitTests.assertIsNotInstantiable(PluginUtils.class);
 	}
 	
 	/**

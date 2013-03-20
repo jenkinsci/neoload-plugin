@@ -21,6 +21,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
+import com.neotys.tools.unittest.UnitTests;
+
 /**
  * @author ajohnson
  *
@@ -43,6 +45,11 @@ public class XMLUtilitiesTest extends TestCase {
 		super.setUp();
 		url = this.getClass().getResource("books.xml");
 		d = XMLUtilities.readXmlFile(url.getFile());
+	}
+	
+	@Test
+	public void testXMLUtilities() throws ReflectiveOperationException {
+		UnitTests.assertIsNotInstantiable(XMLUtilities.class);
 	}
 
 	/**
@@ -82,8 +89,9 @@ public class XMLUtilitiesTest extends TestCase {
 	 * @throws ParserConfigurationException 
 	 */
 	@Test
-	public void testFindFirstByExpression() throws XPathExpressionException {
+	public void testFindFirstByExpression() throws XPathExpressionException, ParserConfigurationException, SAXException, IOException {
 		assertTrue("Everyday Italian".equals(XMLUtilities.findFirstByExpression("/bookstore/book/title", d).getTextContent()));
+		assertTrue(XMLUtilities.findFirstByExpression("/bookstore/book/title", XMLUtilities.createNodeFromText("<empty></empty>")) == null);
 	}
 
 	/**
@@ -95,8 +103,10 @@ public class XMLUtilitiesTest extends TestCase {
 	 * @throws DOMException 
 	 */
 	@Test
-	public void testFindFirstValueByExpression() throws XPathExpressionException {
+	public void testFindFirstValueByExpression() throws XPathExpressionException, ParserConfigurationException, SAXException, IOException {
 		assertTrue("en".equals(XMLUtilities.findFirstValueByExpression("/bookstore/book/title/@lang", d)));
+		assertTrue(XMLUtilities.findFirstValueByExpression("/bookstore/book/title", 
+				XMLUtilities.createNodeFromText("<empty></empty>")) == null);
 	}
 
 	/**

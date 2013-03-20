@@ -38,6 +38,11 @@ public class XMLUtilities {
 	/** Used for XPATH expressions. */
 	private static final XPath XPATH = XPATHFACTORY.newXPath();
 
+	/** Utility classes are not intended to be instantiated. */
+	private XMLUtilities() {
+		throw new IllegalAccessError();
+	}
+	
 	/** Create an xml Node using the passed in text. Use getOwnerDocument() to get the document. 
 	 * @param xmlText
 	 * @return
