@@ -1,9 +1,20 @@
 package org.jenkinsci.plugins.neoload_integration;
 
-import static org.junit.Assert.fail;
+import static org.mockito.Mockito.when;
+import hudson.model.AbstractBuild;
+import hudson.model.Run.Artifact;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+
 import junit.framework.TestCase;
 
 import org.jenkinsci.plugins.neoload_integration.supporting.MockObjects;
+import org.jenkinsci.plugins.neoload_integration.supporting.ZipUtils;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -11,7 +22,7 @@ public class NeoResultsActionTest extends TestCase {
 	
 	/** Mock project for testing. */
 	private MockObjects mo = null;
-
+	
 	/**
 	 * @throws java.lang.Exception
 	 */
@@ -25,11 +36,6 @@ public class NeoResultsActionTest extends TestCase {
 	public void testNeoResultsAction() {
 		NeoResultsAction nra = new NeoResultsAction(mo.getAbstractBuild());
 	}
-
-	@Test
-	public void testFileAndContent() {
-		NeoResultsAction.FileAndContent fac = new NeoResultsAction.FileAndContent(null, null, null);
-	}
 	
 	@Test
 	public void testGetBuild() {
@@ -38,9 +44,33 @@ public class NeoResultsActionTest extends TestCase {
 	}
 
 	@Test
-	public void testGetHtmlReportFilePath() {
+	public void testGetHtmlReportFilePath() throws FileNotFoundException, IOException {
 		NeoResultsAction nra = new NeoResultsAction(mo.getAbstractBuild());
 		assertTrue(nra.getHtmlReportFilePath() == null);
+		
+		assertTrue(nra.getDisplayName() == null);
+		assertTrue(nra.getUrlName() == null);
+		assertTrue(nra.getIconFileName() == null);
+	}
+
+	@Test
+	public void testGetHtmlReportFilePath2() throws FileNotFoundException, IOException {
+		AbstractBuild ab = mo.getAbstractBuild();
+		NeoResultsAction nra = new NeoResultsAction(ab);
+		List<Artifact> artifacts = new ArrayList<>();
+		artifacts.add(mo.getArtifact());
+		when(ab.getArtifacts()).thenReturn(artifacts);
+		
+		// create new test files
+		URL url = MockObjects.class.getResource("neoload-report.zip");
+		ZipUtils.unzip(url.getFile(), new File(url.getFile()).getParent());
+		assertTrue(mo.getArtifact().getHref().equals(nra.getHtmlReportFilePath()));
+		
+		assertTrue(nra.getDisplayName() != null);
+		assertTrue(nra.getUrlName() != null);
+		assertTrue(nra.getIconFileName() != null);
+		
+		assertTrue(mo.getArtifact().getHref().equals(nra.getHtmlReportFilePath()));
 	}
 
 	@Test
