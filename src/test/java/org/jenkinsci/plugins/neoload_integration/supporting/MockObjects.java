@@ -3,15 +3,24 @@ package org.jenkinsci.plugins.neoload_integration.supporting;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.withSettings;
+import hudson.model.AbstractBuild;
+import hudson.model.AbstractProject;
+import hudson.model.Run;
+import hudson.model.Run.Artifact;
+import hudson.tasks.Publisher;
+import hudson.tasks.ArtifactArchiver;
+import hudson.util.DescribableList;
+import hudson.util.RunList;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-import hudson.model.AbstractBuild;
-import hudson.model.AbstractProject;
-import hudson.tasks.Publisher;
-import hudson.util.DescribableList;
-import hudson.util.RunList;
+import org.codehaus.plexus.util.FileUtils;
+import org.jenkinsci.plugins.neoload_integration.NeoResultsAction;
 
 public class MockObjects {
 	
@@ -26,9 +35,14 @@ public class MockObjects {
 	
 	/** Mock object for testing. */
 	private AbstractBuild abstractBuild = null;
+	
+	/** Mock object for testing. */
+	private Artifact artifact = null;
 
-	/** Constructor. */
-	public MockObjects() {
+	/** Constructor. 
+	 * @throws IOException 
+	 * @throws FileNotFoundException */
+	public MockObjects() throws FileNotFoundException, IOException {
 		// abstract project without options
 		List<Publisher> publishersWithoutNeoOptions = new ArrayList<>();
 		publishersWithoutNeoOptions.add(mock(Publisher.class));
@@ -66,6 +80,21 @@ public class MockObjects {
 		rl.add(abstractBuild);
 		when(apWithOptions.getBuilds()).thenReturn(rl);
 		when(apWithoutOptions.getBuilds()).thenReturn(rl);
+		
+		// artifact
+		artifact = mock(Artifact.class);
+		
+		// create new test files
+		URL url = MockObjects.class.getResource("neoload-report.zip");
+		ZipUtils.unzip(url.getFile(), new File(url.getFile()).getParent());
+		
+		// add artifact to build.getArtifacts
+		// add artifact.getFileName, artifact.getFile, artifact.getHref
+		url = this.getClass().getResource("myReport.html");
+		File f = new File(url.getFile());
+		when(artifact.getFile()).thenReturn(f);
+		when(artifact.getFileName()).thenReturn(f.getName());
+		when(artifact.getHref()).thenReturn("http://href.url");
 	}
 
 	/** @return the apWithOptions */
@@ -106,6 +135,16 @@ public class MockObjects {
 	/** @param abstractBuild the abstractBuild to set */
 	public void setAbstractBuild(AbstractBuild abstractBuild) {
 		this.abstractBuild = abstractBuild;
+	}
+
+	/** @return the artifact */
+	public Artifact getArtifact() {
+		return artifact;
+	}
+
+	/** @param artifact the artifact to set */
+	public void setArtifact(Artifact artifact) {
+		this.artifact = artifact;
 	}
 
 
