@@ -5,6 +5,7 @@ import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.withSettings;
 import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
+import hudson.model.Result;
 import hudson.model.Run;
 import hudson.model.Run.Artifact;
 import hudson.tasks.Publisher;
@@ -21,6 +22,7 @@ import java.util.List;
 
 import org.codehaus.plexus.util.FileUtils;
 import org.jenkinsci.plugins.neoload_integration.NeoResultsAction;
+import org.mockito.Mockito;
 
 public class MockObjects {
 	
@@ -37,7 +39,7 @@ public class MockObjects {
 	private AbstractBuild abstractBuild = null;
 	
 	/** Mock object for testing. */
-	private Artifact artifact = null;
+	private List<Artifact> artifacts = null;
 
 	/** Constructor. 
 	 * @throws IOException 
@@ -75,26 +77,42 @@ public class MockObjects {
 		// abstract build
 		abstractBuild = mock(AbstractBuild.class);
 		when(abstractBuild.getProject()).thenReturn(apWithOptions);
-		
+		when(abstractBuild.getResult()).thenReturn(Result.SUCCESS);
+
+		// add artifact to build.getArtifacts
+		List<Artifact> artifacts = createArtifacts();
+		when(abstractBuild.getArtifacts()).thenReturn(artifacts);
+
 		RunList rl = new RunList<>();
 		rl.add(abstractBuild);
 		when(apWithOptions.getBuilds()).thenReturn(rl);
 		when(apWithoutOptions.getBuilds()).thenReturn(rl);
-		
-		// artifact
-		artifact = mock(Artifact.class);
-		
+	}
+
+	/** Create artifacts out of all files in the zip file.
+	 * @return
+	 * @throws FileNotFoundException
+	 * @throws IOException
+	 */
+	private List<Artifact> createArtifacts() throws FileNotFoundException, IOException {
 		// create new test files
 		URL url = MockObjects.class.getResource("neoload-report.zip");
-		ZipUtils.unzip(url.getFile(), new File(url.getFile()).getParent());
+		List<File> createdFiles = ZipUtils.unzip(url.getFile(), new File(url.getFile()).getParent());
+		Artifact a = null;
+		List<Artifact> artifacts = new ArrayList<>(createdFiles.size());
 		
-		// add artifact to build.getArtifacts
-		// add artifact.getFileName, artifact.getFile, artifact.getHref
-		url = this.getClass().getResource("myReport.html");
-		File f = new File(url.getFile());
-		when(artifact.getFile()).thenReturn(f);
-		when(artifact.getFileName()).thenReturn(f.getName());
-		when(artifact.getHref()).thenReturn("http://href.url");
+		for (File f: createdFiles) {
+			a = mock(Artifact.class);
+		
+			// add artifact.getFileName, artifact.getFile, artifact.getHref
+			when(a.getFile()).thenReturn(f);
+			when(a.getFileName()).thenReturn(f.getName());
+			when(a.getHref()).thenReturn("http://href.url/" + f.getName());
+			
+			artifacts.add(a);
+		}
+		
+		return artifacts;
 	}
 
 	/** @return the apWithOptions */
@@ -137,15 +155,14 @@ public class MockObjects {
 		this.abstractBuild = abstractBuild;
 	}
 
-	/** @return the artifact */
-	public Artifact getArtifact() {
-		return artifact;
+	/** @return the artifacts */
+	public List<Artifact> getArtifacts() {
+		return artifacts;
 	}
 
-	/** @param artifact the artifact to set */
-	public void setArtifact(Artifact artifact) {
-		this.artifact = artifact;
+	/** @param artifacts the artifacts to set */
+	public void setArtifacts(List<Artifact> artifacts) {
+		this.artifacts = artifacts;
 	}
-
 
 }
