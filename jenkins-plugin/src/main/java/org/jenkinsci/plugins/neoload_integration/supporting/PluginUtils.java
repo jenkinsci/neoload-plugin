@@ -15,9 +15,9 @@ import org.jenkinsci.plugins.neoload_integration.NeoResultsAction;
 
 public class PluginUtils implements Serializable {
 	
-	/** "Utility classes should not have public constructors" according to findbugs. */
+	/** Utility classes are not intended to be instantiated. */
 	private PluginUtils() {
-		super();
+		throw new IllegalAccessError();
 	}
 	
 	/** Log various messages. */
