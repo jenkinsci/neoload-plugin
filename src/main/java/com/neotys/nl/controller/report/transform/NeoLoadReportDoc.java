@@ -62,7 +62,6 @@ public class NeoLoadReportDoc {
 
 		if ((nodes == null) || (nodes.size() == 0)) {
 			return false;
-
 		}
 
 		return true;

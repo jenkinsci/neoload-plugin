@@ -11,7 +11,6 @@ import hudson.tasks.Notifier;
 import hudson.tasks.Publisher;
 
 import org.jenkinsci.plugins.neoload_integration.supporting.NeoLoadPluginOptions;
-import org.jenkinsci.plugins.neoload_integration.supporting.PluginUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 /**
@@ -41,12 +40,12 @@ public class NeoPostBuildAction extends Notifier implements NeoLoadPluginOptions
 
 	@Override
 	public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) {
-		PluginUtils.addActionIfNotExists(build);
+		NeoResultsAction.addActionIfNotExists(build);
 
 		// look at all builds to see if we can add a report link
 		for (Object o : build.getProject().getBuilds()) {
 			if (o instanceof AbstractBuild) {
-				PluginUtils.addActionIfNotExists((AbstractBuild<?, ?>) o);
+				NeoResultsAction.addActionIfNotExists((AbstractBuild<?, ?>) o);
 			}
 		}
 

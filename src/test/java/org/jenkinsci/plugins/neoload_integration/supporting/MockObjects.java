@@ -3,13 +3,11 @@ package org.jenkinsci.plugins.neoload_integration.supporting;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.withSettings;
+import hudson.model.Result;
 import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
-import hudson.model.Result;
-import hudson.model.Run;
 import hudson.model.Run.Artifact;
 import hudson.tasks.Publisher;
-import hudson.tasks.ArtifactArchiver;
 import hudson.util.DescribableList;
 import hudson.util.RunList;
 
@@ -19,10 +17,6 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.codehaus.plexus.util.FileUtils;
-import org.jenkinsci.plugins.neoload_integration.NeoResultsAction;
-import org.mockito.Mockito;
 
 public class MockObjects {
 	
