@@ -169,7 +169,7 @@ public class NeoResultsAction implements Action {
 
 			// find the menu.html
 			String temp = ac.content.substring(ac.content.indexOf("src=\"") + 5);
-			temp = temp.substring(0, temp.indexOf("\""));
+			temp = temp.substring(0, temp.indexOf('\"'));
 			String menuLink = ac.file.getParent() + File.separatorChar + temp;
 			String menuContent = FileUtils.fileRead(menuLink);
 			menuContent = menuContent.replace(Matcher.quoteReplacement("body {"), "body {\noverflow-x: hidden;");

@@ -7,7 +7,7 @@ import hudson.util.DescribableList;
 
 import java.io.Serializable;
 
-public class PluginUtils implements Serializable {
+public final class PluginUtils implements Serializable {
 	
 	/** Utility classes are not intended to be instantiated. */
 	private PluginUtils() {
