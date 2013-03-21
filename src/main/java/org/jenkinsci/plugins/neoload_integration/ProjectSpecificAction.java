@@ -50,6 +50,33 @@ public class ProjectSpecificAction implements ProminentProjectAction {
 	public String getUrlName() {
 		return "neoload";
 	}
+	
+	/** Find data to graph. */
+	public void refreshGraphData() {
+		try {
+			NeoLoadReportDoc doc = null;
+			Map<AbstractBuild<?, ?>, NeoLoadReportDoc> newBuildsAndDocs = new LinkedHashMap<>();
+
+			for (AbstractBuild<?, ?> build : project.getBuilds()) {
+				doc = findXMLResultsFile(build);
+
+				// if the correct file was found
+				if (doc != null) {
+					// only include successful builds
+					if (build.getResult().isBetterThan(Result.FAILURE)) {
+						newBuildsAndDocs.put(build, doc);
+					}
+				}
+			}
+
+			// switch out the data for the new view
+			Map<AbstractBuild<?, ?>, NeoLoadReportDoc> oldBuildsAndDocs = buildsAndDocs;
+			buildsAndDocs = newBuildsAndDocs;
+			oldBuildsAndDocs.clear();
+		} catch (XPathExpressionException | ParserConfigurationException | SAXException | IOException e) {
+			logger.log(Level.SEVERE, "Error finding NeoLoad xml results. " + e.getMessage(), e);
+		}
+	}
 
 	/**
 	 * @return true if we should show the graph
@@ -83,12 +110,6 @@ public class ProjectSpecificAction implements ProminentProjectAction {
 	 * @throws ParserConfigurationException
 	 */
 	public boolean graphDataExists() {
-		try {
-			findNeoLoadXMLResults();
-		} catch (XPathExpressionException | ParserConfigurationException | SAXException | IOException e) {
-			logger.log(Level.SEVERE, "Error finding NeoLoad xml results. " + e.getMessage(), e);
-		}
-
 		// there must be at least two results to create the graph
 		return buildsAndDocs.size() > 1;
 	}
@@ -147,34 +168,6 @@ public class ProjectSpecificAction implements ProminentProjectAction {
 
 		// color from ColorTable.java
 		return new NeoLoadGraph(dsb.build(), "Avg Resp Time (secs)", new Color(237, 184, 0));
-	}
-
-	/**
-	 * @throws XPathExpressionException
-	 * @throws IOException
-	 * @throws SAXException
-	 * @throws ParserConfigurationException
-	 */
-	private void findNeoLoadXMLResults() throws XPathExpressionException, ParserConfigurationException, SAXException, IOException {
-		NeoLoadReportDoc doc = null;
-		Map<AbstractBuild<?, ?>, NeoLoadReportDoc> newBuildsAndDocs = new LinkedHashMap<>();
-
-		for (AbstractBuild<?, ?> build : project.getBuilds()) {
-			doc = findXMLResultsFile(build);
-
-			// if the correct file was found
-			if (doc != null) {
-				// only include successful builds
-				if (build.getResult().isBetterThan(Result.FAILURE)) {
-					newBuildsAndDocs.put(build, doc);
-				}
-			}
-		}
-
-		// switch out the data for the new view
-		Map<AbstractBuild<?, ?>, NeoLoadReportDoc> oldBuildsAndDocs = buildsAndDocs;
-		buildsAndDocs = newBuildsAndDocs;
-		oldBuildsAndDocs.clear();
 	}
 
 	/**
