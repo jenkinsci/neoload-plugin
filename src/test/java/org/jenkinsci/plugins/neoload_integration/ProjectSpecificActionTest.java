@@ -90,7 +90,7 @@ public class ProjectSpecificActionTest extends TestCase {
 		Mockito.when(ap.getBuilds()).thenReturn(rl);
 
 		ProjectSpecificAction psa = new ProjectSpecificAction(ap);
-		psa.graphDataExists();
+		psa.refreshGraphData();
 		Graph g = psa.getErrGraph();
 		assertTrue(g != null);
 	}
@@ -107,7 +107,7 @@ public class ProjectSpecificActionTest extends TestCase {
 		Mockito.when(ap.getBuilds()).thenReturn(rl);
 
 		ProjectSpecificAction psa = new ProjectSpecificAction(ap);
-		psa.graphDataExists();
+		psa.refreshGraphData();
 		Graph g = psa.getAvgGraph();
 		assertTrue(g != null);
 	}
