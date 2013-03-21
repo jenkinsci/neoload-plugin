@@ -26,6 +26,15 @@
 				</configuration>
 			</plugin>
 
+			<plugin>
+				<extensions>true</extensions>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-deploy-plugin</artifactId>
+				<configuration>
+					<skip>true</skip> <!-- remove this line to deploy remotely -->
+				</configuration>
+			</plugin>
+
 		</plugins>
 		<pluginManagement>
 			<plugins>
@@ -177,6 +186,7 @@
 								</sources>
 							</configuration>
 						</execution>
+
 					</executions>
 				</plugin>
 			</plugins>
