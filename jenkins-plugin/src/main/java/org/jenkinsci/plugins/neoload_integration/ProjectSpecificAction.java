@@ -37,10 +37,11 @@ public class ProjectSpecificAction implements ProminentProjectAction {
 	private Map<AbstractBuild<?, ?>, NeoLoadReportDoc> buildsAndDocs = new LinkedHashMap<>();
 
 	/** Log various messages. */
-	private static Logger logger = Logger.getLogger(ProjectSpecificAction.class.getName());
+	private static final Logger LOGGER = Logger.getLogger(ProjectSpecificAction.class.getName());
 
 	public ProjectSpecificAction(AbstractProject<?, ?> project) {
 		this.project = project;
+		refreshGraphData();
 	}
 
     /** This corresponds to the url of the image files displayed on the job page.
@@ -74,7 +75,7 @@ public class ProjectSpecificAction implements ProminentProjectAction {
 			buildsAndDocs = newBuildsAndDocs;
 			oldBuildsAndDocs.clear();
 		} catch (XPathExpressionException | ParserConfigurationException | SAXException | IOException e) {
-			logger.log(Level.SEVERE, "Error finding NeoLoad xml results. " + e.getMessage(), e);
+			LOGGER.log(Level.SEVERE, "Error finding NeoLoad xml results. " + e.getMessage(), e);
 		}
 	}
 
@@ -129,9 +130,9 @@ public class ProjectSpecificAction implements ProminentProjectAction {
 			try {
 				nlrd = buildsAndDocs.get(build);
 				errorRate = nlrd.getErrorRatePercentage();
-				logger.log(Level.FINE, "Error rate found for build " + build.number + ": " + errorRate);
+				LOGGER.log(Level.FINE, "Error rate found for build " + build.number + ": " + errorRate);
 			} catch (XPathExpressionException e) {
-				logger.log(Level.FINE, "Error reading error rate from " + nlrd.getDoc().getDocumentURI() + ". " + e.getMessage(), e);
+				LOGGER.log(Level.FINE, "Error reading error rate from " + nlrd.getDoc().getDocumentURI() + ". " + e.getMessage(), e);
 			}
 
 			if (errorRate != null) {
@@ -156,9 +157,9 @@ public class ProjectSpecificAction implements ProminentProjectAction {
 			try {
 				nlrd = buildsAndDocs.get(build);
 				avgResponseTime = nlrd.getAverageResponseTime();
-				logger.log(Level.FINE, "Average response time found for build " + build.number + ": " + avgResponseTime);
+				LOGGER.log(Level.FINE, "Average response time found for build " + build.number + ": " + avgResponseTime);
 			} catch (XPathExpressionException e) {
-				logger.log(Level.FINE, "Error reading average response time from " + nlrd.getDoc().getDocumentURI() + ". " + e.getMessage(), e);
+				LOGGER.log(Level.FINE, "Error reading average response time from " + nlrd.getDoc().getDocumentURI() + ". " + e.getMessage(), e);
 			}
 
 			if (avgResponseTime != null) {

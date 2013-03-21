@@ -1,13 +1,10 @@
 package org.jenkinsci.plugins.neoload_integration;
 
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import hudson.model.Action;
 import hudson.model.AbstractBuild;
-import hudson.model.Run.Artifact;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -15,9 +12,10 @@ import java.util.List;
 import junit.framework.TestCase;
 
 import org.jenkinsci.plugins.neoload_integration.supporting.MockObjects;
-import org.jenkinsci.plugins.neoload_integration.supporting.ZipUtils;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Matchers;
 import org.mockito.Mockito;
 
 public class NeoResultsActionTest extends TestCase {
@@ -36,6 +34,7 @@ public class NeoResultsActionTest extends TestCase {
 
 	@Test
 	public void testNeoResultsAction() {
+		@SuppressWarnings("unused")
 		NeoResultsAction nra = new NeoResultsAction(mo.getAbstractBuild());
 	}
 	
@@ -46,7 +45,7 @@ public class NeoResultsActionTest extends TestCase {
 	}
 
 	@Test
-	public void testGetHtmlReportFilePath() throws FileNotFoundException, IOException {
+	public void testGetHtmlReportFilePath() {
 		AbstractBuild ab = mo.getAbstractBuild();
 		Mockito.when(ab.getArtifacts()).thenReturn(Collections.EMPTY_LIST);
 		NeoResultsAction nra = new NeoResultsAction(ab);
@@ -58,7 +57,7 @@ public class NeoResultsActionTest extends TestCase {
 	}
 
 	@Test
-	public void testGetHtmlReportFilePath2() throws FileNotFoundException, IOException {
+	public void testGetHtmlReportFilePath2() {
 		AbstractBuild ab = mo.getAbstractBuild();
 		NeoResultsAction nra = new NeoResultsAction(ab);
 		
@@ -89,6 +88,46 @@ public class NeoResultsActionTest extends TestCase {
 		Mockito.when(ab.getArtifacts()).thenReturn(Collections.EMPTY_LIST);
 		NeoResultsAction nra = new NeoResultsAction(ab);
 		assertTrue(nra.getUrlName() == null);
+	}
+	
+	/**
+	 * Test method for {@link org.jenkinsci.plugins.neoload_integration.supporting.PluginUtils#addActionIfNotExists(hudson.model.AbstractBuild)}.
+	 */
+	@Test
+	public void testAddActionIfNotExists() {
+		List<Action> actions = new ArrayList<>();
+		actions.add(mock(Action.class));
+		actions.add(mock(Action.class));
+		actions.add(mock(Action.class));
+		
+		AbstractBuild abstractBuild = mo.getAbstractBuild();
+		when(abstractBuild.getActions()).thenReturn(actions);
+		
+		ArgumentCaptor<Action> argument = ArgumentCaptor.forClass(Action.class);
+		
+		NeoResultsAction.addActionIfNotExists(abstractBuild);
+
+		Mockito.verify(abstractBuild).addAction(argument.capture());
+		assertTrue(argument.getValue() instanceof NeoResultsAction);
+	}
+
+	/**
+	 * Test method for {@link org.jenkinsci.plugins.neoload_integration.supporting.PluginUtils#addActionIfNotExists(hudson.model.AbstractBuild)}.
+	 */
+	@Test
+	public void testAddActionIfNotExistsDontAdd() {
+		List<Action> actions = new ArrayList<>();
+		actions.add(mock(Action.class));
+		actions.add(mock(Action.class));
+		actions.add(mock(Action.class));
+		actions.add(mock(NeoResultsAction.class));
+		
+		AbstractBuild abstractBuild = mo.getAbstractBuild();
+		when(abstractBuild.getActions()).thenReturn(actions);
+		
+		NeoResultsAction.addActionIfNotExists(abstractBuild);
+
+		Mockito.verify(abstractBuild, Mockito.never()).addAction((Action) Matchers.any());
 	}
 
 }

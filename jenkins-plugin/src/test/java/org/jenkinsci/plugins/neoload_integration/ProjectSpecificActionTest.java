@@ -28,6 +28,7 @@ public class ProjectSpecificActionTest extends TestCase {
 	
 	@Test
 	public void testProjectSpecificAction() {
+		@SuppressWarnings("unused")
 		ProjectSpecificAction psa = new ProjectSpecificAction(mo.getApWithOptions()); 
 	}
 

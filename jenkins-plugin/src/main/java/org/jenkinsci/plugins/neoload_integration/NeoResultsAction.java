@@ -32,7 +32,7 @@ public class NeoResultsAction implements Action {
 	private Boolean foundReportFile = null;
 	
 	/** Log various messages. */
-	private static Logger logger = Logger.getLogger(NeoResultsAction.class.getName());
+	private static final Logger LOGGER = Logger.getLogger(NeoResultsAction.class.getName());
 
 	/** @param target */
 	public NeoResultsAction(final AbstractBuild<?, ?> target) {
@@ -40,13 +40,33 @@ public class NeoResultsAction implements Action {
 		this.build = target;
 	}
 	
+    /**
+     * @param build
+     */
+    public static void addActionIfNotExists(AbstractBuild<?, ?> build) {
+    	boolean alreadyAdded = false;
+    	for (Action a: build.getActions()) {
+    		if (a instanceof NeoResultsAction) {
+    			alreadyAdded = true;
+    			break;
+    		}
+    	}
+    	
+    	if (!alreadyAdded) {
+    		NeoResultsAction nra = new NeoResultsAction(build);
+    		build.addAction(nra);
+    		LOGGER.log(Level.INFO, "Added Performance Result link to build " + build.number + " of job " + 
+    				build.getProject().getDisplayName());
+    	}
+    }
+	
 	/** For storing artifact data. */
 	static class FileAndContent {
 		/** Artifact data. */
-		private File file = null;
+		private final File file;
 
 		/** URL to the artifact in Jenkins. */
-		private String href = null;
+		private final String href;
 
 		/** Artifact data. */
 		private String content = null;
@@ -88,7 +108,7 @@ public class NeoResultsAction implements Action {
 					content = null;
 					content = FileUtils.fileRead(artifact.getFile().getAbsolutePath());
 				} catch (IOException e) {
-					logger.log(Level.FINE, "Error reading " + artifact.getFile().getAbsolutePath() + ". " + e.getMessage(), e);
+					LOGGER.log(Level.FINE, "Error reading " + artifact.getFile().getAbsolutePath() + ". " + e.getMessage(), e);
 				}
 				if ((content != null) && (content.contains(TAG_HTML_GENERATED_BY_NEOLOAD))) {
 					ac = new FileAndContent(artifact.getFile(), artifact.getHref(), content);
@@ -169,7 +189,7 @@ public class NeoResultsAction implements Action {
 
 		} catch (IOException e) {
 			// this operation is not important enough to throw an exception.
-			logger.log(Level.WARNING, "Couldn't add custom style to report files.");
+			LOGGER.log(Level.WARNING, "Couldn't add custom style to report files.");
 		}
 	}
 
