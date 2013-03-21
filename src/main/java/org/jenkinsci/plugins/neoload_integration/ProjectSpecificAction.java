@@ -41,7 +41,6 @@ public class ProjectSpecificAction implements ProminentProjectAction {
 
 	public ProjectSpecificAction(AbstractProject<?, ?> project) {
 		this.project = project;
-		refreshGraphData();
 	}
 
     /** This corresponds to the url of the image files displayed on the job page.
@@ -61,12 +60,10 @@ public class ProjectSpecificAction implements ProminentProjectAction {
 			for (AbstractBuild<?, ?> build : project.getBuilds()) {
 				doc = findXMLResultsFile(build);
 
-				// if the correct file was found
-				if (doc != null) {
-					// only include successful builds
-					if (build.getResult().isBetterThan(Result.FAILURE)) {
-						newBuildsAndDocs.put(build, doc);
-					}
+				// if the correct file was found, and
+				// only include successful builds.
+				if ((doc != null) && (build.getResult().isBetterThan(Result.FAILURE))) {
+					newBuildsAndDocs.put(build, doc);
 				}
 			}
 
