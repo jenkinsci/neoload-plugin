@@ -193,7 +193,6 @@ public class NeoResultsAction implements Action {
 		}
 	}
 
-	@Override
 	public String getDisplayName() {
 		setFoundReportFile();
 		if (!foundReportFile) {
@@ -202,7 +201,6 @@ public class NeoResultsAction implements Action {
 		return "Performance Result";
 	}
 
-	@Override
 	public String getIconFileName() {
 		setFoundReportFile();
 		if (!foundReportFile) {
@@ -211,7 +209,6 @@ public class NeoResultsAction implements Action {
 		return "/plugin/neoload-jenkins-plugin/images/neoload-cropped.png";
 	}
 
-	@Override
 	public String getUrlName() {
 		setFoundReportFile();
 		if (!foundReportFile) {

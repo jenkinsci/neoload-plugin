@@ -6,6 +6,7 @@ import static org.mockito.Mockito.withSettings;
 import hudson.model.Result;
 import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
+import hudson.model.Run;
 import hudson.model.Run.Artifact;
 import hudson.tasks.Publisher;
 import hudson.util.DescribableList;
@@ -40,7 +41,7 @@ public class MockObjects {
 	 * @throws FileNotFoundException */
 	public MockObjects() throws FileNotFoundException, IOException {
 		// abstract project without options
-		List<Publisher> publishersWithoutNeoOptions = new ArrayList<>();
+		List<Publisher> publishersWithoutNeoOptions = new ArrayList<Publisher>();
 		publishersWithoutNeoOptions.add(mock(Publisher.class));
 		publishersWithoutNeoOptions.add(mock(Publisher.class));
 		publishersWithoutNeoOptions.add(mock(Publisher.class));
@@ -53,7 +54,7 @@ public class MockObjects {
 		when(apWithoutOptions.getDisplayName()).thenReturn("projectNameAPWithoutOptions");
 		
 		// abstract project with options
-		List<Publisher> publishersWithNeoOptions = new ArrayList<>();
+		List<Publisher> publishersWithNeoOptions = new ArrayList<Publisher>();
 		publishersWithNeoOptions.addAll(publishersWithoutNeoOptions);
 		publisherWithNeoOptions = mock(Publisher.class, withSettings().extraInterfaces(NeoLoadPluginOptions.class));
 		NeoLoadPluginOptions nlpo = (NeoLoadPluginOptions) publisherWithNeoOptions;
@@ -77,7 +78,7 @@ public class MockObjects {
 		List<Artifact> artifacts = createArtifacts();
 		when(abstractBuild.getArtifacts()).thenReturn(artifacts);
 
-		RunList rl = new RunList<>();
+		RunList rl = new RunList<Run>();
 		rl.add(abstractBuild);
 		when(apWithOptions.getBuilds()).thenReturn(rl);
 		when(apWithoutOptions.getBuilds()).thenReturn(rl);
@@ -93,7 +94,7 @@ public class MockObjects {
 		URL url = MockObjects.class.getResource("neoload-report.zip");
 		List<File> createdFiles = ZipUtils.unzip(url.getFile(), new File(url.getFile()).getParent());
 		Artifact a = null;
-		List<Artifact> artifacts = new ArrayList<>(createdFiles.size());
+		List<Artifact> artifacts = new ArrayList<Artifact>(createdFiles.size());
 		
 		for (File f: createdFiles) {
 			a = mock(Artifact.class);

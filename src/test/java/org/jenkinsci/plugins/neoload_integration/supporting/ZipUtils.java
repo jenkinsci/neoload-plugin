@@ -21,8 +21,13 @@ public class ZipUtils {
 	 * @throws IOException
 	 */
 	public static List<File> unzip(String zipFile, String outputFolder) throws FileNotFoundException, IOException {
-		List<File> unzippedFiles = new ArrayList<>();
-		try (ZipInputStream zis = new ZipInputStream(new FileInputStream(zipFile))) { // read the zip file
+		List<File> unzippedFiles = new ArrayList<File>();
+		ZipInputStream zis = null;
+		FileInputStream fis = null;
+		FileOutputStream fos = null;
+		try { // read the zip file
+			fis = new FileInputStream(zipFile);
+			zis = new ZipInputStream(fis);
 			new File(outputFolder).mkdirs(); // create output directory
 			ZipEntry zipEntry = zis.getNextEntry();
 
@@ -35,16 +40,29 @@ public class ZipUtils {
 					newFile.delete(); // overwrite any existing file.
 
 					// write the file contents
-					try (FileOutputStream fos = new FileOutputStream(newFile)) {
+					fos = null;
+					try {
+						fos = new FileOutputStream(newFile);
 						byte[] buffer = new byte[1024];
 						int len;
 						while ((len = zis.read(buffer)) > 0) {
 							fos.write(buffer, 0, len);
 						}
+					} finally {
+						if (fos != null) {
+							fos.close();
+						}
 					}
 					unzippedFiles.add(newFile);
 				}
 				zipEntry = zis.getNextEntry(); // next entry in the zip file
+			}
+		} finally {
+			if (fis != null) {
+				fis.close();
+			}
+			if (zis != null) {
+				zis.close();
 			}
 		}
 		// done

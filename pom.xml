@@ -7,7 +7,7 @@
 		<version>1.430</version><!-- the version of Jenkins this plugin is built against -->
 	</parent>
 
-	<name>NeoLoad Plugin</name>
+	<name>NeoLoad Jenkins Plugin</name>
 	<url>http://www.neotys.com/support/download-plugins.html</url>
 	<groupId>com.neotys.neoload</groupId>
 	<artifactId>neoload-jenkins-plugin</artifactId>
@@ -17,16 +17,6 @@
 	<build>
 		<plugins>
 			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<configuration>
-					<!-- http://maven.apache.org/plugins/maven-compiler-plugin/ -->
-					<source>1.7</source>
-					<target>1.7</target>
-				</configuration>
-			</plugin>
-
-			<plugin>
 				<extensions>true</extensions>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-deploy-plugin</artifactId>
@@ -34,7 +24,6 @@
 					<skip>true</skip> <!-- remove this line to deploy remotely -->
 				</configuration>
 			</plugin>
-
 		</plugins>
 		<pluginManagement>
 			<plugins>
@@ -193,34 +182,28 @@
 		</pluginManagement>
 	</build>
 
-	<!-- get every artifact through repo.jenkins-ci.org, which proxies all the 
-		artifacts that we need -->
-	<repositories>
-	</repositories>
-
-	<pluginRepositories>
-	</pluginRepositories>
-
 	<dependencies>
-		<dependency><!-- included in distribution -->
-			<groupId>commons-io</groupId>
-			<artifactId>commons-io</artifactId>
-			<version>2.4</version>
+		<dependency>
+			<groupId>org.codehaus.plexus</groupId>
+			<artifactId>plexus-utils</artifactId>
+			<version>3.0.10</version>
 		</dependency>
-		<dependency><!-- included in distribution for jenkins versions 1.458 to 1.481 -->
+		<dependency><!-- included in distribution for jenkins versions 1.458 to 1.481-->
 			<groupId>xalan</groupId>
 			<artifactId>xalan</artifactId>
 			<version>2.7.1</version>
 			<scope>runtime</scope>
 		</dependency>
+
 		<dependency>
-			<groupId>org.jenkins-ci.main</groupId>
-			<artifactId>maven-plugin</artifactId>
-			<scope>compile</scope>
+			<groupId>jfree</groupId>
+			<artifactId>jfreechart</artifactId>
+			<version>1.0.13</version>
 		</dependency>
+		
 		<dependency>
 			<groupId>org.mockito</groupId>
-			<artifactId>mockito-all</artifactId>
+			<artifactId>mockito-core</artifactId>
 			<version>1.9.5</version>
 			<scope>test</scope>
 		</dependency>

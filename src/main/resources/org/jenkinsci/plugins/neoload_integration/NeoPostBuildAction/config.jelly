@@ -5,10 +5,14 @@
 		Note: A link to the NeoLoad html reports will be created for each job run when the report files are included as build artifacts.
 	</f:entry>
 
-	<f:optionalBlock checked="${showTrendAverageResponse}" inline="true"
-		field="showTrendAverageResponse"
-		title="Display Trend Graph: Average Response Time (all pages)" />
+	<f:entry field="showTrendAverageResponse" name="showTrendAverageResponse" >
+		<f:checkbox name="showTrendAverageResponse" checked="${showTrendAverageResponse}" 
+			field="showTrendAverageResponse" title="Display Trend Graph: Average Response Time (all pages)" />
+	</f:entry>
+	
+	<f:entry field="showTrendErrorRate" name="showTrendErrorRate">
+		<f:checkbox name="showTrendErrorRate" checked="${showTrendErrorRate}" 
+			field="showTrendErrorRate" title="Display Trend Graph: Error Rate %" />
+	</f:entry>
 
-	<f:optionalBlock checked="${showTrendErrorRate}" inline="true"
-		field="showTrendErrorRate" title="Display Trend Graph: Error Rate %"  />	
 </j:jelly>

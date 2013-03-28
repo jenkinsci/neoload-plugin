@@ -1,13 +1,13 @@
 package org.jenkinsci.plugins.neoload_integration;
 
+import hudson.model.Result;
 import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
-import hudson.model.Result;
-import hudson.util.Graph;
 import hudson.util.RunList;
 import junit.framework.TestCase;
 
 import org.jenkinsci.plugins.neoload_integration.supporting.MockObjects;
+import org.jenkinsci.plugins.neoload_integration.supporting.NeoLoadGraph;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -67,14 +67,14 @@ public class ProjectSpecificActionTest extends TestCase {
 	@Test
 	public void testGetErrGraph() {
 		ProjectSpecificAction psa = new ProjectSpecificAction(mo.getApWithoutOptions());
-		Graph g = psa.getErrGraph();
+		NeoLoadGraph g = psa.getErrGraph();
 		assertTrue(g != null);
 	}
 
 	@Test
 	public void testGetAvgGraph() {
 		ProjectSpecificAction psa = new ProjectSpecificAction(mo.getApWithoutOptions());
-		Graph g = psa.getAvgGraph();
+		NeoLoadGraph g = psa.getAvgGraph();
 		assertTrue(g != null);
 	}
 
@@ -91,7 +91,7 @@ public class ProjectSpecificActionTest extends TestCase {
 
 		ProjectSpecificAction psa = new ProjectSpecificAction(ap);
 		psa.refreshGraphData();
-		Graph g = psa.getErrGraph();
+		NeoLoadGraph g = psa.getErrGraph();
 		assertTrue(g != null);
 	}
 
@@ -108,7 +108,7 @@ public class ProjectSpecificActionTest extends TestCase {
 
 		ProjectSpecificAction psa = new ProjectSpecificAction(ap);
 		psa.refreshGraphData();
-		Graph g = psa.getAvgGraph();
+		NeoLoadGraph g = psa.getAvgGraph();
 		assertTrue(g != null);
 	}
 
