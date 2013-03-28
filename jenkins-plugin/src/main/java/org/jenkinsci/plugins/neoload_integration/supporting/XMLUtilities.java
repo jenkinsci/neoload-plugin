@@ -144,7 +144,7 @@ public final class XMLUtilities {
 	 * @return a map where the attribute is the key and the value is the value.
 	 */
 	public static Map<String, String> getMap(NamedNodeMap attributes) {
-		Map<String, String> map = new HashMap<>();
+		Map<String, String> map = new HashMap<String, String>();
 
 		for (int i = 0; i < attributes.getLength(); i++) {
 			if ((attributes.item(i) != null) && (attributes.item(i).getNodeName() != null)) {
@@ -160,7 +160,7 @@ public final class XMLUtilities {
 	 * @return
 	 */
 	public static List<Node> toList(final NodeList nodeList) {
-		final List<Node> list = new ArrayList<>(nodeList.getLength());
+		final List<Node> list = new ArrayList<Node>(nodeList.getLength());
 
 		for (int nlIndex = 0; nlIndex < nodeList.getLength(); nlIndex++) {
 			list.add(nodeList.item(nlIndex));

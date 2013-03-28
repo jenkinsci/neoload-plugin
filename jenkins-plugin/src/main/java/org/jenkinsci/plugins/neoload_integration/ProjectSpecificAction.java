@@ -5,14 +5,14 @@ import hudson.model.Result;
 import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
 import hudson.model.Run.Artifact;
-import hudson.util.ChartUtil.NumberOnlyBuildLabel;
-import hudson.util.DataSetBuilder;
-import hudson.util.Graph;
 
 import java.awt.Color;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -23,6 +23,7 @@ import javax.xml.xpath.XPathExpressionException;
 import org.jenkinsci.plugins.neoload_integration.supporting.NeoLoadGraph;
 import org.jenkinsci.plugins.neoload_integration.supporting.NeoLoadPluginOptions;
 import org.jenkinsci.plugins.neoload_integration.supporting.PluginUtils;
+import org.jfree.data.category.DefaultCategoryDataset;
 import org.xml.sax.SAXException;
 
 import com.neotys.nl.controller.report.transform.NeoLoadReportDoc;
@@ -34,7 +35,7 @@ public class ProjectSpecificAction implements ProminentProjectAction {
 	private AbstractProject<?, ?> project;
 
 	/** Key is the build. Value is the NeoLoad xml report file. */
-	private Map<AbstractBuild<?, ?>, NeoLoadReportDoc> buildsAndDocs = new LinkedHashMap<>();
+	private Map<AbstractBuild<?, ?>, NeoLoadReportDoc> buildsAndDocs = new LinkedHashMap<AbstractBuild<?, ?>, NeoLoadReportDoc>();
 
 	/** Log various messages. */
 	private static final Logger LOGGER = Logger.getLogger(ProjectSpecificAction.class.getName());
@@ -46,7 +47,6 @@ public class ProjectSpecificAction implements ProminentProjectAction {
     /** This corresponds to the url of the image files displayed on the job page.
 	 * @see hudson.model.Action#getUrlName()
 	 */
-	@Override
 	public String getUrlName() {
 		return "neoload";
 	}
@@ -55,8 +55,9 @@ public class ProjectSpecificAction implements ProminentProjectAction {
 	public void refreshGraphData() {
 		try {
 			NeoLoadReportDoc doc = null;
-			Map<AbstractBuild<?, ?>, NeoLoadReportDoc> newBuildsAndDocs = new LinkedHashMap<>();
+			Map<AbstractBuild<?, ?>, NeoLoadReportDoc> newBuildsAndDocs = new LinkedHashMap<AbstractBuild<?, ?>, NeoLoadReportDoc>();
 
+			// look through all builds of the job
 			for (AbstractBuild<?, ?> build : project.getBuilds()) {
 				doc = findXMLResultsFile(build);
 
@@ -71,7 +72,7 @@ public class ProjectSpecificAction implements ProminentProjectAction {
 			Map<AbstractBuild<?, ?>, NeoLoadReportDoc> oldBuildsAndDocs = buildsAndDocs;
 			buildsAndDocs = newBuildsAndDocs;
 			oldBuildsAndDocs.clear();
-		} catch (XPathExpressionException | ParserConfigurationException | SAXException | IOException e) {
+		} catch (Exception e) {
 			LOGGER.log(Level.SEVERE, "Error finding NeoLoad xml results. " + e.getMessage(), e);
 		}
 	}
@@ -116,13 +117,14 @@ public class ProjectSpecificAction implements ProminentProjectAction {
 	 * @return
 	 * @throws XPathExpressionException
 	 */
-	public Graph getErrGraph() {
-		DataSetBuilder<String, NumberOnlyBuildLabel> dsb = new DataSetBuilder<>();
+	public NeoLoadGraph getErrGraph() {
+		DefaultCategoryDataset ds = new DefaultCategoryDataset();
 		Float errorRate = null;
 		NeoLoadReportDoc nlrd = null;
+		Map<String, Float> nums = new LinkedHashMap<String, Float>(); // linked hash maps keep the order of their keys
 
+		// get the number we want from all builds that we found earlier
 		for (AbstractBuild<?, ?> build : buildsAndDocs.keySet()) {
-			NumberOnlyBuildLabel label = new NumberOnlyBuildLabel(build);
 			errorRate = null;
 			try {
 				nlrd = buildsAndDocs.get(build);
@@ -133,24 +135,30 @@ public class ProjectSpecificAction implements ProminentProjectAction {
 			}
 
 			if (errorRate != null) {
-				dsb.add(errorRate, "Time", label);
+				nums.put("" + build.number, errorRate);
 			}
 		}
-
+		List<String> reverseKeys = new ArrayList<String>(nums.keySet());
+		Collections.reverse(reverseKeys);
+		
+		for (String b: reverseKeys) {
+			ds.addValue(nums.get(b), "Time", b);
+		}
 		// color from ColorTable.java
-		return new NeoLoadGraph(dsb.build(), "Error Rate %", new Color(200, 0, 0));
+		return new NeoLoadGraph(ds, "Error Rate %", new Color(200, 0, 0));
 	}
 
 	/** Generates a graph 
 	 * @throws XPathExpressionException
 	 */
-	public Graph getAvgGraph() {
-		DataSetBuilder<String, NumberOnlyBuildLabel> dsb = new DataSetBuilder<>();
+	public NeoLoadGraph getAvgGraph() {
+		DefaultCategoryDataset ds = new DefaultCategoryDataset();
 		Float avgResponseTime = null;
 		NeoLoadReportDoc nlrd = null;
+		Map<String, Float> nums = new LinkedHashMap<String, Float>(); // linked hash maps keep the order of their keys
 
+		// get the number we want from all builds that we found earlier
 		for (AbstractBuild<?, ?> build : buildsAndDocs.keySet()) {
-			NumberOnlyBuildLabel label = new NumberOnlyBuildLabel(build);
 			try {
 				nlrd = buildsAndDocs.get(build);
 				avgResponseTime = nlrd.getAverageResponseTime();
@@ -160,12 +168,18 @@ public class ProjectSpecificAction implements ProminentProjectAction {
 			}
 
 			if (avgResponseTime != null) {
-				dsb.add(avgResponseTime, "Time", label);
+				nums.put("" + build.number, avgResponseTime);
 			}
+		}
+		List<String> reverseKeys = new ArrayList<String>(nums.keySet());
+		Collections.reverse(reverseKeys);
+		
+		for (String b: reverseKeys) {
+			ds.addValue(nums.get(b), "Time", b);
 		}
 
 		// color from ColorTable.java
-		return new NeoLoadGraph(dsb.build(), "Avg Resp Time (secs)", new Color(237, 184, 0));
+		return new NeoLoadGraph(ds, "Avg Resp Time (secs)", new Color(237, 184, 0));
 	}
 
 	/**
@@ -204,7 +218,6 @@ public class ProjectSpecificAction implements ProminentProjectAction {
     /* (non-Javadoc)
 	 * @see hudson.model.Action#getIconFileName()
 	 */
-	@Override
 	public String getIconFileName() {
 		return null;
 	}
@@ -212,7 +225,6 @@ public class ProjectSpecificAction implements ProminentProjectAction {
     /* (non-Javadoc)
 	 * @see hudson.model.Action#getDisplayName()
 	 */
-	@Override
 	public String getDisplayName() {
 		return "!" + this.getClass().getSimpleName() + "!";
 	}

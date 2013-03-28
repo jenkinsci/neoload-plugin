@@ -24,7 +24,6 @@ public class ProjectSpecificActionFactory extends TransientProjectActionFactory
 		return Collections.singleton(new ProjectSpecificAction(job));
 	}
 
-	@Override
 	public Descriptor<ProjectSpecificActionFactory> getDescriptor() {
 		return DESCRIPTOR;
 	}

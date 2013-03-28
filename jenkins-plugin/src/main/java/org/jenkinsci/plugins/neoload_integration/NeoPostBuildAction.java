@@ -7,18 +7,18 @@ import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.BuildStepMonitor;
-import hudson.tasks.Notifier;
 import hudson.tasks.Publisher;
+import hudson.tasks.Recorder;
 
 import org.jenkinsci.plugins.neoload_integration.supporting.NeoLoadPluginOptions;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 /**
  * This class adds the link to the html report to a build after the build has
- * completed.
+ * completed. Extend Recorder instead of Notifier for Hudson compatability.
  */
 @SuppressWarnings("unchecked")
-public class NeoPostBuildAction extends Notifier implements NeoLoadPluginOptions {
+public class NeoPostBuildAction extends Recorder implements NeoLoadPluginOptions {
 	
 	/** User option presented in the GUI. Show the average response time. */
 	private final boolean showTrendAverageResponse;
@@ -32,8 +32,7 @@ public class NeoPostBuildAction extends Notifier implements NeoLoadPluginOptions
 		this.showTrendAverageResponse = showTrendAverageResponse;
 		this.showTrendErrorRate = showTrendErrorRate;
 	}
-
-	@Override
+	
 	public BuildStepMonitor getRequiredMonitorService() {
 		return BuildStepMonitor.NONE;
 	}
@@ -54,7 +53,6 @@ public class NeoPostBuildAction extends Notifier implements NeoLoadPluginOptions
 
 	@Extension(optional = true)
 	public static final class DescriptorImpl extends BuildStepDescriptor<Publisher> {
-
 		public DescriptorImpl() {
 			super(NeoPostBuildAction.class);
 		}
@@ -70,16 +68,13 @@ public class NeoPostBuildAction extends Notifier implements NeoLoadPluginOptions
 			return true;
 		}
 	}
-	
 
 	/** @return the showTrendAverageResponse */
-	@Override
 	public boolean isShowTrendAverageResponse() {
 		return showTrendAverageResponse;
 	}
 
 	/** @return the showTrendErrorRate */
-	@Override
 	public boolean isShowTrendErrorRate() {
 		return showTrendErrorRate;
 	}	

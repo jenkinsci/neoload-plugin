@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -44,7 +43,7 @@ public class NeoLoadReportDoc {
 				// to avoid npe
 				doc = XMLUtilities.createNodeFromText("<empty></empty>").getOwnerDocument();
 			}
-		} catch (ParserConfigurationException | SAXException | IOException e) {
+		} catch (Exception e) {
 			logger.log(Level.SEVERE, "Error reading xml file " + xmlFilePath + ". " + e.getMessage(), e);
 		}
 	}

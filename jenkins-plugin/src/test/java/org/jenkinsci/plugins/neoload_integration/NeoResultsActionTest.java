@@ -46,7 +46,7 @@ public class NeoResultsActionTest extends TestCase {
 
 	@Test
 	public void testGetHtmlReportFilePath() {
-		AbstractBuild ab = mo.getAbstractBuild();
+		AbstractBuild<?, ?> ab = mo.getAbstractBuild();
 		Mockito.when(ab.getArtifacts()).thenReturn(Collections.EMPTY_LIST);
 		NeoResultsAction nra = new NeoResultsAction(ab);
 		assertTrue(nra.getHtmlReportFilePath() == null);
@@ -58,7 +58,7 @@ public class NeoResultsActionTest extends TestCase {
 
 	@Test
 	public void testGetHtmlReportFilePath2() {
-		AbstractBuild ab = mo.getAbstractBuild();
+		AbstractBuild<?, ?> ab = mo.getAbstractBuild();
 		NeoResultsAction nra = new NeoResultsAction(ab);
 		
 		assertTrue(nra.getDisplayName() != null);
@@ -68,7 +68,7 @@ public class NeoResultsActionTest extends TestCase {
 
 	@Test
 	public void testGetDisplayName() {
-		AbstractBuild ab = mo.getAbstractBuild();
+		AbstractBuild<?, ?> ab = mo.getAbstractBuild();
 		Mockito.when(ab.getArtifacts()).thenReturn(Collections.EMPTY_LIST);
 		NeoResultsAction nra = new NeoResultsAction(ab);
 		assertTrue(nra.getDisplayName() == null);
@@ -76,7 +76,7 @@ public class NeoResultsActionTest extends TestCase {
 
 	@Test
 	public void testGetIconFileName() {
-		AbstractBuild ab = mo.getAbstractBuild();
+		AbstractBuild<?, ?> ab = mo.getAbstractBuild();
 		Mockito.when(ab.getArtifacts()).thenReturn(Collections.EMPTY_LIST);
 		NeoResultsAction nra = new NeoResultsAction(ab);
 		assertTrue(nra.getIconFileName() == null);
@@ -84,7 +84,7 @@ public class NeoResultsActionTest extends TestCase {
 
 	@Test
 	public void testGetUrlName() {
-		AbstractBuild ab = mo.getAbstractBuild();
+		AbstractBuild<?, ?> ab = mo.getAbstractBuild();
 		Mockito.when(ab.getArtifacts()).thenReturn(Collections.EMPTY_LIST);
 		NeoResultsAction nra = new NeoResultsAction(ab);
 		assertTrue(nra.getUrlName() == null);
@@ -95,12 +95,12 @@ public class NeoResultsActionTest extends TestCase {
 	 */
 	@Test
 	public void testAddActionIfNotExists() {
-		List<Action> actions = new ArrayList<>();
+		List<Action> actions = new ArrayList<Action>();
 		actions.add(mock(Action.class));
 		actions.add(mock(Action.class));
 		actions.add(mock(Action.class));
 		
-		AbstractBuild abstractBuild = mo.getAbstractBuild();
+		AbstractBuild<?, ?> abstractBuild = mo.getAbstractBuild();
 		when(abstractBuild.getActions()).thenReturn(actions);
 		
 		ArgumentCaptor<Action> argument = ArgumentCaptor.forClass(Action.class);
@@ -116,13 +116,13 @@ public class NeoResultsActionTest extends TestCase {
 	 */
 	@Test
 	public void testAddActionIfNotExistsDontAdd() {
-		List<Action> actions = new ArrayList<>();
+		List<Action> actions = new ArrayList<Action>();
 		actions.add(mock(Action.class));
 		actions.add(mock(Action.class));
 		actions.add(mock(Action.class));
 		actions.add(mock(NeoResultsAction.class));
 		
-		AbstractBuild abstractBuild = mo.getAbstractBuild();
+		AbstractBuild<?, ?> abstractBuild = mo.getAbstractBuild();
 		when(abstractBuild.getActions()).thenReturn(actions);
 		
 		NeoResultsAction.addActionIfNotExists(abstractBuild);
