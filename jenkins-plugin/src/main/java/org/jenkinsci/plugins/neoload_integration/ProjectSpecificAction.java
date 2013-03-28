@@ -135,7 +135,7 @@ public class ProjectSpecificAction implements ProminentProjectAction {
 			}
 
 			if (errorRate != null) {
-				nums.put("" + build.number, errorRate);
+				nums.put("#" + build.number, errorRate);
 			}
 		}
 		List<String> reverseKeys = new ArrayList<String>(nums.keySet());
@@ -168,7 +168,7 @@ public class ProjectSpecificAction implements ProminentProjectAction {
 			}
 
 			if (avgResponseTime != null) {
-				nums.put("" + build.number, avgResponseTime);
+				nums.put("#" + build.number, avgResponseTime);
 			}
 		}
 		List<String> reverseKeys = new ArrayList<String>(nums.keySet());
