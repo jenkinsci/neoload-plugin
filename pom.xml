@@ -13,8 +13,16 @@
 	<artifactId>neoload-jenkins-plugin</artifactId>
 	<version>1.0-SNAPSHOT</version>
 	<packaging>hpi</packaging>
-	<description>Generate trend graphs and links to reports from NeoLoad output.</description>
+	<description>Integrates NeoLoad results, generates trend graphs, and links to NeoLoad reports.</description>
 
+	<developers>
+		<developer>
+			<id>NeotysPluginSupport</id>
+			<name>Neotys Plugin Support</name>
+			<email>plugin-support@neotys.com</email>
+		</developer>
+	</developers>
+	
 	<build>
 		<plugins>
 			<plugin>
