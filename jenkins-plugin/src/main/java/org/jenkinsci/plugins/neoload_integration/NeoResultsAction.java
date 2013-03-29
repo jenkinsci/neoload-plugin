@@ -104,8 +104,8 @@ public class NeoResultsAction implements Action {
 					("html".equalsIgnoreCase(artifact.getFileName().substring(artifact.getFileName().length() - 4)))) {
 
 				// verify file contents
+				content = null;
 				try {
-					content = null;
 					content = FileUtils.fileRead(artifact.getFile().getAbsolutePath());
 				} catch (IOException e) {
 					LOGGER.log(Level.FINE, "Error reading " + artifact.getFile().getAbsolutePath() + ". " + e.getMessage(), e);

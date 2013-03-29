@@ -159,6 +159,7 @@ public class ProjectSpecificAction implements ProminentProjectAction {
 
 		// get the number we want from all builds that we found earlier
 		for (AbstractBuild<?, ?> build : buildsAndDocs.keySet()) {
+			avgResponseTime = null;
 			try {
 				nlrd = buildsAndDocs.get(build);
 				avgResponseTime = nlrd.getAverageResponseTime();
