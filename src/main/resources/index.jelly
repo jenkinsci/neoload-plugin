@@ -2,5 +2,5 @@
   This view is used to render the installed plugins page.
 -->
 <div>
-  Integrate NeoLoad results. Generate trend graphs and links to reports from NeoLoad output.
+  Integrates NeoLoad results, generates trend graphs, and links to NeoLoad reports.
 </div>
