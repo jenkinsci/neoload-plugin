@@ -7,7 +7,7 @@
 		<version>1.430</version><!-- the version of Jenkins this plugin is built against -->
 	</parent>
 
-	<name>NeoLoad Jenkins Plugin</name>
+	<name>NeoLoad Plugin</name>
 	<url>http://www.neotys.com/support/download-plugins.html</url>
 	<groupId>com.neotys.neoload</groupId>
 	<artifactId>neoload-jenkins-plugin</artifactId>
