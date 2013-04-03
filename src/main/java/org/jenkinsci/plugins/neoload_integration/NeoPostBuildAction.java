@@ -41,13 +41,6 @@ public class NeoPostBuildAction extends Recorder implements NeoLoadPluginOptions
 	public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) {
 		NeoResultsAction.addActionIfNotExists(build);
 
-		// look at all builds to see if we can add a report link
-		for (Object o : build.getProject().getBuilds()) {
-			if (o instanceof AbstractBuild) {
-				NeoResultsAction.addActionIfNotExists((AbstractBuild<?, ?>) o);
-			}
-		}
-
 		return true;
 	}
 

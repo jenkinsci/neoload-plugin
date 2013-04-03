@@ -6,6 +6,9 @@ import hudson.model.Run.Artifact;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -55,7 +58,7 @@ public class NeoResultsAction implements Action {
     	if (!alreadyAdded) {
     		NeoResultsAction nra = new NeoResultsAction(build);
     		build.addAction(nra);
-    		LOGGER.log(Level.INFO, "Added Performance Result link to build " + build.number + " of job " + 
+    		LOGGER.log(Level.FINE, "Added Performance Result action to build " + build.number + " of job " + 
     				build.getProject().getDisplayName());
     	}
     }
@@ -107,17 +110,52 @@ public class NeoResultsAction implements Action {
 				content = null;
 				try {
 					content = FileUtils.fileRead(artifact.getFile().getAbsolutePath());
-				} catch (IOException e) {
-					LOGGER.log(Level.FINE, "Error reading " + artifact.getFile().getAbsolutePath() + ". " + e.getMessage(), e);
-				}
-				if ((content != null) && (isNeoLoadHTMLReport(content))) {
-					ac = new FileAndContent(artifact.getFile(), artifact.getHref(), content);
-					break;
+					if ((content != null) && (isNeoLoadHTMLReport(content))) {
+						// verify that the file was created during the current build
+						if (isFromTheCurrentBuild(artifact)) {
+							ac = new FileAndContent(artifact.getFile(), artifact.getHref(), content);
+							break;
+						}
+						LOGGER.log(Level.FINE, 
+								"Build " + build.number + ", Found " + artifact.getFileName() + ", but it's too old to use.");					
+					}
+				} catch (Exception e) {
+					LOGGER.log(Level.FINE, "Error reading file. " + e.getMessage(), e);
 				}
 			}
 		}
 
 		return ac;
+	}
+
+	/**
+	 * @param content2 
+	 * @param artifact
+	 * @return
+	 * @throws IOException 
+	 * @throws InterruptedException 
+	 */
+	private boolean isFromTheCurrentBuild(Artifact artifact) throws IOException, InterruptedException {
+		// Look at the date of the file on the workspace, not the artifact file. The artifat file is always new because it is 
+		// copied after the job is run.
+		String workspaceFilePath = build.getWorkspace().toURI().getPath() + File.separatorChar + artifact.relativePath;
+		File f = new File(workspaceFilePath);
+		
+		// get the date of the report
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd kk:mm:ss");
+		Calendar buildStartTime = build.getTimestamp();
+		Calendar artifactCreateTime = Calendar.getInstance();
+		artifactCreateTime.setTime(new Date(f.lastModified()));
+		
+		LOGGER.log(Level.FINE, "Build start time: " + sdf.format(buildStartTime.getTime()) + ", Artifact file time: " + 
+				sdf.format(artifactCreateTime.getTime()) + ", Artifact file: " + f.getAbsolutePath() + 
+				", original file: " + f.getAbsolutePath());
+		
+		if (buildStartTime.before(artifactCreateTime)) {
+			return true;
+		}
+		
+		return false;
 	}
 
 	/**
@@ -231,7 +269,7 @@ public class NeoResultsAction implements Action {
 		if (!foundReportFile) {
 			return null;
 		}
-		return "/plugin/neoload-jenkins-plugin/images/neoload-cropped.png";
+		return "/plugin/neoload-hudson-plugin/images/neoload-cropped.png";
 	}
 
 	public String getUrlName() {

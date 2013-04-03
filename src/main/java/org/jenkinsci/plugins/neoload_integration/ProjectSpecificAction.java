@@ -60,7 +60,7 @@ public class ProjectSpecificAction implements ProminentProjectAction {
 			// look through all builds of the job
 			for (AbstractBuild<?, ?> build : project.getBuilds()) {
 				doc = findXMLResultsFile(build);
-
+				
 				// if the correct file was found, and
 				// only include successful builds.
 				if ((doc != null) && (build.getResult().isBetterThan(Result.FAILURE))) {
@@ -206,6 +206,9 @@ public class ProjectSpecificAction implements ProminentProjectAction {
 
 			// if the file is valid and was created during this build
 			if (!nlrd.isValidReportDoc()) {
+				it.remove();
+			} else if (!nlrd.isNewerThan(build.getTimestamp())) {
+				// it's a valid report file but it's too old
 				it.remove();
 			} else {
 				correctDoc = nlrd;

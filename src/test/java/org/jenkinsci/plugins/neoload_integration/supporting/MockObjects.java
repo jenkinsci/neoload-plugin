@@ -17,6 +17,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 public class MockObjects {
@@ -73,6 +74,10 @@ public class MockObjects {
 		abstractBuild = mock(AbstractBuild.class);
 		when(abstractBuild.getProject()).thenReturn(apWithOptions);
 		when(abstractBuild.getResult()).thenReturn(Result.SUCCESS);
+		
+		Calendar cal = Calendar.getInstance();
+		cal.add(Calendar.YEAR, -1);
+		when(abstractBuild.getTimestamp()).thenReturn(cal);
 
 		// add artifact to build.getArtifacts
 		List<Artifact> artifacts = createArtifacts();
