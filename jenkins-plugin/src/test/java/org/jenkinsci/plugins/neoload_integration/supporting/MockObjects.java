@@ -3,6 +3,8 @@ package org.jenkinsci.plugins.neoload_integration.supporting;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.withSettings;
+import hudson.FilePath;
+import hudson.model.Hudson;
 import hudson.model.Result;
 import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
@@ -19,6 +21,8 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+
+import org.codehaus.plexus.util.ReflectionUtils;
 
 public class MockObjects {
 	
@@ -39,8 +43,9 @@ public class MockObjects {
 
 	/** Constructor. 
 	 * @throws IOException 
-	 * @throws FileNotFoundException */
-	public MockObjects() throws FileNotFoundException, IOException {
+	 * @throws FileNotFoundException 
+	 * @throws IllegalAccessException */
+	public MockObjects() throws FileNotFoundException, IOException, IllegalAccessException {
 		// abstract project without options
 		List<Publisher> publishersWithoutNeoOptions = new ArrayList<Publisher>();
 		publishersWithoutNeoOptions.add(mock(Publisher.class));
@@ -82,6 +87,12 @@ public class MockObjects {
 		// add artifact to build.getArtifacts
 		List<Artifact> artifacts = createArtifacts();
 		when(abstractBuild.getArtifacts()).thenReturn(artifacts);
+		
+		// prepare the build for: build.getWorkspace().toURI().getPath() + File.separatorChar + artifact.toString();
+		File f = new File(artifacts.get(0).getFile().getParent());
+		FilePath fp = new FilePath(f);
+		ReflectionUtils.setVariableValueInObject(abstractBuild, "workspace", f.getParent());
+		when(abstractBuild.getBuiltOn()).thenReturn(Hudson.getInstance());
 
 		RunList rl = new RunList<Run>();
 		rl.add(abstractBuild);
@@ -93,8 +104,9 @@ public class MockObjects {
 	 * @return
 	 * @throws FileNotFoundException
 	 * @throws IOException
+	 * @throws IllegalAccessException 
 	 */
-	private List<Artifact> createArtifacts() throws FileNotFoundException, IOException {
+	private List<Artifact> createArtifacts() throws FileNotFoundException, IOException, IllegalAccessException {
 		// create new test files
 		URL url = MockObjects.class.getResource("neoload-report.zip");
 		List<File> createdFiles = ZipUtils.unzip(url.getFile(), new File(url.getFile()).getParent());
@@ -103,11 +115,13 @@ public class MockObjects {
 		
 		for (File f: createdFiles) {
 			a = mock(Artifact.class);
-		
+			
 			// add artifact.getFileName, artifact.getFile, artifact.getHref
 			when(a.getFile()).thenReturn(f);
 			when(a.getFileName()).thenReturn(f.getName());
 			when(a.getHref()).thenReturn("http://href.url/" + f.getName());
+			when(a.toString()).thenReturn(f.getName());
+			ReflectionUtils.setVariableValueInObject(a, "relativePath", f.getName());
 			
 			artifacts.add(a);
 		}

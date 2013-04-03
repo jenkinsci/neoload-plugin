@@ -7,4 +7,5 @@ public interface NeoLoadPluginOptions {
 
 	/** @return the showTrendErrorRate */
 	public abstract boolean isShowTrendErrorRate();
+	
 }

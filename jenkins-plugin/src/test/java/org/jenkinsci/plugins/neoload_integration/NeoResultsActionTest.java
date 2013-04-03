@@ -13,18 +13,17 @@ import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import junit.framework.TestCase;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.jenkinsci.plugins.neoload_integration.supporting.MockObjects;
 import org.junit.Before;
 import org.junit.Test;
+import org.jvnet.hudson.test.HudsonTestCase;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Matchers;
 import org.mockito.Mockito;
 
-public class NeoResultsActionTest extends TestCase {
+public class NeoResultsActionTest extends HudsonTestCase {
 	
 	/** Mock project for testing. */
 	private MockObjects mo = null;
@@ -35,7 +34,11 @@ public class NeoResultsActionTest extends TestCase {
 	@Override
 	@Before
 	public void setUp() throws Exception {
+		super.setUp();
 		mo = new MockObjects();
+		
+		// print certain exceptions
+		NeoResultsAction.throwExceptions = true;
 	}
 
 	@Test
@@ -75,9 +78,9 @@ public class NeoResultsActionTest extends TestCase {
 		cal.add(Calendar.YEAR, -1);
 		when(ab.getTimestamp()).thenReturn(cal);
 		
-//		assertTrue(nra.getDisplayName() != null);
-//		assertTrue(nra.getUrlName() != null);
-//		assertTrue(nra.getIconFileName() != null);
+		assertTrue(nra.getDisplayName() != null);
+		assertTrue(nra.getUrlName() != null);
+		assertTrue(nra.getIconFileName() != null);
 	}
 
 	/** Test that the report file is found when it includes the correct tag. */
@@ -116,9 +119,9 @@ public class NeoResultsActionTest extends TestCase {
 			}
 		}
 		
-//		assertTrue(nra.getDisplayName() != null);
-//		assertTrue(nra.getUrlName() != null);
-//		assertTrue(nra.getIconFileName() != null);
+		assertTrue(nra.getDisplayName() != null);
+		assertTrue(nra.getUrlName() != null);
+		assertTrue(nra.getIconFileName() != null);
 	}
 
 	@Test
