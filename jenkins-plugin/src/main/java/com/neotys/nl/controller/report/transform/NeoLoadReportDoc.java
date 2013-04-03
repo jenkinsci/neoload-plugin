@@ -1,7 +1,13 @@
 package com.neotys.nl.controller.report.transform;
 
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
@@ -10,6 +16,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.commons.io.FilenameUtils;
+import org.jenkinsci.plugins.neoload_integration.supporting.PluginUtils;
 import org.jenkinsci.plugins.neoload_integration.supporting.XMLUtilities;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -25,7 +32,7 @@ public class NeoLoadReportDoc {
 	private Document doc = null;
 
 	/** Log various messages. */
-	private static Logger logger = Logger.getLogger(NeoLoadReportDoc.class.getName());
+	private static final Logger LOGGER = Logger.getLogger(NeoLoadReportDoc.class.getName());
 
 	/** Constructor.
 	 * @param xmlFilePath
@@ -44,7 +51,7 @@ public class NeoLoadReportDoc {
 				doc = XMLUtilities.createNodeFromText("<empty></empty>").getOwnerDocument();
 			}
 		} catch (Exception e) {
-			logger.log(Level.SEVERE, "Error reading xml file " + xmlFilePath + ". " + e.getMessage(), e);
+			LOGGER.log(Level.SEVERE, "Error reading xml file " + xmlFilePath + ". " + e.getMessage(), e);
 		}
 	}
 
@@ -120,6 +127,65 @@ public class NeoLoadReportDoc {
 	/** @return the doc */
 	public Document getDoc() {
 		return doc;
+	}
+
+	/**
+	 * @param cal
+	 * @return
+	 * @throws XPathExpressionException
+	 */
+	public boolean isNewerThan(Calendar calBuildTime) throws XPathExpressionException {
+		List<Node> nodes = XMLUtilities.findByExpression("/report/summary/test", doc);
+		
+		// false if we didn't find the time
+		if ((nodes == null) || (nodes.size() != 1)) {
+			return false;
+		}
+		
+		Map<String, String> attributes = XMLUtilities.getMap(nodes.get(0).getAttributes());
+		
+		try {
+			// look for a time formatted in a standard way
+			if (attributes.containsKey("std_start_time")) {
+				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd kk:mm:ss");
+				Date d = sdf.parse(attributes.get("std_start_time"));
+				return PluginUtils.toCalendar(d).after(calBuildTime);
+			}
+		} catch (Exception e) {
+			// don't care
+		}
+		
+		String startTime = attributes.get("start");
+		
+		// try English. Mar 20, 2013 3:01:26 PM
+		try {
+			DateFormat df = DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT, Locale.ENGLISH);
+			Date d = df.parse(startTime);
+			return PluginUtils.toCalendar(d).after(calBuildTime);
+		} catch (Exception e) {
+			// don't care
+		}
+		
+		// try French. 22 mars 2013 11:07:33
+		try {
+			DateFormat df = DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT, Locale.FRENCH);
+			Date d = df.parse(startTime);
+			return PluginUtils.toCalendar(d).after(calBuildTime);
+		} catch (Exception e) {
+			// don't care
+		}
+		
+		// try local machine format
+		try {
+			DateFormat df = DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT, Locale.getDefault());
+			Date d = df.parse(startTime);
+			return PluginUtils.toCalendar(d).after(calBuildTime);
+		} catch (Exception e) {
+			// can't figure out what the date format is...
+			LOGGER.log(Level.FINE, "Can't parse date in xml file " + doc.getDocumentURI());
+		}
+		
+		return false;
 	}
 
 }

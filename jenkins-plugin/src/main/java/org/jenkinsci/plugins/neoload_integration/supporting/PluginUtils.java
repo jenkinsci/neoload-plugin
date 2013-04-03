@@ -6,6 +6,8 @@ import hudson.tasks.Publisher;
 import hudson.util.DescribableList;
 
 import java.io.Serializable;
+import java.util.Calendar;
+import java.util.Date;
 
 public final class PluginUtils implements Serializable {
 	
@@ -32,5 +34,16 @@ public final class PluginUtils implements Serializable {
 
 		return npo;
 	}
+    
+    /** This could be DateUtils.toCalendar instead but then I would have to deal with maven dependencies again.
+     * @param date
+     * @return
+     */
+    public static Calendar toCalendar(Date date) {
+    	Calendar cal = Calendar.getInstance();
+    	cal.setTime(date);
+    	
+    	return cal;
+    }
 
 }
