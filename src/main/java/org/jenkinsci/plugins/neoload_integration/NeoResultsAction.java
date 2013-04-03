@@ -34,9 +34,12 @@ public class NeoResultsAction implements Action {
 	/** True if the report file is found without any issues. This allows us to only show the link when the report file is found. */
 	private Boolean foundReportFile = null;
 	
+	/** Whether or not to throw certain exceptions. */
+	public static boolean throwExceptions = false;
+
 	/** Log various messages. */
 	private static final Logger LOGGER = Logger.getLogger(NeoResultsAction.class.getName());
-
+	
 	/** @param target */
 	public NeoResultsAction(final AbstractBuild<?, ?> target) {
 		super();
@@ -121,6 +124,9 @@ public class NeoResultsAction implements Action {
 					}
 				} catch (Exception e) {
 					LOGGER.log(Level.FINE, "Error reading file. " + e.getMessage(), e);
+					if (throwExceptions) {
+						throw new RuntimeException(e);
+					}
 				}
 			}
 		}
@@ -137,7 +143,8 @@ public class NeoResultsAction implements Action {
 	 */
 	private boolean isFromTheCurrentBuild(Artifact artifact) throws IOException, InterruptedException {
 		// Look at the date of the file on the workspace, not the artifact file. The artifat file is always new because it is 
-		// copied after the job is run.
+		// copied after the job is run. 
+		
 		String workspaceFilePath = build.getWorkspace().toURI().getPath() + File.separatorChar + artifact.relativePath;
 		File f = new File(workspaceFilePath);
 		
