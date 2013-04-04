@@ -149,34 +149,4 @@ public class MockObjects {
 		return abstractBuild;
 	}
 
-	/** @param apWithOptions the apWithOptions to set */
-	public void setApWithOptions(AbstractProject apWithOptions) {
-		this.apWithOptions = apWithOptions;
-	}
-
-	/** @param apWithoutOptions the apWithoutOptions to set */
-	public void setApWithoutOptions(AbstractProject apWithoutOptions) {
-		this.apWithoutOptions = apWithoutOptions;
-	}
-
-	/** @param publisherWithNeoOptions the publisherWithNeoOptions to set */
-	public void setPublisherWithNeoOptions(Publisher publisherWithNeoOptions) {
-		this.publisherWithNeoOptions = publisherWithNeoOptions;
-	}
-
-	/** @param abstractBuild the abstractBuild to set */
-	public void setAbstractBuild(AbstractBuild abstractBuild) {
-		this.abstractBuild = abstractBuild;
-	}
-
-	/** @return the artifacts */
-	public List<Artifact> getArtifacts() {
-		return artifacts;
-	}
-
-	/** @param artifacts the artifacts to set */
-	public void setArtifacts(List<Artifact> artifacts) {
-		this.artifacts = artifacts;
-	}
-
 }
