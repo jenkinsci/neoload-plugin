@@ -7,7 +7,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Calendar;
-import java.util.List;
 import java.util.regex.Pattern;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -16,7 +15,6 @@ import javax.xml.xpath.XPathExpressionException;
 import junit.framework.TestCase;
 
 import org.apache.commons.io.FileUtils;
-import org.jenkinsci.plugins.neoload_integration.supporting.MockObjects;
 import org.jenkinsci.plugins.neoload_integration.supporting.XMLUtilities;
 import org.jenkinsci.plugins.neoload_integration.supporting.ZipUtils;
 import org.junit.Before;
@@ -31,10 +29,10 @@ import org.xml.sax.SAXException;
 public class NeoLoadReportDocTest extends TestCase {
 
 	/** A valid NeoLoad report doc. */
-	URL urlValid = this.getClass().getResource("report-valid.xml");
+	URL urlValid = null;
 	
 	/** An invalid NeoLoad report doc. */
-	URL urlInvalid = this.getClass().getResource("report-invalid.xml");
+	URL urlInvalid = null;
 	
 	/** The date the test started in the report file. */
 	private static final String START_DATE_IN_FILE = "Mar 18, 2013 11:15:39 AM";
@@ -47,6 +45,9 @@ public class NeoLoadReportDocTest extends TestCase {
 	public void setUp() throws Exception {
 		URL url = NeoLoadReportDoc.class.getResource("xmlReports.zip");
 		ZipUtils.unzip(url.getFile(), new File(url.getFile()).getParent());
+		
+		urlValid = NeoLoadReportDoc.class.getResource("report-valid.xml");
+		urlInvalid = NeoLoadReportDoc.class.getResource("report-invalid.xml");
 	}
 
 	/**
