@@ -106,7 +106,7 @@ public class MockObjects {
 	 * @throws IOException
 	 * @throws IllegalAccessException 
 	 */
-	private List<Artifact> createArtifacts() throws FileNotFoundException, IOException, IllegalAccessException {
+	private static List<Artifact> createArtifacts() throws FileNotFoundException, IOException, IllegalAccessException {
 		// create new test files
 		URL url = MockObjects.class.getResource("neoload-report.zip");
 		List<File> createdFiles = ZipUtils.unzip(url.getFile(), new File(url.getFile()).getParent());
