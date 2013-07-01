@@ -20,6 +20,8 @@ import java.util.logging.Logger;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
+import org.apache.commons.lang.time.DateFormatUtils;
+import org.codehaus.plexus.util.FileUtils;
 import org.jenkinsci.plugins.neoload_integration.supporting.NeoLoadGraph;
 import org.jenkinsci.plugins.neoload_integration.supporting.NeoLoadPluginOptions;
 import org.jenkinsci.plugins.neoload_integration.supporting.PluginUtils;
@@ -53,6 +55,7 @@ public class ProjectSpecificAction implements ProminentProjectAction {
 	
 	/** Find data to graph. */
 	public void refreshGraphData() {
+		LOGGER.finest("Finding builds to use for NeoLoad graphs. Currently I see " + buildsAndDocs.size());
 		try {
 			NeoLoadReportDoc doc = null;
 			Map<AbstractBuild<?, ?>, NeoLoadReportDoc> newBuildsAndDocs = new LinkedHashMap<AbstractBuild<?, ?>, NeoLoadReportDoc>();
@@ -75,6 +78,8 @@ public class ProjectSpecificAction implements ProminentProjectAction {
 		} catch (Exception e) {
 			LOGGER.log(Level.SEVERE, "Error finding NeoLoad xml results. " + e.getMessage(), e);
 		}
+		
+		LOGGER.finer("Found " + buildsAndDocs.size() + " builds to use for NeoLoad graphs.");
 	}
 
 	/**
@@ -83,10 +88,13 @@ public class ProjectSpecificAction implements ProminentProjectAction {
 	public boolean showAvgGraph() {
 		NeoLoadPluginOptions npo = PluginUtils.getPluginOptions(project);
 		if ((npo == null) || (!npo.isShowTrendAverageResponse())) {
+			LOGGER.finer("Plugin options say the avg graph is OFF.");
 			return false;
 		}
 
-		return graphDataExists();
+		final boolean graphDataExists = graphDataExists();
+		LOGGER.finest("avg graph. Graph data exists: " + graphDataExists);
+		return graphDataExists;
 	}
 
 	/**
@@ -95,6 +103,7 @@ public class ProjectSpecificAction implements ProminentProjectAction {
 	public boolean showErrGraph() {
 		NeoLoadPluginOptions npo = PluginUtils.getPluginOptions(project);
 		if ((npo == null) || (!npo.isShowTrendErrorRate())) {
+			LOGGER.finer("Plugin options say the error graph is OFF.");
 			return false;
 		}
 
@@ -202,15 +211,24 @@ public class ProjectSpecificAction implements ProminentProjectAction {
 		while (it.hasNext()) {
 			artifact = it.next();
 
-			nlrd = new NeoLoadReportDoc(artifact.getFile().getAbsolutePath());
+			final String fileNameAbsolutePath = artifact.getFile().getAbsolutePath();
+			nlrd = new NeoLoadReportDoc(fileNameAbsolutePath);
 
 			// if the file is valid and was created during this build
-			if (!nlrd.isValidReportDoc()) {
+			if (!"xml".equalsIgnoreCase(FileUtils.extension(fileNameAbsolutePath))) {
 				it.remove();
+				
+			} else if (!nlrd.isValidReportDoc()) {
+				LOGGER.finest("Non-trend graph xml file found. File " + fileNameAbsolutePath);
+				it.remove();
+				
 			} else if (!nlrd.isNewerThan(build.getTimestamp())) {
 				// it's a valid report file but it's too old
+				LOGGER.finest("Valid report file is too old. File " + fileNameAbsolutePath + " must have internal start time after " +
+						DateFormatUtils.format(build.getTimestamp(), "yyyy-MM-dd kk:mm:ss"));
 				it.remove();
 			} else {
+				LOGGER.finest("Valid report file found. " + fileNameAbsolutePath);
 				correctDoc = nlrd;
 				break;
 			}
