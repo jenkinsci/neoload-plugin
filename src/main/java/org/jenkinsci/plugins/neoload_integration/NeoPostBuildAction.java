@@ -16,6 +16,8 @@ import org.kohsuke.stapler.DataBoundConstructor;
 /**
  * This class adds the link to the html report to a build after the build has
  * completed. Extend Recorder instead of Notifier for Hudson compatability.
+ * 
+ * This class also holds the settings chosen by the user for the plugin.
  */
 @SuppressWarnings("unchecked")
 public class NeoPostBuildAction extends Recorder implements NeoLoadPluginOptions {
