@@ -14,7 +14,7 @@ import net.sf.json.JSONObject;
 
 import org.kohsuke.stapler.StaplerRequest;
 
-/** Necessary Jenkins fluff to make the associated class actually be taken into account. */
+/** Without this class the two trend graphs are not displayed. */
 @Extension(optional = true)
 public class ProjectSpecificActionFactory extends TransientProjectActionFactory
 		implements Describable<ProjectSpecificActionFactory> {

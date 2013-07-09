@@ -12,7 +12,7 @@
 	<name>NeoLoad Plugin</name>
 	<url>http://www.neotys.com/support/download-plugins.html</url>
     <groupId>org.jenkins-ci.plugins</groupId>
-    <artifactId>neoload-hudson-plugin</artifactId>
+    <artifactId>neoload-jenkins-plugin</artifactId>
     <version>1.0-SNAPSHOT</version>
 
     <packaging>hpi</packaging>

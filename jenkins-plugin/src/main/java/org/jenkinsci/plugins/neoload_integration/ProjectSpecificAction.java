@@ -30,7 +30,7 @@ import org.xml.sax.SAXException;
 
 import com.neotys.nl.controller.report.transform.NeoLoadReportDoc;
 
-/** Along with the jelly file this class adds the two trend graphs to a job page. */
+/** Along with the jelly file and the Factory class, this class adds the two trend graphs to a job page. */
 public class ProjectSpecificAction implements ProminentProjectAction {
 
 	/** A link to the Jenkins job. */
