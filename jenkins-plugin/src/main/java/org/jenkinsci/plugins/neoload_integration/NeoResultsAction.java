@@ -36,9 +36,6 @@ public class NeoResultsAction implements Action {
 	/** True if the report file is found without any issues. This allows us to only show the link when the report file is found. */
 	private Boolean foundReportFile = null;
 	
-	/** Whether or not to throw certain exceptions. */
-	public static boolean throwExceptions = false;
-
 	/** Log various messages. */
 	private static final Logger LOGGER = Logger.getLogger(NeoResultsAction.class.getName());
 	
@@ -69,9 +66,9 @@ public class NeoResultsAction implements Action {
     }
 	
 	/** For storing artifact data. */
-	static class FileAndContent {
+	private static final class FileAndContent {
 		/** Artifact data. */
-		private final File file;
+		final File file;
 
 		/** URL to the artifact in Jenkins. */
 		private final String href;
@@ -126,9 +123,6 @@ public class NeoResultsAction implements Action {
 					}
 				} catch (Exception e) {
 					LOGGER.log(Level.FINE, "Error reading file. " + e.getMessage(), e);
-					if (throwExceptions) {
-						throw new RuntimeException(e);
-					}
 				}
 			}
 		}
@@ -137,11 +131,10 @@ public class NeoResultsAction implements Action {
 	}
 
 	/**
-	 * @param content2 
 	 * @param artifact
 	 * @return
-	 * @throws IOException 
-	 * @throws InterruptedException 
+	 * @throws IOException
+	 * @throws InterruptedException
 	 */
 	private boolean isFromTheCurrentBuild(Artifact artifact) throws IOException, InterruptedException {
 		// Look at the date of the file on the workspace, not the artifact file. The artifat file is always new because it is 
@@ -156,7 +149,7 @@ public class NeoResultsAction implements Action {
 		Calendar artifactCreateTime = Calendar.getInstance();
 		artifactCreateTime.setTime(new Date(f.lastModified()));
 		
-		LOGGER.log(Level.FINE, "Build start time: " + sdf.format(buildStartTime.getTime()) + ", Artifact file time: " + 
+		LOGGER.fine("Build start time: " + sdf.format(buildStartTime.getTime()) + ", Artifact file time: " + 
 				sdf.format(artifactCreateTime.getTime()) + ", Artifact file: " + f.getAbsolutePath() + 
 				", original file: " + f.getAbsolutePath());
 		
@@ -177,16 +170,14 @@ public class NeoResultsAction implements Action {
 		}
 		
 		// we could be dealing with an old version of NeoLoad, so we look for a likely NeoLoad file.
-		if ((content.contains("<title>Rapport de test de performance</title>")) ||
-				(content.contains("<title>Performance Testing Report</title>"))) {
+		if (content.startsWith("<html") && 
+			(content.contains("<title")) &&
+			(content.contains("_files/style.css")) && 
+			(content.contains("<frameset")) && 
+			(content.contains("_files/menu.html")) &&
+			(content.contains("_files/summary.html"))) {
 			
-			if (content.startsWith("<html") && 
-				(content.contains("<frameset")) && 
-				(content.contains("/menu.html")) &&
-				(content.contains("/summary.html"))) {
-				
-				return true;
-			}
+			return true;
 		}
 		
 		return false;
@@ -220,13 +211,12 @@ public class NeoResultsAction implements Action {
 		return null;
 	}
 
-	/**
+	/** Fix the horizontal scrollbar by adding overflow-x: hidden in many places.
 	 * @param ac
-	 * @throws IOException
 	 */
 	private static void applySpecialFormatting(FileAndContent ac) {
 		try {
-			// adjust the content
+			// adjust the content. 
 			ac.content = ac.content.replaceAll(Matcher.quoteReplacement("id=\"menu\""), "id=\"menu\" style='overflow-x: hidden;' ");
 			ac.content = ac.content.replaceAll(Matcher.quoteReplacement("id=\"content\""), "id=\"content\" style='overflow-x: hidden;' ");
 			ac.content += COMMENT_APPLIED_STYLE;

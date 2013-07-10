@@ -36,9 +36,6 @@ public class NeoResultsActionTest extends HudsonTestCase {
 	public void setUp() throws Exception {
 		super.setUp();
 		mo = new MockObjects();
-		
-		// print certain exceptions
-		NeoResultsAction.throwExceptions = true;
 	}
 
 	@Test
@@ -105,7 +102,7 @@ public class NeoResultsActionTest extends HudsonTestCase {
 		NeoResultsAction nra = new NeoResultsAction(ab);
 		
 		// remove the neoload tag for all html artifacts
-		List artifacts = ab.getArtifacts();
+		List<?> artifacts = ab.getArtifacts();
 		for (Object o: artifacts) {
 			Artifact a = (Artifact) o;
 			String absolutePath = a.getFile().getAbsolutePath();
