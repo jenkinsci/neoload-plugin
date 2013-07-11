@@ -64,6 +64,10 @@ public class NeoLoadReportDoc {
 	 * @throws XPathExpressionException
 	 */
 	public boolean isValidReportDoc() throws XPathExpressionException {
+		if (doc == null) {
+			return false;
+		}
+		
 		List<Node> nodes = XMLUtilities.findByExpression("/report/summary/all-summary/statistic-item", doc);
 
 		if ((nodes == null) || (nodes.size() == 0)) {

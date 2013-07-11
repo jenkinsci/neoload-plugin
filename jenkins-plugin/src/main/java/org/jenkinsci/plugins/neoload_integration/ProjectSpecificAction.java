@@ -62,12 +62,14 @@ public class ProjectSpecificAction implements ProminentProjectAction {
 
 			// look through all builds of the job
 			for (AbstractBuild<?, ?> build : project.getBuilds()) {
-				doc = findXMLResultsFile(build);
-				
-				// if the correct file was found, and
 				// only include successful builds.
-				if ((doc != null) && (build.getResult().isBetterThan(Result.FAILURE))) {
-					newBuildsAndDocs.put(build, doc);
+				if (build.getResult().isBetterThan(Result.FAILURE)) {
+					doc = findXMLResultsFile(build);
+					
+					// if the correct file was found
+					if (doc != null) {
+						newBuildsAndDocs.put(build, doc);
+					}
 				}
 			}
 
@@ -204,7 +206,6 @@ public class ProjectSpecificAction implements ProminentProjectAction {
 	private static NeoLoadReportDoc findXMLResultsFile(final AbstractBuild build) throws ParserConfigurationException, SAXException, IOException, XPathExpressionException {
 		Artifact artifact = null;
 		Iterator<Artifact> it = build.getArtifacts().iterator();
-		NeoLoadReportDoc nlrd = null;
 		NeoLoadReportDoc correctDoc = null;
 
 		// remove files that don't match
@@ -212,13 +213,15 @@ public class ProjectSpecificAction implements ProminentProjectAction {
 			artifact = it.next();
 
 			final String fileNameAbsolutePath = artifact.getFile().getAbsolutePath();
-			nlrd = new NeoLoadReportDoc(fileNameAbsolutePath);
 
 			// if the file is valid and was created during this build
 			if (!"xml".equalsIgnoreCase(FileUtils.extension(fileNameAbsolutePath))) {
 				it.remove();
-				
-			} else if (!nlrd.isValidReportDoc()) {
+				continue;
+			}
+			
+			NeoLoadReportDoc nlrd = new NeoLoadReportDoc(fileNameAbsolutePath);
+			if (!nlrd.isValidReportDoc()) {
 				LOGGER.finest("Non-trend graph xml file found. File " + fileNameAbsolutePath);
 				it.remove();
 				

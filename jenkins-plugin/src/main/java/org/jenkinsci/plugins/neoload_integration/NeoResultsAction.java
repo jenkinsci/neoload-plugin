@@ -68,7 +68,7 @@ public class NeoResultsAction implements Action {
 	/** For storing artifact data. */
 	private static final class FileAndContent {
 		/** Artifact data. */
-		final File file;
+		private final File file;
 
 		/** URL to the artifact in Jenkins. */
 		private final String href;
@@ -86,6 +86,25 @@ public class NeoResultsAction implements Action {
 			this.file = file;
 			this.href = href;
 			this.content = content;
+		}
+		
+		/** The original modification date is kept in tact.
+		 * @throws IOException
+		 */
+		public void writeFileContent() throws IOException {
+			long modDate = file.lastModified();
+			if (file.canWrite()) {
+				file.delete();
+				FileUtils.fileWrite(file.getAbsolutePath(), content);
+				file.setLastModified(modDate); // keep the old modification date
+			}
+		}
+		
+		/**
+		 * @return file.getParent();
+		 */
+		public String getFileParent() {
+			return file.getParent();
 		}
 	}
 
@@ -222,17 +241,12 @@ public class NeoResultsAction implements Action {
 			ac.content += COMMENT_APPLIED_STYLE;
 
 			// write the content
-			long modDate = ac.file.lastModified();
-			if (ac.file.canWrite()) {
-				ac.file.delete();
-				FileUtils.fileWrite(ac.file.getAbsolutePath(), ac.content);
-				ac.file.setLastModified(modDate); // keep the old modification date
-			}
+			ac.writeFileContent();
 
 			// find the menu.html
 			String temp = ac.content.substring(ac.content.indexOf("src=\"") + 5);
 			temp = temp.substring(0, temp.indexOf('\"'));
-			String menuLink = ac.file.getParent() + File.separatorChar + temp;
+			String menuLink = ac.getFileParent() + File.separatorChar + temp;
 			String menuContent = FileUtils.fileRead(menuLink);
 			menuContent = menuContent.replace(Matcher.quoteReplacement("body {"), "body {\noverflow-x: hidden;");
 			menuContent += COMMENT_APPLIED_STYLE;
@@ -242,7 +256,7 @@ public class NeoResultsAction implements Action {
 			// find the style.css
 			temp = ac.content.substring(ac.content.indexOf("<link"), ac.content.indexOf(">", ac.content.indexOf("<link")));
 			temp = temp.substring(temp.indexOf("href=") + 6, temp.length() - 1);
-			String styleLink = ac.file.getParent() + File.separatorChar + temp;
+			String styleLink = ac.getFileParent() + File.separatorChar + temp;
 			String styleContent = FileUtils.fileRead(styleLink);
 			styleContent = styleContent.replace(Matcher.quoteReplacement("body {"), "body {\noverflow-x: hidden;");
 			styleContent += COMMENT_CSS_APPLIED_STYLE;
