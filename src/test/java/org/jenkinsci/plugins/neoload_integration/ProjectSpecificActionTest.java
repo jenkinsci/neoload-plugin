@@ -41,7 +41,7 @@ public class ProjectSpecificActionTest extends TestCase {
 	@Test
 	public void testShowAvgGraph() {
 		ProjectSpecificAction psa = new ProjectSpecificAction(mo.getApWithoutOptions());
-		AbstractBuild ab = mo.getAbstractBuild();
+		AbstractBuild<?, ?> ab = mo.getAbstractBuild();
 		Mockito.when(ab.getResult()).thenReturn(Result.FAILURE);
 		assertFalse(psa.showAvgGraph());
 		
@@ -56,12 +56,6 @@ public class ProjectSpecificActionTest extends TestCase {
 		
 		psa = new ProjectSpecificAction(mo.getApWithOptions());
 		assertFalse(psa.showErrGraph());
-	}
-
-	@Test
-	public void testGraphDataExists() {
-		ProjectSpecificAction psa = new ProjectSpecificAction(mo.getApWithoutOptions()); 
-		psa.graphDataExists();
 	}
 
 	@Test
@@ -82,7 +76,7 @@ public class ProjectSpecificActionTest extends TestCase {
 	public void testGetErrGraph2() {
 		AbstractProject ap = mo.getApWithOptions();
 		
-		RunList rl = ap.getBuilds();
+		RunList<AbstractBuild<?, ?>> rl = ap.getBuilds();
 		// add the same build to the project multiple times
 		rl.add(mo.getAbstractBuild());
 		rl.add(mo.getAbstractBuild());
@@ -99,7 +93,7 @@ public class ProjectSpecificActionTest extends TestCase {
 	public void testGetAvgGraph2() {
 		AbstractProject ap = mo.getApWithOptions();
 		
-		RunList rl = ap.getBuilds();
+		RunList<AbstractBuild<?, ?>> rl = ap.getBuilds();
 		// add the same build to the project multiple times
 		rl.add(mo.getAbstractBuild());
 		rl.add(mo.getAbstractBuild());

@@ -63,7 +63,7 @@ public class ProjectSpecificAction implements ProminentProjectAction {
 			// look through all builds of the job
 			for (AbstractBuild<?, ?> build : project.getBuilds()) {
 				// only include successful builds.
-				if (build.getResult().isBetterThan(Result.FAILURE)) {
+				if (build != null && build.getResult() != null && build.getResult().isBetterThan(Result.FAILURE)) {
 					doc = findXMLResultsFile(build);
 					
 					// if the correct file was found
@@ -94,7 +94,7 @@ public class ProjectSpecificAction implements ProminentProjectAction {
 			return false;
 		}
 
-		final boolean graphDataExists = graphDataExists();
+		final boolean graphDataExists = getAvgGraphPoints().size() > 1;
 		LOGGER.finest("avg graph. Graph data exists: " + graphDataExists);
 		return graphDataExists;
 	}
@@ -109,19 +109,9 @@ public class ProjectSpecificAction implements ProminentProjectAction {
 			return false;
 		}
 
-		return graphDataExists();
-	}
-
-	/**
-	 * @return true if enough data exists to create a graph
-	 * @throws XPathExpressionException
-	 * @throws IOException
-	 * @throws SAXException
-	 * @throws ParserConfigurationException
-	 */
-	public boolean graphDataExists() {
-		// there must be at least two results to create the graph
-		return buildsAndDocs.size() > 1;
+		final boolean graphDataExists = getErrGraphPoints().size() > 1;
+		LOGGER.finest("err graph. Graph data exists: " + graphDataExists);
+		return graphDataExists;
 	}
 
 	/**
@@ -130,9 +120,26 @@ public class ProjectSpecificAction implements ProminentProjectAction {
 	 */
 	public NeoLoadGraph getErrGraph() {
 		DefaultCategoryDataset ds = new DefaultCategoryDataset();
-		Float errorRate = null;
+		// linked hash maps keep the order of their keys
+		Map<String, Float> graphPoints = getErrGraphPoints();
+		
+		List<String> reverseKeys = new ArrayList<String>(graphPoints.keySet());
+		Collections.reverse(reverseKeys);
+		
+		for (String b: reverseKeys) {
+			ds.addValue(graphPoints.get(b), "Time", b);
+		}
+		// color from ColorTable.java
+		return new NeoLoadGraph(ds, "Error Rate %", new Color(200, 0, 0));
+	}
+
+	/**
+	 * @return
+	 */
+	private Map<String, Float> getErrGraphPoints() {
+		Float errorRate;
 		NeoLoadReportDoc nlrd = null;
-		Map<String, Float> nums = new LinkedHashMap<String, Float>(); // linked hash maps keep the order of their keys
+		Map<String, Float> graphPoints = new LinkedHashMap<String, Float>();
 
 		// get the number we want from all builds that we found earlier
 		for (AbstractBuild<?, ?> build : buildsAndDocs.keySet()) {
@@ -146,17 +153,13 @@ public class ProjectSpecificAction implements ProminentProjectAction {
 			}
 
 			if (errorRate != null) {
-				nums.put("#" + build.number, errorRate);
+				// use the custom name, otherwise use the default name.
+				String buildName = build.getDisplayName() == null ? "#" + build.number : build.getDisplayName();
+				graphPoints.put(buildName, errorRate);
 			}
 		}
-		List<String> reverseKeys = new ArrayList<String>(nums.keySet());
-		Collections.reverse(reverseKeys);
 		
-		for (String b: reverseKeys) {
-			ds.addValue(nums.get(b), "Time", b);
-		}
-		// color from ColorTable.java
-		return new NeoLoadGraph(ds, "Error Rate %", new Color(200, 0, 0));
+		return graphPoints;
 	}
 
 	/** Generates a graph 
@@ -164,9 +167,28 @@ public class ProjectSpecificAction implements ProminentProjectAction {
 	 */
 	public NeoLoadGraph getAvgGraph() {
 		DefaultCategoryDataset ds = new DefaultCategoryDataset();
-		Float avgResponseTime = null;
+		
+		// linked hash maps keep the order of their keys
+		Map<String, Float> nums = getAvgGraphPoints();
+		List<String> reverseKeys = new ArrayList<String>(nums.keySet());
+		Collections.reverse(reverseKeys);
+		
+		for (String b: reverseKeys) {
+			ds.addValue(nums.get(b), "Time", b);
+		}
+
+		// color from ColorTable.java
+		return new NeoLoadGraph(ds, "Avg Resp Time (secs)", new Color(237, 184, 0));
+	}
+
+	/**
+	 * @return
+	 */
+	private Map<String, Float> getAvgGraphPoints() {
+		Float avgResponseTime;
 		NeoLoadReportDoc nlrd = null;
-		Map<String, Float> nums = new LinkedHashMap<String, Float>(); // linked hash maps keep the order of their keys
+		// linked hash maps keep the order of their keys
+		Map<String, Float> nums = new LinkedHashMap<String, Float>(); 
 
 		// get the number we want from all builds that we found earlier
 		for (AbstractBuild<?, ?> build : buildsAndDocs.keySet()) {
@@ -180,18 +202,12 @@ public class ProjectSpecificAction implements ProminentProjectAction {
 			}
 
 			if (avgResponseTime != null) {
-				nums.put("#" + build.number, avgResponseTime);
+				// use the custom name, otherwise use the default name.
+				String buildName = build.getDisplayName() == null ? "#" + build.number : build.getDisplayName();
+				nums.put(buildName, avgResponseTime);
 			}
 		}
-		List<String> reverseKeys = new ArrayList<String>(nums.keySet());
-		Collections.reverse(reverseKeys);
-		
-		for (String b: reverseKeys) {
-			ds.addValue(nums.get(b), "Time", b);
-		}
-
-		// color from ColorTable.java
-		return new NeoLoadGraph(ds, "Avg Resp Time (secs)", new Color(237, 184, 0));
+		return nums;
 	}
 
 	/**
