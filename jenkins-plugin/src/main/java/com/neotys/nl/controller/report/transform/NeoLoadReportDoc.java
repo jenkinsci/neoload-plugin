@@ -1,6 +1,5 @@
 package com.neotys.nl.controller.report.transform;
 
-import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -12,7 +11,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.commons.io.FilenameUtils;
@@ -20,7 +18,6 @@ import org.jenkinsci.plugins.neoload_integration.supporting.PluginUtils;
 import org.jenkinsci.plugins.neoload_integration.supporting.XMLUtilities;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
-import org.xml.sax.SAXException;
 
 /** A wrapper for an xml document.
  * @author ajohnson
@@ -36,9 +33,6 @@ public class NeoLoadReportDoc {
 
 	/** Constructor.
 	 * @param xmlFilePath
-	 * @throws ParserConfigurationException
-	 * @throws SAXException
-	 * @throws IOException
 	 */
 	public NeoLoadReportDoc(String xmlFilePath) {
 		try {
@@ -109,10 +103,14 @@ public class NeoLoadReportDoc {
 			if (typeAttributeValue.equalsIgnoreCase(val)) {
 				// this is the correct node. get the avg response time value.
 				val = XMLUtilities.findFirstValueByExpression("@avg", searchNode);
-				val = val.replaceAll(",", ".").replaceAll(" ", ""); // remove spaces etc
-				val = val.replaceAll(Pattern.quote("%"), ""); // special case for percentages
-				val = val.replaceAll(Pattern.quote("+"), ""); // special case for percentages
-				if ("<0.01".equals(val)) { // special case for less than 0.01%
+				// remove spaces etc
+				val = val.replaceAll(",", ".").replaceAll(" ", "");
+				// special case for percentages
+				val = val.replaceAll(Pattern.quote("%"), "");
+				// special case for percentages
+				val = val.replaceAll(Pattern.quote("+"), "");
+				// special case for less than 0.01%
+				if ("<0.01".equals(val)) {
 					numVal = 0f;
 				} else {
 					try {
