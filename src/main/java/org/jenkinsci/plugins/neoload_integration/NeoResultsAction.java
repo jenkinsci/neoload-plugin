@@ -94,9 +94,14 @@ public class NeoResultsAction implements Action {
 		public void writeFileContent() throws IOException {
 			long modDate = file.lastModified();
 			if (file.canWrite()) {
-				file.delete();
+				if (!file.delete()) {
+					LOGGER.log(Level.SEVERE, "Error deleting file " + file.getAbsolutePath());
+				}
 				FileUtils.fileWrite(file.getAbsolutePath(), content);
-				file.setLastModified(modDate); // keep the old modification date
+				// keep the old modification date
+				if (!file.setLastModified(modDate)) {
+					LOGGER.log(Level.SEVERE, "Error updating (keeping original) modification date of file " + file.getAbsolutePath());
+				}
 			}
 		}
 		
@@ -250,7 +255,9 @@ public class NeoResultsAction implements Action {
 			String menuContent = FileUtils.fileRead(menuLink);
 			menuContent = menuContent.replace(Matcher.quoteReplacement("body {"), "body {\noverflow-x: hidden;");
 			menuContent += COMMENT_APPLIED_STYLE;
-			new File(menuLink).delete();
+			if (!new File(menuLink).delete()) {
+				LOGGER.log(Level.SEVERE, "Error deleting file " + menuLink);
+			}
 			FileUtils.fileWrite(menuLink, menuContent);
 
 			// find the style.css

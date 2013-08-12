@@ -136,7 +136,7 @@ public class ProjectSpecificAction implements ProminentProjectAction {
 	/**
 	 * @return
 	 */
-	private Map<String, Float> getErrGraphPoints() {
+	Map<String, Float> getErrGraphPoints() {
 		Float errorRate;
 		NeoLoadReportDoc nlrd = null;
 		Map<String, Float> graphPoints = new LinkedHashMap<String, Float>();
@@ -184,7 +184,7 @@ public class ProjectSpecificAction implements ProminentProjectAction {
 	/**
 	 * @return
 	 */
-	private Map<String, Float> getAvgGraphPoints() {
+	Map<String, Float> getAvgGraphPoints() {
 		Float avgResponseTime;
 		NeoLoadReportDoc nlrd = null;
 		// linked hash maps keep the order of their keys

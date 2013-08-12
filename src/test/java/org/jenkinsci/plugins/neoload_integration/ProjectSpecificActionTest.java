@@ -1,5 +1,8 @@
 package org.jenkinsci.plugins.neoload_integration;
 
+import java.util.Map;
+
+import hudson.model.Build;
 import hudson.model.Result;
 import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
@@ -107,15 +110,59 @@ public class ProjectSpecificActionTest extends TestCase {
 	}
 
 	@Test
+	public void testGetAvgGraphPoints() {
+		AbstractProject ap = mo.getApWithOptions();
+		
+		RunList<AbstractBuild<?, ?>> rl = ap.getBuilds();
+		// add the same build to the project multiple times
+		rl.add(mo.getAbstractBuild());
+		rl.add(mo.getAbstractBuild());
+		rl.add(mo.getAbstractBuild());
+		Mockito.when(ap.getBuilds()).thenReturn(rl);
+
+		ProjectSpecificAction psa = new ProjectSpecificAction(ap);
+		psa.refreshGraphData();
+		Map<String, Float> points = psa.getAvgGraphPoints();
+		assertTrue(points.size() > 0);
+		
+		AbstractBuild<?, ?> build = rl.get(0);
+		Mockito.when(build.getDisplayName()).thenReturn("bob");
+		points = psa.getAvgGraphPoints();
+		assertTrue(points.get("bob") != null);
+	}
+
+	@Test
+	public void testGetErrGraphPoints() {
+		AbstractProject ap = mo.getApWithOptions();
+		
+		RunList<AbstractBuild<?, ?>> rl = ap.getBuilds();
+		// add the same build to the project multiple times
+		rl.add(mo.getAbstractBuild());
+		rl.add(mo.getAbstractBuild());
+		rl.add(mo.getAbstractBuild());
+		Mockito.when(ap.getBuilds()).thenReturn(rl);
+
+		ProjectSpecificAction psa = new ProjectSpecificAction(ap);
+		psa.refreshGraphData();
+		Map<String, Float> points = psa.getErrGraphPoints();
+		assertTrue(points.size() > 0);
+		
+		AbstractBuild<?, ?> build = rl.get(0);
+		Mockito.when(build.getDisplayName()).thenReturn("bob");
+		points = psa.getErrGraphPoints();
+		assertTrue(points.get("bob") != null);
+	}
+
+	@Test
 	public void testGetIconFileName() {
 		ProjectSpecificAction psa = new ProjectSpecificAction(mo.getApWithoutOptions());
-		psa.getIconFileName();
+		assertTrue(null == psa.getIconFileName());
 	}
 
 	@Test
 	public void testGetDisplayName() {
 		ProjectSpecificAction psa = new ProjectSpecificAction(mo.getApWithoutOptions());
-		psa.getDisplayName();
+		assertTrue(null != psa.getDisplayName());
 	}
 
 }
