@@ -164,16 +164,22 @@ public class NeoResultsAction implements Action {
 		// Look at the date of the file on the workspace, not the artifact file. The artifact file is always new because it is 
 		// copied after the job is run. 
 		
-		String workspaceFilePath = artifact.getFile().getCanonicalPath();
-		File f = new File(workspaceFilePath);
+		final String workspaceFilePath = build.getWorkspace().toURI().getPath() + File.separatorChar + artifact.relativePath;
+		final File f = new File(workspaceFilePath);
 		
 		// get the date of the report
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd kk:mm:ss");
-		Calendar buildStartTime = build.getTimestamp();
-		Calendar artifactCreateTime = Calendar.getInstance();
+		final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd kk:mm:ss");
+		final Calendar buildStartTime = build.getTimestamp();
+		final Calendar artifactCreateTime = Calendar.getInstance();
+		
+		if (!f.exists()) {
+			LOGGER.fine("Can't find artifact file in the workspace. Workspace: " + build.getWorkspace().toURI().getPath() + ", Relative path: " +
+					artifact.relativePath + ", Complete path: " + workspaceFilePath); 
+		}
+		
 		artifactCreateTime.setTime(new Date(f.lastModified()));
 		
-		LOGGER.fine("Build start time: " + sdf.format(buildStartTime.getTime()) + ", Artifact file time: " + 
+		LOGGER.finer("Build start time: " + sdf.format(buildStartTime.getTime()) + ", Artifact file time: " + 
 				sdf.format(artifactCreateTime.getTime()) + ", Artifact file: " + f.getAbsolutePath() + 
 				", original file: " + f.getAbsolutePath());
 		
