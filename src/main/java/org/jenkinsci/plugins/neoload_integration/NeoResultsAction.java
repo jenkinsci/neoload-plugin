@@ -164,7 +164,7 @@ public class NeoResultsAction implements Action {
 		// Look at the date of the file on the workspace, not the artifact file. The artifact file is always new because it is 
 		// copied after the job is run. 
 		
-		final String workspacePath = new File(build.getWorkspace().toURI().getPath()).getCanonicalPath();
+		final String workspacePath = new File(build.getWorkspace().getRemote()).getCanonicalPath();
 		final String fullFilePath = workspacePath + File.separatorChar + artifact.relativePath;
 		final File f = new File(fullFilePath);
 		
