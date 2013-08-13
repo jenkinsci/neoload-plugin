@@ -161,10 +161,10 @@ public class NeoResultsAction implements Action {
 	 * @throws InterruptedException
 	 */
 	private boolean isFromTheCurrentBuild(Artifact artifact) throws IOException, InterruptedException {
-		// Look at the date of the file on the workspace, not the artifact file. The artifat file is always new because it is 
+		// Look at the date of the file on the workspace, not the artifact file. The artifact file is always new because it is 
 		// copied after the job is run. 
 		
-		String workspaceFilePath = build.getWorkspace().toURI().getPath() + File.separatorChar + artifact.relativePath;
+		String workspaceFilePath = artifact.getFile().getCanonicalPath();
 		File f = new File(workspaceFilePath);
 		
 		// get the date of the report
