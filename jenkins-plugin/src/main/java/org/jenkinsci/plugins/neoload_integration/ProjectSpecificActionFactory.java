@@ -7,6 +7,7 @@ import hudson.model.TransientProjectActionFactory;
 import hudson.model.AbstractProject;
 import hudson.model.Descriptor;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
 
@@ -17,7 +18,10 @@ import org.kohsuke.stapler.StaplerRequest;
 /** Without this class the two trend graphs are not displayed. */
 @Extension(optional = true)
 public class ProjectSpecificActionFactory extends TransientProjectActionFactory
-		implements Describable<ProjectSpecificActionFactory> {
+		implements Describable<ProjectSpecificActionFactory>, Serializable {
+
+	/** Generated. */
+	private static final long serialVersionUID = -1955069445418117473L;
 
 	@Override
 	public Collection<? extends Action> createFor(AbstractProject job) {
@@ -31,7 +35,10 @@ public class ProjectSpecificActionFactory extends TransientProjectActionFactory
 	@Extension(optional = true)
 	public static final DescriptorImplPSA DESCRIPTOR = new DescriptorImplPSA();
 
-    public static final class DescriptorImplPSA extends Descriptor<ProjectSpecificActionFactory> {
+    public static final class DescriptorImplPSA extends Descriptor<ProjectSpecificActionFactory> implements Serializable {
+
+		/** Generated. */
+		private static final long serialVersionUID = 7549069766029770042L;
 
 		public DescriptorImplPSA() {
 		}

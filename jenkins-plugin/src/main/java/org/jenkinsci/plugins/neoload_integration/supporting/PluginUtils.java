@@ -11,6 +11,9 @@ import java.util.Date;
 
 public final class PluginUtils implements Serializable {
 	
+	/** Generated. */
+	private static final long serialVersionUID = -3063042074729452263L;
+
 	/** Utility classes are not intended to be instantiated. */
 	private PluginUtils() {
 		throw new IllegalAccessError();

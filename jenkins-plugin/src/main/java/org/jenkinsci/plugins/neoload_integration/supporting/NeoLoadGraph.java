@@ -3,6 +3,7 @@ package org.jenkinsci.plugins.neoload_integration.supporting;
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.io.Serializable;
 
 import javax.imageio.ImageIO;
 import javax.servlet.ServletOutputStream;
@@ -19,8 +20,11 @@ import org.kohsuke.stapler.StaplerResponse;
 
 /** This does not extend any type of "Graph" class for easier compatibility with Hudson and Jenkins. 
  * i.e. we can more easily use the same code for both. */
-public class NeoLoadGraph {
+public class NeoLoadGraph implements Serializable {
 	
+	/** Generated. */
+	private static final long serialVersionUID = 8130335080125920473L;
+
 	/** We use the same size as the default junit trend graph. */
 	private static final int IMAGE_HEIGHT = 200;
 
