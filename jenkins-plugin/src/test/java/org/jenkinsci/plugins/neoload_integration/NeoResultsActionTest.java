@@ -40,8 +40,7 @@ public class NeoResultsActionTest extends HudsonTestCase {
 
 	@Test
 	public void testNeoResultsAction() {
-		@SuppressWarnings("unused")
-		NeoResultsAction nra = new NeoResultsAction(mo.getAbstractBuild());
+		assertNotNull(new NeoResultsAction(mo.getAbstractBuild()));
 	}
 	
 	@Test
