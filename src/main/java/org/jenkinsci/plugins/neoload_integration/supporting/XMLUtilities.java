@@ -1,6 +1,7 @@
 package org.jenkinsci.plugins.neoload_integration.supporting;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.ArrayList;
@@ -30,7 +31,10 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-public final class XMLUtilities {
+public final class XMLUtilities implements Serializable {
+
+	/** Generated. */
+	private static final long serialVersionUID = -8773441162622083954L;
 
 	/** Used for XPATH expressions. */
 	private static final XPathFactory XPATHFACTORY = XPathFactory.newInstance();

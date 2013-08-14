@@ -8,6 +8,7 @@ import hudson.model.Run.Artifact;
 
 import java.awt.Color;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -31,7 +32,10 @@ import org.xml.sax.SAXException;
 import com.neotys.nl.controller.report.transform.NeoLoadReportDoc;
 
 /** Along with the jelly file and the Factory class, this class adds the two trend graphs to a job page. */
-public class ProjectSpecificAction implements ProminentProjectAction {
+public class ProjectSpecificAction implements ProminentProjectAction, Serializable {
+
+	/** Generated. */
+	private static final long serialVersionUID = 1330074503285540479L;
 
 	/** A link to the Jenkins job. */
 	private AbstractProject<?, ?> project;

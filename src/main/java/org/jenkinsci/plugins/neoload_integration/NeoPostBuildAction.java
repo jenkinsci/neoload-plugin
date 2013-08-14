@@ -1,5 +1,7 @@
 package org.jenkinsci.plugins.neoload_integration;
 
+import java.io.Serializable;
+
 import hudson.Extension;
 import hudson.Launcher;
 import hudson.model.BuildListener;
@@ -20,8 +22,11 @@ import org.kohsuke.stapler.DataBoundConstructor;
  * This class also holds the settings chosen by the user for the plugin.
  */
 @SuppressWarnings("unchecked")
-public class NeoPostBuildAction extends Recorder implements NeoLoadPluginOptions {
+public class NeoPostBuildAction extends Recorder implements NeoLoadPluginOptions, Serializable {
 	
+	/** Generated. */
+	private static final long serialVersionUID = -7633475904852232979L;
+
 	/** User option presented in the GUI. Show the average response time. */
 	private final boolean showTrendAverageResponse;
 
