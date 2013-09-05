@@ -38,7 +38,7 @@ public class ProjectSpecificAction implements ProminentProjectAction, Serializab
 	private static final long serialVersionUID = 1330074503285540479L;
 
 	/** A link to the Jenkins job. */
-	private AbstractProject<?, ?> project;
+	private AbstractProject<?, ?> project = null;
 
 	/** Key is the build. Value is the NeoLoad xml report file. */
 	private Map<AbstractBuild<?, ?>, NeoLoadReportDoc> buildsAndDocs = new LinkedHashMap<AbstractBuild<?, ?>, NeoLoadReportDoc>();
@@ -64,6 +64,11 @@ public class ProjectSpecificAction implements ProminentProjectAction, Serializab
 			NeoLoadReportDoc doc = null;
 			Map<AbstractBuild<?, ?>, NeoLoadReportDoc> newBuildsAndDocs = new LinkedHashMap<AbstractBuild<?, ?>, NeoLoadReportDoc>();
 
+			// avoid a potential npe.
+			if (project == null || project.getBuilds() == null) {
+				return;
+			}
+			
 			// look through all builds of the job
 			for (AbstractBuild<?, ?> build : project.getBuilds()) {
 				// only include successful builds.
