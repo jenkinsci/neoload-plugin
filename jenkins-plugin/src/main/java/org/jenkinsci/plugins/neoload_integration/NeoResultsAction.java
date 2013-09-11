@@ -1,7 +1,6 @@
 package org.jenkinsci.plugins.neoload_integration;
 
 import hudson.FilePath;
-import hudson.FilePath.FileCallable;
 import hudson.model.Action;
 import hudson.model.AbstractBuild;
 import hudson.model.Run.Artifact;
@@ -20,7 +19,7 @@ import java.util.regex.Matcher;
 
 import org.codehaus.plexus.util.FileUtils;
 
-/** This class integrates with the side panel of the specific run of a job. The side panel consists of the navigation links on the left. 
+/** This class integrates with the side panel of the specific run of a job. The side panel consists of the navigation links on the left.
  * 
  * Listens for the AbstractBuild so it can be referenced later. */
 public class NeoResultsAction implements Action, Serializable {
@@ -39,39 +38,39 @@ public class NeoResultsAction implements Action, Serializable {
 
 	/** The current build. */
 	private final AbstractBuild<?, ?> build;
-	
+
 	/** True if the report file is found without any issues. This allows us to only show the link when the report file is found. */
 	private Boolean foundReportFile = null;
-	
+
 	/** Log various messages. */
 	private static final Logger LOGGER = Logger.getLogger(NeoResultsAction.class.getName());
-	
+
 	/** @param target */
 	public NeoResultsAction(final AbstractBuild<?, ?> target) {
 		super();
 		this.build = target;
 	}
-	
-    /**
-     * @param build
-     */
-    public static void addActionIfNotExists(AbstractBuild<?, ?> build) {
-    	boolean alreadyAdded = false;
-    	for (Action a: build.getActions()) {
-    		if (a instanceof NeoResultsAction) {
-    			alreadyAdded = true;
-    			break;
-    		}
-    	}
-    	
-    	if (!alreadyAdded) {
-    		NeoResultsAction nra = new NeoResultsAction(build);
-    		build.addAction(nra);
-    		LOGGER.log(Level.FINE, "Added Performance Result action to build " + build.number + " of job " + 
-    				build.getProject().getDisplayName());
-    	}
-    }
-	
+
+	/**
+	 * @param build
+	 */
+	public static void addActionIfNotExists(final AbstractBuild<?, ?> build) {
+		boolean alreadyAdded = false;
+		for (final Action a: build.getActions()) {
+			if (a instanceof NeoResultsAction) {
+				alreadyAdded = true;
+				break;
+			}
+		}
+
+		if (!alreadyAdded) {
+			final NeoResultsAction nra = new NeoResultsAction(build);
+			build.addAction(nra);
+			LOGGER.log(Level.FINE, "Added Performance Result action to build " + build.number + " of job " +
+					build.getProject().getDisplayName());
+		}
+	}
+
 	/** For storing artifact data. */
 	private static final class FileAndContent {
 		/** Artifact data. */
@@ -89,17 +88,17 @@ public class NeoResultsAction implements Action, Serializable {
 		 * @param href
 		 * @param content
 		 */
-		public FileAndContent(File file, String href, String content) {
+		public FileAndContent(final File file, final String href, final String content) {
 			this.file = file;
 			this.href = href;
 			this.content = content;
 		}
-		
+
 		/** The original modification date is kept in tact.
 		 * @throws IOException
 		 */
 		public void writeFileContent() throws IOException {
-			long modDate = file.lastModified();
+			final long modDate = file.lastModified();
 			if (file.canWrite()) {
 				if (!file.delete()) {
 					LOGGER.log(Level.SEVERE, "Error deleting file " + file.getAbsolutePath());
@@ -111,7 +110,7 @@ public class NeoResultsAction implements Action, Serializable {
 				}
 			}
 		}
-		
+
 		/**
 		 * @return file.getParent();
 		 */
@@ -127,7 +126,7 @@ public class NeoResultsAction implements Action, Serializable {
 	@SuppressWarnings("rawtypes")
 	private FileAndContent findHtmlReportArtifact() {
 		Artifact artifact = null;
-		Iterator<?> it = build.getArtifacts().iterator();
+		final Iterator<?> it = build.getArtifacts().iterator();
 		String content = null;
 		FileAndContent ac = null;
 
@@ -136,7 +135,7 @@ public class NeoResultsAction implements Action, Serializable {
 			artifact = (Artifact) it.next();
 
 			// if it's an html file
-			if ((artifact.getFileName().length() > 4) && 
+			if ((artifact.getFileName().length() > 4) &&
 					("html".equalsIgnoreCase(artifact.getFileName().substring(artifact.getFileName().length() - 4)))) {
 
 				// verify file contents
@@ -149,10 +148,13 @@ public class NeoResultsAction implements Action, Serializable {
 							ac = new FileAndContent(artifact.getFile(), artifact.getHref(), content);
 							break;
 						}
-						LOGGER.log(Level.FINE, 
-								"Build " + build.number + ", Found " + artifact.getFileName() + ", but it's too old to use.");					
+						LOGGER.log(Level.WARNING,
+								"Build " + build.number + ": Found " + artifact.getFile().getAbsolutePath() + ", but it's too old to use. " +
+										"Verify that the output directory matches the workspace directory. " +
+										"Verify that the workspace directory is empty before launching the job. " +
+								"Verify that clocks are synchronized between the remote and local machines.");
 					}
-				} catch (Exception e) {
+				} catch (final Exception e) {
 					LOGGER.log(Level.FINE, "Error reading file. " + e.getMessage(), e);
 				}
 			}
@@ -168,52 +170,64 @@ public class NeoResultsAction implements Action, Serializable {
 	 * @throws InterruptedException
 	 */
 	private boolean isFromTheCurrentBuild(final Artifact artifact) throws IOException, InterruptedException {
-		// Look at the date of the file on the workspace, not the artifact file. The artifact file is always new because it is 
-		// copied after the job is run. 
-		
+		// Look at the date of the file on the workspace, not the artifact file. The artifact file is always new because it is
+		// copied after the job is run.
+
 		final FilePath file = build.getWorkspace();
-		
-		 // make 'file' a fresh empty directory.
-		final String workspaceDirectory = file.getRemote();
-		final String fullFilePath = workspaceDirectory + File.separatorChar + artifact.relativePath;
-		final MyFileCallable myFileCallable = new MyFileCallable(fullFilePath);
-		final long lastModifiedDate = file.act(myFileCallable);
-		
+
+		// make 'file' a fresh empty directory.
+		final String workspaceFilePath = getWorkspaceFilePath(artifact);
+		final FileCallableForModifiedDate fileCallableForModifiedDate = new FileCallableForModifiedDate(workspaceFilePath);
+		final long lastModifiedDate = file.act(fileCallableForModifiedDate);
+
 		// get the date of the report
 		final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd kk:mm:ss");
 		final Calendar buildStartTime = build.getTimestamp();
 		final Calendar artifactCreateTime = Calendar.getInstance();
-		
+
 		artifactCreateTime.setTime(new Date(lastModifiedDate));
-		
-		LOGGER.finer("Build start time: " + sdf.format(buildStartTime.getTime()) + ", Artifact file time: " + 
-				sdf.format(artifactCreateTime.getTime()) + ", Artifact file: " + fullFilePath + 
-				", original file: " + fullFilePath);
-		
+
+		LOGGER.finer("Build start time: " + sdf.format(buildStartTime.getTime()) + ", Artifact file time: " +
+				sdf.format(artifactCreateTime.getTime()) + ", Artifact file: " + workspaceFilePath +
+				", original file: " + workspaceFilePath);
+
 		if (buildStartTime.before(artifactCreateTime)) {
 			return true;
 		}
 
 		return false;
 	}
-	
-	static class MyFileCallable implements FilePath.FileCallable<Long> {
+
+	/**
+	 * @param artifact
+	 * @return
+	 */
+	private String getWorkspaceFilePath(final Artifact artifact) {
+		final FilePath file = build.getWorkspace();
+		final String workspaceDirectory = file.getRemote();
+		final String workspaceFilePath = workspaceDirectory + File.separatorChar + artifact.relativePath;
+
+		return workspaceFilePath;
+	}
+
+	/** Returns the file modification date of a file on a local or a remote machine. */
+	static class FileCallableForModifiedDate implements FilePath.FileCallable<Long> {
 		/** Generated. */
 		private static final long serialVersionUID = 5191449389416826768L;
-		
+
 		private final String fullFilePath;
-		
-		public MyFileCallable(final String fullFilePath) {
+
+		public FileCallableForModifiedDate(final String fullFilePath) {
 			this.fullFilePath = fullFilePath;
 		}
-		
+
 		/* (non-Javadoc)
 		 * @see hudson.FilePath.FileCallable#invoke(java.io.File, hudson.remoting.VirtualChannel)
 		 */
-		public Long invoke(File f, VirtualChannel channel) throws IOException, InterruptedException {
-			File myFile = new File(fullFilePath);
+		public Long invoke(final File f, final VirtualChannel channel) throws IOException, InterruptedException {
+			final File myFile = new File(fullFilePath);
 			if (!myFile.exists()) {
-				LOGGER.fine("Can't find artifact file in the workspace. I'm looking for " + myFile.getPath()); 
+				LOGGER.fine("Can't find artifact file in the workspace. I'm looking for " + myFile.getPath());
 			}
 			return myFile.lastModified();
 		}
@@ -223,22 +237,22 @@ public class NeoResultsAction implements Action, Serializable {
 	 * @param content
 	 * @return true if the passed in content is the html file of a NeoLoad generated report
 	 */
-	private static boolean isNeoLoadHTMLReport(String content) {
+	private static boolean isNeoLoadHTMLReport(final String content) {
 		if (content.contains(TAG_HTML_GENERATED_BY_NEOLOAD)) {
 			return true;
 		}
-		
+
 		// we could be dealing with an old version of NeoLoad, so we look for a likely NeoLoad file.
-		if (content.startsWith("<html") && 
-			(content.contains("<title")) &&
-			(content.contains("_files/style.css")) && 
-			(content.contains("<frameset")) && 
-			(content.contains("_files/menu.html")) &&
-			(content.contains("_files/summary.html"))) {
-			
+		if (content.startsWith("<html") &&
+				(content.contains("<title")) &&
+				(content.contains("_files/style.css")) &&
+				(content.contains("<frameset")) &&
+				(content.contains("_files/menu.html")) &&
+				(content.contains("_files/summary.html"))) {
+
 			return true;
 		}
-		
+
 		return false;
 	}
 
@@ -254,7 +268,7 @@ public class NeoResultsAction implements Action, Serializable {
 	 * @throws IOException
 	 */
 	public String getHtmlReportFilePath() {
-		FileAndContent ac = findHtmlReportArtifact();
+		final FileAndContent ac = findHtmlReportArtifact();
 
 		if (ac != null) {
 			// append the style changes if it hasn't already been done
@@ -273,9 +287,9 @@ public class NeoResultsAction implements Action, Serializable {
 	/** Fix the horizontal scrollbar by adding overflow-x: hidden in many places.
 	 * @param ac
 	 */
-	private static void applySpecialFormatting(FileAndContent ac) {
+	private static void applySpecialFormatting(final FileAndContent ac) {
 		try {
-			// adjust the content. 
+			// adjust the content.
 			ac.content = ac.content.replaceAll(Matcher.quoteReplacement("id=\"menu\""), "id=\"menu\" style='overflow-x: hidden;' ");
 			ac.content = ac.content.replaceAll(Matcher.quoteReplacement("id=\"content\""), "id=\"content\" style='overflow-x: hidden;' ");
 			ac.content += COMMENT_APPLIED_STYLE;
@@ -286,7 +300,7 @@ public class NeoResultsAction implements Action, Serializable {
 			// find the menu.html
 			String temp = ac.content.substring(ac.content.indexOf("src=\"") + 5);
 			temp = temp.substring(0, temp.indexOf('\"'));
-			String menuLink = ac.getFileParent() + File.separatorChar + temp;
+			final String menuLink = ac.getFileParent() + File.separatorChar + temp;
 			String menuContent = FileUtils.fileRead(menuLink);
 			menuContent = menuContent.replace(Matcher.quoteReplacement("body {"), "body {\noverflow-x: hidden;");
 			menuContent += COMMENT_APPLIED_STYLE;
@@ -298,14 +312,14 @@ public class NeoResultsAction implements Action, Serializable {
 			// find the style.css
 			temp = ac.content.substring(ac.content.indexOf("<link"), ac.content.indexOf(">", ac.content.indexOf("<link")));
 			temp = temp.substring(temp.indexOf("href=") + 6, temp.length() - 1);
-			String styleLink = ac.getFileParent() + File.separatorChar + temp;
+			final String styleLink = ac.getFileParent() + File.separatorChar + temp;
 			String styleContent = FileUtils.fileRead(styleLink);
 			styleContent = styleContent.replace(Matcher.quoteReplacement("body {"), "body {\noverflow-x: hidden;");
 			styleContent += COMMENT_CSS_APPLIED_STYLE;
 			new File(styleLink).delete();
 			FileUtils.fileWrite(styleLink, styleContent);
 
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			// this operation is not important enough to throw an exception.
 			LOGGER.log(Level.WARNING, "Couldn't add custom style to report files.");
 		}

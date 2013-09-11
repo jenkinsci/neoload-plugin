@@ -34,9 +34,9 @@ public class NeoLoadReportDoc {
 	/** Constructor.
 	 * @param xmlFilePath
 	 */
-	public NeoLoadReportDoc(String xmlFilePath) {
+	public NeoLoadReportDoc(final String xmlFilePath) {
 		try {
-			if ((xmlFilePath != null) && 
+			if ((xmlFilePath != null) &&
 					("xml".equalsIgnoreCase(FilenameUtils.getExtension(xmlFilePath)))) {
 
 				doc = XMLUtilities.readXmlFile(xmlFilePath);
@@ -44,12 +44,12 @@ public class NeoLoadReportDoc {
 				// to avoid npe
 				doc = XMLUtilities.createNodeFromText("<empty></empty>").getOwnerDocument();
 			}
-		} catch (Exception e) {
-			LOGGER.log(Level.SEVERE, "Error reading xml file " + xmlFilePath + ". " + e.getMessage(), e);
+		} catch (final Exception e) {
+			LOGGER.log(Level.WARNING, "Error reading xml file " + xmlFilePath + ". " + e.getMessage(), e);
 		}
 	}
 
-	public NeoLoadReportDoc(Document doc) {
+	public NeoLoadReportDoc(final Document doc) {
 		this.doc = doc;
 	}
 
@@ -61,8 +61,8 @@ public class NeoLoadReportDoc {
 		if (doc == null) {
 			return false;
 		}
-		
-		List<Node> nodes = XMLUtilities.findByExpression("/report/summary/all-summary/statistic-item", doc);
+
+		final List<Node> nodes = XMLUtilities.findByExpression("/report/summary/all-summary/statistic-item", doc);
 
 		if ((nodes == null) || (nodes.size() == 0)) {
 			return false;
@@ -91,13 +91,13 @@ public class NeoLoadReportDoc {
 	 * @return
 	 * @throws XPathExpressionException
 	 */
-	private Float getGenericAvgValue(String path, String typeAttributeValue) throws XPathExpressionException {
-		List<Node> nodes = XMLUtilities.findByExpression(path, doc);
+	private Float getGenericAvgValue(final String path, final String typeAttributeValue) throws XPathExpressionException {
+		final List<Node> nodes = XMLUtilities.findByExpression(path, doc);
 		Float numVal = null;
 		String val = null;
 
 		// look at the nodes we found
-		for (Node searchNode : nodes) {
+		for (final Node searchNode : nodes) {
 			// look for the avg response time node
 			val = XMLUtilities.findFirstValueByExpression("@type", searchNode);
 			if (typeAttributeValue.equalsIgnoreCase(val)) {
@@ -115,7 +115,7 @@ public class NeoLoadReportDoc {
 				} else {
 					try {
 						numVal = Float.valueOf(val);
-					} catch (Exception e) {
+					} catch (final Exception e) {
 						// we couldn't convert the result to an actual number so the value will not be included.
 						// this could be +INF, -INF, " - ", NaN, etc. See com.neotys.nl.util.FormatUtils.java, getTextNumber().
 					}
@@ -136,57 +136,57 @@ public class NeoLoadReportDoc {
 	 * @return
 	 * @throws XPathExpressionException
 	 */
-	public boolean isNewerThan(Calendar calBuildTime) throws XPathExpressionException {
-		List<Node> nodes = XMLUtilities.findByExpression("/report/summary/test", doc);
-		
+	public boolean isNewerThan(final Calendar calBuildTime) throws XPathExpressionException {
+		final List<Node> nodes = XMLUtilities.findByExpression("/report/summary/test", doc);
+
 		// false if we didn't find the time
 		if ((nodes == null) || (nodes.size() != 1)) {
 			return false;
 		}
-		
-		Map<String, String> attributes = XMLUtilities.getMap(nodes.get(0).getAttributes());
-		
+
+		final Map<String, String> attributes = XMLUtilities.getMap(nodes.get(0).getAttributes());
+
 		try {
 			// look for a time formatted in a standard way
 			if (attributes.containsKey("std_start_time")) {
-				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd kk:mm:ss");
-				Date d = sdf.parse(attributes.get("std_start_time"));
+				final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd kk:mm:ss");
+				final Date d = sdf.parse(attributes.get("std_start_time"));
 				return PluginUtils.toCalendar(d).after(calBuildTime);
 			}
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			// don't care
 		}
-		
-		String startTime = attributes.get("start");
-		
+
+		final String startTime = attributes.get("start");
+
 		// try English. Mar 20, 2013 3:01:26 PM
 		try {
-			DateFormat df = DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT, Locale.ENGLISH);
-			Date d = df.parse(startTime);
+			final DateFormat df = DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT, Locale.ENGLISH);
+			final Date d = df.parse(startTime);
 			return PluginUtils.toCalendar(d).after(calBuildTime);
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			// don't care
 		}
-		
+
 		// try French. 22 mars 2013 11:07:33
 		try {
-			DateFormat df = DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT, Locale.FRENCH);
-			Date d = df.parse(startTime);
+			final DateFormat df = DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT, Locale.FRENCH);
+			final Date d = df.parse(startTime);
 			return PluginUtils.toCalendar(d).after(calBuildTime);
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			// don't care
 		}
-		
+
 		// try local machine format
 		try {
-			DateFormat df = DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT, Locale.getDefault());
-			Date d = df.parse(startTime);
+			final DateFormat df = DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT, Locale.getDefault());
+			final Date d = df.parse(startTime);
 			return PluginUtils.toCalendar(d).after(calBuildTime);
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			// can't figure out what the date format is...
 			LOGGER.log(Level.FINE, "Can't parse date in xml file " + doc.getDocumentURI());
 		}
-		
+
 		return false;
 	}
 
