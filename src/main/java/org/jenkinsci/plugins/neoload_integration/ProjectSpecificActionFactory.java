@@ -18,13 +18,13 @@ import org.kohsuke.stapler.StaplerRequest;
 /** Without this class the two trend graphs are not displayed. */
 @Extension(optional = true)
 public class ProjectSpecificActionFactory extends TransientProjectActionFactory
-		implements Describable<ProjectSpecificActionFactory>, Serializable {
+implements Describable<ProjectSpecificActionFactory>, Serializable {
 
 	/** Generated. */
 	private static final long serialVersionUID = -1955069445418117473L;
 
 	@Override
-	public Collection<? extends Action> createFor(AbstractProject job) {
+	public Collection<? extends Action> createFor(final AbstractProject job) {
 		return Collections.singleton(new ProjectSpecificAction(job));
 	}
 
@@ -35,7 +35,7 @@ public class ProjectSpecificActionFactory extends TransientProjectActionFactory
 	@Extension(optional = true)
 	public static final DescriptorImplPSA DESCRIPTOR = new DescriptorImplPSA();
 
-    public static final class DescriptorImplPSA extends Descriptor<ProjectSpecificActionFactory> implements Serializable {
+	public static final class DescriptorImplPSA extends Descriptor<ProjectSpecificActionFactory> implements Serializable {
 
 		/** Generated. */
 		private static final long serialVersionUID = 7549069766029770042L;
@@ -49,12 +49,12 @@ public class ProjectSpecificActionFactory extends TransientProjectActionFactory
 		}
 
 		@Override
-        public ProjectSpecificActionFactory newInstance(StaplerRequest req, JSONObject formData) {
+		public ProjectSpecificActionFactory newInstance(final StaplerRequest req, final JSONObject formData) {
 			return new ProjectSpecificActionFactory();
 		}
 
 		@Override
-        public boolean configure(StaplerRequest req, JSONObject formData) throws FormException {
+		public boolean configure(final StaplerRequest req, final JSONObject formData) throws FormException {
 			return super.configure(req, formData);
 		}
 

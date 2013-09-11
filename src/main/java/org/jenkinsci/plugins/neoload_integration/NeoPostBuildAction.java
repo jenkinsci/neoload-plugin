@@ -1,7 +1,5 @@
 package org.jenkinsci.plugins.neoload_integration;
 
-import java.io.Serializable;
-
 import hudson.Extension;
 import hudson.Launcher;
 import hudson.model.BuildListener;
@@ -11,6 +9,8 @@ import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.BuildStepMonitor;
 import hudson.tasks.Publisher;
 import hudson.tasks.Recorder;
+
+import java.io.Serializable;
 
 import org.jenkinsci.plugins.neoload_integration.supporting.NeoLoadPluginOptions;
 import org.kohsuke.stapler.DataBoundConstructor;
@@ -23,7 +23,7 @@ import org.kohsuke.stapler.DataBoundConstructor;
  */
 @SuppressWarnings("unchecked")
 public class NeoPostBuildAction extends Recorder implements NeoLoadPluginOptions, Serializable {
-	
+
 	/** Generated. */
 	private static final long serialVersionUID = -7633475904852232979L;
 
@@ -32,20 +32,20 @@ public class NeoPostBuildAction extends Recorder implements NeoLoadPluginOptions
 
 	/** User option presented in the GUI. Show the average response time. */
 	private final boolean showTrendErrorRate;
-	
+
 	@DataBoundConstructor
-	public NeoPostBuildAction(boolean showTrendAverageResponse, boolean showTrendErrorRate) {
+	public NeoPostBuildAction(final boolean showTrendAverageResponse, final boolean showTrendErrorRate) {
 		// this method and the annotation @DataBoundConstructor are required for jenkins 1.393 even if no params are passed in.
 		this.showTrendAverageResponse = showTrendAverageResponse;
 		this.showTrendErrorRate = showTrendErrorRate;
 	}
-	
+
 	public BuildStepMonitor getRequiredMonitorService() {
 		return BuildStepMonitor.NONE;
 	}
 
 	@Override
-	public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) {
+	public boolean perform(final AbstractBuild<?, ?> build, final Launcher launcher, final BuildListener listener) {
 		NeoResultsAction.addActionIfNotExists(build);
 
 		return true;
@@ -64,7 +64,7 @@ public class NeoPostBuildAction extends Recorder implements NeoLoadPluginOptions
 
 		@Override
 		public boolean isApplicable(
-				@SuppressWarnings("rawtypes") Class<? extends AbstractProject> jobType) {
+				@SuppressWarnings("rawtypes") final Class<? extends AbstractProject> jobType) {
 			return true;
 		}
 	}
@@ -77,5 +77,5 @@ public class NeoPostBuildAction extends Recorder implements NeoLoadPluginOptions
 	/** @return the showTrendErrorRate */
 	public boolean isShowTrendErrorRate() {
 		return showTrendErrorRate;
-	}	
+	}
 }
