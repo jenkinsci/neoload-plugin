@@ -40,12 +40,12 @@ public class NeoResultsActionTest extends HudsonTestCase {
 
 	@Test
 	public void testNeoResultsAction() {
-		assertNotNull(new NeoResultsAction(mo.getAbstractBuild()));
+		assertNotNull(new NeoResultsAction(mo.getAbstractBuild(), true));
 	}
 	
 	@Test
 	public void testGetBuild() {
-		NeoResultsAction nra = new NeoResultsAction(mo.getAbstractBuild());
+		NeoResultsAction nra = new NeoResultsAction(mo.getAbstractBuild(), true);
 		assertTrue(nra.getBuild() == mo.getAbstractBuild());
 	}
 
@@ -56,7 +56,7 @@ public class NeoResultsActionTest extends HudsonTestCase {
 	public void testGetHtmlReportFilePath_DontFindReportFile() {
 		AbstractBuild<?, ?> ab = mo.getAbstractBuild();
 		Mockito.when(ab.getArtifacts()).thenReturn(Collections.EMPTY_LIST);
-		NeoResultsAction nra = new NeoResultsAction(ab);
+		NeoResultsAction nra = new NeoResultsAction(ab, true);
 		assertTrue(nra.getHtmlReportFilePath() == null);
 		
 		assertTrue(nra.getDisplayName() == null);
@@ -68,11 +68,20 @@ public class NeoResultsActionTest extends HudsonTestCase {
 	@Test
 	public void testGetHtmlReportFilePath_DoFindReportFileWithTag() {
 		AbstractBuild<?, ?> ab = mo.getAbstractBuild();
-		NeoResultsAction nra = new NeoResultsAction(ab);
+		NeoResultsAction nra = new NeoResultsAction(ab, true);
 		
 		Calendar cal = Calendar.getInstance();
 		cal.add(Calendar.YEAR, -1);
 		when(ab.getTimestamp()).thenReturn(cal);
+		
+		// set the duration to 60 minutes
+		when(ab.getDuration()).thenReturn((long) (1000 * 60 * 60));
+		// set the file create date to 30 seconds after the start date
+		List<?> artifacts = ab.getArtifacts();
+		for (Object o: artifacts) {
+			Artifact a = (Artifact) o;
+			a.getFile().setLastModified(ab.getTimestamp().getTimeInMillis() + 1000 * 30);
+		}
 		
 		assertTrue(nra.getDisplayName() != null);
 		assertTrue(nra.getUrlName() != null);
@@ -83,7 +92,7 @@ public class NeoResultsActionTest extends HudsonTestCase {
 	@Test
 	public void testGetHtmlReportFilePath_OldData() {
 		AbstractBuild<?, ?> ab = mo.getAbstractBuild();
-		NeoResultsAction nra = new NeoResultsAction(ab);
+		NeoResultsAction nra = new NeoResultsAction(ab, true);
 		
 		Calendar cal = Calendar.getInstance();
 		cal.add(Calendar.YEAR, 2);
@@ -93,25 +102,36 @@ public class NeoResultsActionTest extends HudsonTestCase {
 		assertTrue(nra.getUrlName() == null);
 		assertTrue(nra.getIconFileName() == null);
 	}
+	
 	/** Test that the report file is found when it does not include the correct tag. 
 	 * @throws IOException */
 	@Test
 	public void testGetHtmlReportFilePath_DoFindReportFileWithoutTag() throws IOException {
 		AbstractBuild<?, ?> ab = mo.getAbstractBuild();
-		NeoResultsAction nra = new NeoResultsAction(ab);
+		NeoResultsAction nra = new NeoResultsAction(ab, true);
+		
+		Calendar cal = Calendar.getInstance();
+		cal.add(Calendar.YEAR, -1);
+		when(ab.getTimestamp()).thenReturn(cal);
+		// set the duration to 60 minutes
+		when(ab.getDuration()).thenReturn((long) (1000 * 60 * 60));
 		
 		// remove the neoload tag for all html artifacts
 		List<?> artifacts = ab.getArtifacts();
 		for (Object o: artifacts) {
 			Artifact a = (Artifact) o;
+			a.getFile().setLastModified(ab.getTimestamp().getTimeInMillis() + 1000 * 30);
+			
 			String absolutePath = a.getFile().getAbsolutePath();
 			if ("html".equalsIgnoreCase(FilenameUtils.getExtension(absolutePath))) {
+				// set the file create date to 30 seconds after the start date
 				// remove the NeoLoad tag
 				String contents = FileUtils.readFileToString(a.getFile());
 				contents = contents.replaceAll(Pattern.quote(NeoResultsAction.TAG_HTML_GENERATED_BY_NEOLOAD), 
 						"");
 				a.getFile().delete();
 				FileUtils.writeStringToFile(a.getFile(), contents);
+				a.getFile().setLastModified(ab.getTimestamp().getTimeInMillis() + 1000 * 30);
 			}
 		}
 		
@@ -120,11 +140,49 @@ public class NeoResultsActionTest extends HudsonTestCase {
 		assertTrue(nra.getIconFileName() != null);
 	}
 
+	
+	/** Test that if the plugin is uninstalled and reinstalled that the file date alone is not sufficient to add the report link.
+	 * This looks exactly like {@link #testGetHtmlReportFilePath_DoFindReportFileWithoutTag()} except for one setting. 
+	 * @throws IOException */
+	@Test
+	public void testGetHtmlReportFilePath_EarlyExit() throws IOException {
+		AbstractBuild<?, ?> ab = mo.getAbstractBuild();
+		NeoResultsAction nra = new NeoResultsAction(ab, false);
+		
+		Calendar cal = Calendar.getInstance();
+		cal.add(Calendar.YEAR, -1);
+		when(ab.getTimestamp()).thenReturn(cal);
+		// set the duration to 60 minutes
+		when(ab.getDuration()).thenReturn((long) (1000 * 60 * 60));
+		
+		// remove the neoload tag for all html artifacts
+		List<?> artifacts = ab.getArtifacts();
+		for (Object o: artifacts) {
+			Artifact a = (Artifact) o;
+			a.getFile().setLastModified(ab.getTimestamp().getTimeInMillis() + 1000 * 30);
+			
+			String absolutePath = a.getFile().getAbsolutePath();
+			if ("html".equalsIgnoreCase(FilenameUtils.getExtension(absolutePath))) {
+				// set the file create date to 30 seconds after the start date
+				// remove the NeoLoad tag
+				String contents = FileUtils.readFileToString(a.getFile());
+				contents = contents.replaceAll(Pattern.quote(NeoResultsAction.TAG_HTML_GENERATED_BY_NEOLOAD), 
+						"");
+				a.getFile().delete();
+				a.getFile().setLastModified(ab.getTimestamp().getTimeInMillis() + 1000 * 30);
+			}
+		}
+		
+		assertTrue(nra.getDisplayName() == null);
+		assertTrue(nra.getUrlName() == null);
+		assertTrue(nra.getIconFileName() == null);
+	}
+	
 	@Test
 	public void testGetDisplayName() {
 		AbstractBuild<?, ?> ab = mo.getAbstractBuild();
 		Mockito.when(ab.getArtifacts()).thenReturn(Collections.EMPTY_LIST);
-		NeoResultsAction nra = new NeoResultsAction(ab);
+		NeoResultsAction nra = new NeoResultsAction(ab, true);
 		assertTrue(nra.getDisplayName() == null);
 	}
 
@@ -132,7 +190,7 @@ public class NeoResultsActionTest extends HudsonTestCase {
 	public void testGetIconFileName() {
 		AbstractBuild<?, ?> ab = mo.getAbstractBuild();
 		Mockito.when(ab.getArtifacts()).thenReturn(Collections.EMPTY_LIST);
-		NeoResultsAction nra = new NeoResultsAction(ab);
+		NeoResultsAction nra = new NeoResultsAction(ab, true);
 		assertTrue(nra.getIconFileName() == null);
 	}
 
@@ -140,7 +198,7 @@ public class NeoResultsActionTest extends HudsonTestCase {
 	public void testGetUrlName() {
 		AbstractBuild<?, ?> ab = mo.getAbstractBuild();
 		Mockito.when(ab.getArtifacts()).thenReturn(Collections.EMPTY_LIST);
-		NeoResultsAction nra = new NeoResultsAction(ab);
+		NeoResultsAction nra = new NeoResultsAction(ab, true);
 		assertTrue(nra.getUrlName() == null);
 	}
 	
@@ -159,7 +217,7 @@ public class NeoResultsActionTest extends HudsonTestCase {
 		
 		ArgumentCaptor<Action> argument = ArgumentCaptor.forClass(Action.class);
 		
-		NeoResultsAction.addActionIfNotExists(abstractBuild);
+		NeoResultsAction.addActionIfNotExists(abstractBuild, true);
 
 		Mockito.verify(abstractBuild).addAction(argument.capture());
 		assertTrue(argument.getValue() instanceof NeoResultsAction);
@@ -179,7 +237,7 @@ public class NeoResultsActionTest extends HudsonTestCase {
 		AbstractBuild<?, ?> abstractBuild = mo.getAbstractBuild();
 		when(abstractBuild.getActions()).thenReturn(actions);
 		
-		NeoResultsAction.addActionIfNotExists(abstractBuild);
+		NeoResultsAction.addActionIfNotExists(abstractBuild, true);
 
 		Mockito.verify(abstractBuild, Mockito.never()).addAction((Action) Matchers.any());
 	}

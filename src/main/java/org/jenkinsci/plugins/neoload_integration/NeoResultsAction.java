@@ -41,20 +41,27 @@ public class NeoResultsAction implements Action, Serializable {
 
 	/** True if the report file is found without any issues. This allows us to only show the link when the report file is found. */
 	private Boolean foundReportFile = null;
+	
+	/** If true then this instance was created immediately after a build. If false the build existed already. 
+	 * This covers when the plugin is uninstalled and reinstalled. */
+	private boolean processingForTheFirstTime;
 
 	/** Log various messages. */
 	private static final Logger LOGGER = Logger.getLogger(NeoResultsAction.class.getName());
 
-	/** @param target */
-	public NeoResultsAction(final AbstractBuild<?, ?> target) {
+	/** @param target
+	 * @param processingForTheFirstTime */
+	public NeoResultsAction(final AbstractBuild<?, ?> target, final boolean processingForTheFirstTime) {
 		super();
 		this.build = target;
+		this.processingForTheFirstTime = processingForTheFirstTime;
 	}
 
 	/**
 	 * @param build
+	 * @param processingForTheFirstTime
 	 */
-	public static void addActionIfNotExists(final AbstractBuild<?, ?> build) {
+	public static void addActionIfNotExists(final AbstractBuild<?, ?> build, final boolean processingForTheFirstTime) {
 		boolean alreadyAdded = false;
 		for (final Action a: build.getActions()) {
 			if (a instanceof NeoResultsAction) {
@@ -64,9 +71,9 @@ public class NeoResultsAction implements Action, Serializable {
 		}
 
 		if (!alreadyAdded) {
-			final NeoResultsAction nra = new NeoResultsAction(build);
+			final NeoResultsAction nra = new NeoResultsAction(build, processingForTheFirstTime);
 			build.addAction(nra);
-			LOGGER.log(Level.FINE, "Added Performance Result action to build " + build.number + " of job " +
+			LOGGER.log(Level.FINE, "Build " + build.number + ", Added action to build of job " +
 					build.getProject().getDisplayName());
 		}
 	}
@@ -144,15 +151,17 @@ public class NeoResultsAction implements Action, Serializable {
 					content = FileUtils.fileRead(artifact.getFile().getAbsolutePath());
 					if ((content != null) && (isNeoLoadHTMLReport(content))) {
 						// verify that the file was created during the current build
-						if (isFromTheCurrentBuild(artifact)) {
+						if (isFromTheCurrentBuild(artifact, content)) {
+							processingForTheFirstTime = false; 
 							ac = new FileAndContent(artifact.getFile(), artifact.getHref(), content);
 							break;
 						}
+						processingForTheFirstTime = false; 
 						LOGGER.log(Level.WARNING,
-								"Build " + build.number + ": Found " + artifact.getFile().getAbsolutePath() + ", but it's too old to use. " +
+								"Build " + build.number + ", Found " + artifact.getFile().getAbsolutePath() + ", but it's too old to use. " +
 										"Verify that the output directory matches the workspace directory. " +
 										"Verify that the workspace directory is empty before launching the job. " +
-								"Verify that clocks are synchronized between the remote and local machines.");
+								"Verify that clocks are synchronized between remote and local machines.");
 					}
 				} catch (final Exception e) {
 					LOGGER.log(Level.FINE, "Error reading file. " + e.getMessage(), e);
@@ -165,36 +174,55 @@ public class NeoResultsAction implements Action, Serializable {
 
 	/**
 	 * @param artifact
+	 * @param fileContent 
 	 * @return
 	 * @throws IOException
 	 * @throws InterruptedException
 	 */
-	private boolean isFromTheCurrentBuild(final Artifact artifact) throws IOException, InterruptedException {
-		// Look at the date of the file on the workspace, not the artifact file. The artifact file is always new because it is
-		// copied after the job is run.
-
-		final FilePath file = build.getWorkspace();
-
-		// make 'file' a fresh empty directory.
-		final String workspaceFilePath = getWorkspaceFilePath(artifact);
-		final FileCallableForModifiedDate fileCallableForModifiedDate = new FileCallableForModifiedDate(workspaceFilePath);
-		final long lastModifiedDate = file.act(fileCallableForModifiedDate);
-
-		// get the date of the report
-		final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd kk:mm:ss");
-		final Calendar buildStartTime = build.getTimestamp();
-		final Calendar artifactCreateTime = Calendar.getInstance();
-
-		artifactCreateTime.setTime(new Date(lastModifiedDate));
-
-		LOGGER.finer("Build start time: " + sdf.format(buildStartTime.getTime()) + ", Artifact file time: " +
-				sdf.format(artifactCreateTime.getTime()) + ", Artifact file: " + workspaceFilePath +
-				", original file: " + workspaceFilePath);
-
-		if (buildStartTime.before(artifactCreateTime)) {
+	private boolean isFromTheCurrentBuild(final Artifact artifact, String fileContent) throws IOException, InterruptedException {
+		// if the artifact file exists and has the COMMENT_APPLIED_STYLE tag then the file is from the current build 
+		// (because only files that have already been verified at least once by the plugin will have this comment tag).
+		final String artifactFilePath = build.getArtifactsDir().getAbsolutePath() + File.separatorChar + artifact.relativePath;
+		if (fileContent.contains(COMMENT_APPLIED_STYLE)) {
+			LOGGER.log(Level.FINE, "Build " + build.number + ", Artifact file already has comment. Using for report link. " + artifactFilePath +
+					", processingForTheFirstTime: " + processingForTheFirstTime);
 			return true;
 		}
+		LOGGER.log(Level.FINE, "Build " + build.number + ", Artifact file without comment. No report link created. " + artifactFilePath +
+				", processingForTheFirstTime: " + processingForTheFirstTime);
+		
+		if (!processingForTheFirstTime) {
+			// if we're looking at old builds due to a new plugin installation then we don't check the file date of 
+			// the workspace file because the workspace file is not related to old builds - it's related to the last successful output.
+			return false;
+		}
+		
+		// we now use the file date to verify that the file is new enough. (we verify that the file is from the current build and
+		// not from an old build).
+		final FilePath file = build.getWorkspace();
+		// get the build date.
+		final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd kk:mm:ss");
+		final Calendar buildStartTime = build.getTimestamp();
+		
+		final String workspaceFilePath = getWorkspaceFilePath(artifact);
+		// get the file date of the workspace file from the remote machine because the file doesn't exist on the local machine.
+		final long workspaceFileLastModifiedDate = file.act(new FileCallableForModifiedDate(workspaceFilePath));
+		final Calendar workspaceFileCreateTime = Calendar.getInstance();
+		workspaceFileCreateTime.setTime(new Date(workspaceFileLastModifiedDate));
 
+		// Look at the date of the file on the workspace, not the artifact file. The artifact file is always new because it is copied after the job is run.
+		// if the workspace file exists and has the right date then the file is from the current build.
+		LOGGER.log(Level.FINE, "Build " + build.number + ", Start time: " + sdf.format(buildStartTime.getTime()) +  
+				", Workspace file time: " + sdf.format(workspaceFileCreateTime.getTime()) + ", File: " + workspaceFilePath);
+		
+		// we do not check the buildEndTime here because the wrong workspace file time is returned when multiple jobs are scheduled
+		// sequentially which makes comparing it to the buildEndTime useless. instead we only check the buildStart time and we check the 
+		// processingForTheFirstTime variable above.
+		if (buildStartTime.before(workspaceFileCreateTime)) {
+			return true;
+		}
+		
+		// the file is too old or doesn't exist. no output was created or the file in the workspace is from an old run.
 		return false;
 	}
 
@@ -228,6 +256,8 @@ public class NeoResultsAction implements Action, Serializable {
 			final File myFile = new File(fullFilePath);
 			if (!myFile.exists()) {
 				LOGGER.fine("Can't find artifact file in the workspace. I'm looking for " + myFile.getPath());
+				// return a date in 1970
+				return 0L;
 			}
 			return myFile.lastModified();
 		}
