@@ -46,7 +46,8 @@ public class NeoPostBuildAction extends Recorder implements NeoLoadPluginOptions
 
 	@Override
 	public boolean perform(final AbstractBuild<?, ?> build, final Launcher launcher, final BuildListener listener) {
-		NeoResultsAction.addActionIfNotExists(build);
+		// (at the end of a build) add the html results link to the build if it's not already there.
+		NeoResultsAction.addActionIfNotExists(build, true);
 
 		return true;
 	}

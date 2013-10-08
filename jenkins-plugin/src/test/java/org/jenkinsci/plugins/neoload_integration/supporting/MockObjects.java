@@ -93,6 +93,10 @@ public class MockObjects {
 		FilePath fp = new FilePath(f);
 		ReflectionUtils.setVariableValueInObject(abstractBuild, "workspace", f.getParent());
 		when(abstractBuild.getBuiltOn()).thenReturn(Hudson.getInstance());
+		
+		final File artifactsDir = artifacts.get(0).getFile().getParentFile();
+		when(abstractBuild.getArtifactsDir()).thenReturn(artifactsDir);
+		
 
 		RunList rl = new RunList<Run>();
 		rl.add(abstractBuild);

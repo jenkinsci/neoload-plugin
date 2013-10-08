@@ -73,6 +73,14 @@ public class ProjectSpecificAction implements ProminentProjectAction, Serializab
 			for (final AbstractBuild<?, ?> build : project.getBuilds()) {
 				// only include successful builds.
 				if (build != null && build.getResult() != null && build.getResult().isBetterThan(Result.FAILURE)) {
+					
+					// add the html results link to the build if it's not already there. 
+					// this is done here as well for builds that exist and don't already have the action.
+					// this covers the case when the plugin is uninstalled, the action is lost, 
+					// and then the plugin is reinstalled.
+					NeoResultsAction.addActionIfNotExists(build, false);
+					
+					// find the xml results file.
 					doc = findXMLResultsFile(build);
 
 					// if the correct file was found
@@ -249,16 +257,17 @@ public class ProjectSpecificAction implements ProminentProjectAction, Serializab
 
 			final NeoLoadReportDoc nlrd = new NeoLoadReportDoc(fileNameAbsolutePath);
 			if (!nlrd.isValidReportDoc()) {
-				LOGGER.finest("Non-trend graph xml file found. File " + fileNameAbsolutePath);
+				LOGGER.finest("Build " + build.number + ", Non-trend graph xml file found. File " + fileNameAbsolutePath);
 				it.remove();
 
 			} else if (!nlrd.isNewerThan(build.getTimestamp())) {
 				// it's a valid report file but it's too old
-				LOGGER.finest("Valid report file is too old. File " + fileNameAbsolutePath + " must have internal start time after " +
-						DateFormatUtils.format(build.getTimestamp(), "yyyy-MM-dd kk:mm:ss"));
+				LOGGER.finest("Build " + build.number + ", Valid report file is too old. File " + fileNameAbsolutePath + 
+						", Internal time must be after " + DateFormatUtils.format(build.getTimestamp(), "yyyy-MM-dd kk:mm:ss"));
 				it.remove();
 			} else {
-				LOGGER.finest("Valid report file found. " + fileNameAbsolutePath);
+				LOGGER.finest("Build " + build.number + ", Valid report file found. File " + fileNameAbsolutePath + 
+						", Internal time is after " + DateFormatUtils.format(build.getTimestamp(), "yyyy-MM-dd kk:mm:ss"));
 				correctDoc = nlrd;
 				break;
 			}
