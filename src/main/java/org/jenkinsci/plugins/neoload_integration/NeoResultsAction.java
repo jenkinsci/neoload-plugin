@@ -212,6 +212,10 @@ public class NeoResultsAction implements Action, Serializable {
 		if (fileContent.contains(COMMENT_APPLIED_STYLE)) {
 			LOGGER.log(Level.FINE, "Build " + build.number + ", Artifact file already has comment. Using for report link. " + artifactFilePath +
 					", processingForTheFirstTime: " + processingForTheFirstTime);
+			// TODO this is incorrect in the case where the a build did not create results and the archived artifacts are from 
+			// a different, older build. this causes a link to be added to the incorrect results.
+			// we still need to have a time verification. the applied style can add a timestamp to extract and verify or the file time 
+			/// can be checked if it is updated when processed.
 			return true;
 		}
 		LOGGER.log(Level.FINE, "Build " + build.number + ", Artifact file without comment. No report link created. " + artifactFilePath +
