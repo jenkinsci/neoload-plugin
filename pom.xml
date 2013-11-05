@@ -14,7 +14,7 @@
 	<url>https://wiki.jenkins-ci.org/display/JENKINS/NeoLoad+Plugin</url>
 	<groupId>org.jenkins-ci.plugins</groupId>
 	<artifactId>neoload-jenkins-plugin</artifactId>
-	<version>1.0.0</version>
+	<version>1.0.0-SNAPSHOT</version>
 
 	<packaging>hpi</packaging>
 	<description>Integrates NeoLoad results, generates trend graphs, and links to NeoLoad reports.</description>
