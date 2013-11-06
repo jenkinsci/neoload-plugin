@@ -44,8 +44,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
-import com.neotys.tools.unittest.UnitTests;
-
 /**
  * @author ajohnson
  *
@@ -68,11 +66,6 @@ public class XMLUtilitiesTest extends TestCase {
 		super.setUp();
 		url = this.getClass().getResource("books.xml");
 		d = XMLUtilities.readXmlFile(url.getFile());
-	}
-	
-	@Test
-	public void testXMLUtilities() throws ReflectiveOperationException {
-		UnitTests.assertIsNotInstantiable(XMLUtilities.class);
 	}
 
 	/**
