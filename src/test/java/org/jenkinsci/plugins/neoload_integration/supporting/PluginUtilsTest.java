@@ -31,8 +31,6 @@ import junit.framework.TestCase;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.neotys.tools.unittest.UnitTests;
-
 /**
  * @author ajohnson
  *
@@ -49,11 +47,6 @@ public class PluginUtilsTest extends TestCase {
 	@Before
 	public void setUp() throws Exception {
 		mo = new MockObjects();
-	}
-	
-	@Test
-	public void testPluginUtils() throws ReflectiveOperationException {
-		UnitTests.assertIsNotInstantiable(PluginUtils.class);
 	}
 	
 	/**
