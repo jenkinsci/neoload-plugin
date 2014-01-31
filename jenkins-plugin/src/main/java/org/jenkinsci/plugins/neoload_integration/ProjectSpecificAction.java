@@ -86,7 +86,7 @@ public class ProjectSpecificAction implements ProminentProjectAction, Serializab
 	}
 
 	/** Function to convert a NeoLoadReportDoc to an average response time. */
-	final Function<NeoLoadReportDoc, Float> averageResponseTimeFunction = new Function<NeoLoadReportDoc, Float>() {
+	transient final Function<NeoLoadReportDoc, Float> averageResponseTimeFunction = new Function<NeoLoadReportDoc, Float>() {
 		public Float apply(final NeoLoadReportDoc nlrd) {
 			try {
 				return nlrd.getAverageResponseTime();
@@ -98,7 +98,7 @@ public class ProjectSpecificAction implements ProminentProjectAction, Serializab
 	};
 
 	/** Function to convert a NeoLoadReportDoc to an average response time. */
-	final Function<NeoLoadReportDoc, Float> errorRateFunction = new Function<NeoLoadReportDoc, Float>() {
+	transient final Function<NeoLoadReportDoc, Float> errorRateFunction = new Function<NeoLoadReportDoc, Float>() {
 		public Float apply(final NeoLoadReportDoc nlrd) {
 			try {
 				return nlrd.getErrorRatePercentage();
@@ -189,11 +189,11 @@ public class ProjectSpecificAction implements ProminentProjectAction, Serializab
 
 	private final class GraphDataGrabber {
 		/** Convert a graph into an average response time or an error rate. */
-		final Function<NeoLoadReportDoc, Float> dataConverter;
+		private final Function<NeoLoadReportDoc, Float> dataConverter;
 
-		final String successMessage;
-		final String yAxisLabel;
-		final Color lineColor;
+		private final String successMessage;
+		private final String yAxisLabel;
+		private final Color lineColor;
 
 		/**
 		 * @param neoLoadReportDoc
