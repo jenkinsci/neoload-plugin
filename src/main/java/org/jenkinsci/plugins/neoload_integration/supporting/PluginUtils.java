@@ -26,6 +26,7 @@
  */
 package org.jenkinsci.plugins.neoload_integration.supporting;
 
+import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
 import hudson.model.Descriptor;
 import hudson.tasks.Publisher;
@@ -36,7 +37,7 @@ import java.util.Calendar;
 import java.util.Date;
 
 public final class PluginUtils implements Serializable {
-	
+
 	/** Generated. */
 	private static final long serialVersionUID = -3063042074729452263L;
 
@@ -44,17 +45,17 @@ public final class PluginUtils implements Serializable {
 	private PluginUtils() {
 		throw new IllegalAccessError();
 	}
-	
-    /** Get the configured instance for the plugin.
+
+	/** Get the configured instance for the plugin.
 	 * @param project
 	 * @return
 	 */
-    public static NeoLoadPluginOptions getPluginOptions(AbstractProject<?, ?> project) {
+	public static NeoLoadPluginOptions getPluginOptions(final AbstractProject<?, ?> project) {
 		NeoLoadPluginOptions npo = null;
 
 		// look through all post build steps for the correct one.
-    	DescribableList<Publisher,Descriptor<Publisher>> pubs = project.getPublishersList();
-		for (Publisher p : pubs) {
+		final DescribableList<Publisher,Descriptor<Publisher>> pubs = project.getPublishersList();
+		for (final Publisher p : pubs) {
 			if (p instanceof NeoLoadPluginOptions) {
 				npo = (NeoLoadPluginOptions) p;
 				break;
@@ -63,16 +64,39 @@ public final class PluginUtils implements Serializable {
 
 		return npo;
 	}
-    
-    /** This could be DateUtils.toCalendar instead but then I would have to deal with maven dependencies again.
-     * @param date
-     * @return
-     */
-    public static Calendar toCalendar(Date date) {
-    	Calendar cal = Calendar.getInstance();
-    	cal.setTime(date);
-    	
-    	return cal;
-    }
+
+	/** This could be DateUtils.toCalendar instead but then I would have to deal with maven dependencies again.
+	 * @param date
+	 * @return
+	 */
+	public static Calendar toCalendar(final Date date) {
+		final Calendar cal = Calendar.getInstance();
+		cal.setTime(date);
+
+		return cal;
+	}
+
+	/**
+	 * @param build
+	 * @return
+	 */
+	public static Calendar getBuildStartTime(final AbstractBuild<?, ?> build) {
+		final Calendar buildStartTime = Calendar.getInstance();
+		buildStartTime.setTime(build.getTimestamp().getTime());
+
+		return buildStartTime;
+	}
+
+	/**
+	 * @param build
+	 * @return
+	 */
+	public static Calendar getBuildEndTime(final AbstractBuild<?, ?> build) {
+		final Calendar buildEndTime = Calendar.getInstance();
+		buildEndTime.setTime(build.getTimestamp().getTime());
+		buildEndTime.add(Calendar.MILLISECOND, (int) build.getDuration());
+
+		return buildEndTime;
+	}
 
 }

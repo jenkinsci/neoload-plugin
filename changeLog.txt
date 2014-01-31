@@ -1,0 +1,14 @@
+                       **************************************
+                       *  NeoLoad Jenkins Plugin ChangeLog  *
+                       **************************************
+                               
+Version 1.0.1 (@currentDate@)
+=============   
+- FIXED: Performance results links were lost when a job was renamed. (#5308)
+- FIXED: Performance results linked to a report artifact that was not related to the current build after renaming a job. (#5309)
+- FIXED: Displayed graph values did not match displayed html report values. (#5813)
+
+
+Version 1.0.0 (October 22, 2013)
+=============   
+Initial release.

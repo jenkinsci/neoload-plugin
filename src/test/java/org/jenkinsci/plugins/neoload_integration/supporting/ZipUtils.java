@@ -38,7 +38,7 @@ import java.util.zip.ZipInputStream;
 
 /** From http://www.mkyong.com/java/how-to-decompress-files-from-a-zip-file/ */
 public class ZipUtils {
-	
+
 	/** Unzip the file to the specified directory.
 	 * @param zipFile
 	 * @param outputFolder
@@ -46,8 +46,8 @@ public class ZipUtils {
 	 * @throws FileNotFoundException
 	 * @throws IOException
 	 */
-	public static List<File> unzip(String zipFile, String outputFolder) throws FileNotFoundException, IOException {
-		List<File> unzippedFiles = new ArrayList<File>();
+	public static List<File> unzip(final String zipFile, final String outputFolder) throws FileNotFoundException, IOException {
+		final List<File> unzippedFiles = new ArrayList<File>();
 		ZipInputStream zis = null;
 		FileInputStream fis = null;
 		FileOutputStream fos = null;
@@ -69,7 +69,7 @@ public class ZipUtils {
 					fos = null;
 					try {
 						fos = new FileOutputStream(newFile);
-						byte[] buffer = new byte[1024];
+						final byte[] buffer = new byte[1024];
 						int len;
 						while ((len = zis.read(buffer)) > 0) {
 							fos.write(buffer, 0, len);
@@ -92,7 +92,7 @@ public class ZipUtils {
 			}
 		}
 		// done
-		
+
 		return unzippedFiles;
 	}
 }
