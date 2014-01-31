@@ -227,8 +227,7 @@ public class NeoLoadReportDoc {
 		try {
 			// try the standard format.
 			final SimpleDateFormat sdf = new SimpleDateFormat(STANDARD_TIME_FORMAT);
-			final Date d = sdf.parse(fileCreationTimeStr);
-			return d;
+			return sdf.parse(fileCreationTimeStr);
 		} catch (final Exception e) {
 			// don't care
 		}
@@ -236,8 +235,7 @@ public class NeoLoadReportDoc {
 		// try English. Mar 20, 2013 3:01:26 PM
 		try {
 			final DateFormat df = DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT, Locale.ENGLISH);
-			final Date d = df.parse(fileCreationTimeStr);
-			return d;
+			return df.parse(fileCreationTimeStr);
 		} catch (final Exception e) {
 			// don't care
 		}
@@ -245,8 +243,7 @@ public class NeoLoadReportDoc {
 		// try French. 22 mars 2013 11:07:33
 		try {
 			final DateFormat df = DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT, Locale.FRENCH);
-			final Date d = df.parse(fileCreationTimeStr);
-			return d;
+			return df.parse(fileCreationTimeStr);
 		} catch (final Exception e) {
 			// don't care
 		}
@@ -254,8 +251,7 @@ public class NeoLoadReportDoc {
 		// try local machine format
 		try {
 			final DateFormat df = DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT, Locale.getDefault());
-			final Date d = df.parse(fileCreationTimeStr);
-			return d;
+			return df.parse(fileCreationTimeStr);
 		} catch (final Exception e) {
 			// can't figure out what the date format is...
 			LOGGER.log(Level.FINE, "Can't parse date (" + fileCreationTimeStr + ") in xml file " + doc.getDocumentURI());
