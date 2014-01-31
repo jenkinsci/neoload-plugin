@@ -29,7 +29,6 @@ package org.jenkinsci.plugins.neoload_integration.supporting;
 import java.io.IOException;
 import java.io.Serializable;
 import java.io.StringReader;
-import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -38,12 +37,6 @@ import java.util.Map;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
@@ -72,8 +65,8 @@ public final class XMLUtilities implements Serializable {
 	private XMLUtilities() {
 		throw new IllegalAccessError();
 	}
-	
-	/** Create an xml Node using the passed in text. Use getOwnerDocument() to get the document. 
+
+	/** Create an xml Node using the passed in text. Use getOwnerDocument() to get the document.
 	 * @param xmlText
 	 * @return
 	 * @throws ParserConfigurationException
@@ -81,12 +74,12 @@ public final class XMLUtilities implements Serializable {
 	 * @throws IOException
 	 */
 	public static Node createNodeFromText(final String xmlText) throws ParserConfigurationException, SAXException, IOException {
-		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-		DocumentBuilder db = dbf.newDocumentBuilder();
-		InputSource is = new InputSource();
+		final DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+		final DocumentBuilder db = dbf.newDocumentBuilder();
+		final InputSource is = new InputSource();
 		is.setCharacterStream(new StringReader(xmlText));
 
-		Document doc = db.parse(is);
+		final Document doc = db.parse(is);
 
 		return doc.getFirstChild();
 	}
@@ -130,7 +123,7 @@ public final class XMLUtilities implements Serializable {
 	 * @return
 	 * @throws XPathExpressionException
 	 */
-	public static List<Node> findByExpression(final String expression, Node searchNode) throws XPathExpressionException {
+	public static List<Node> findByExpression(final String expression, final Node searchNode) throws XPathExpressionException {
 		final XPathExpression expr = XPATH.compile(expression);
 		final NodeList nl = (NodeList) expr.evaluate(searchNode, XPathConstants.NODESET);
 
@@ -143,27 +136,11 @@ public final class XMLUtilities implements Serializable {
 	 * @return
 	 * @throws XPathExpressionException
 	 */
-	public static Node findFirstByExpression(final String expression, Node searchNode) throws XPathExpressionException {
-		List<Node> results = findByExpression(expression, searchNode);
+	public static Node findFirstByExpression(final String expression, final Node searchNode) throws XPathExpressionException {
+		final List<Node> results = findByExpression(expression, searchNode);
 
-		if ((results != null) && (results.size() > 0)) {
+		if (results != null && results.size() > 0) {
 			return results.get(0);
-		}
-
-		return null;
-	}
-
-	/**
-	 * @param expression
-	 * @param searchNode
-	 * @return
-	 * @throws XPathExpressionException
-	 */
-	public static String findFirstValueByExpression(String expression, Node searchNode) throws XPathExpressionException {
-		Node n = findFirstByExpression(expression, searchNode);
-
-		if (n != null) {
-			return n.getNodeValue();
 		}
 
 		return null;
@@ -173,11 +150,11 @@ public final class XMLUtilities implements Serializable {
 	 * @param attributes
 	 * @return a map where the attribute is the key and the value is the value.
 	 */
-	public static Map<String, String> getMap(NamedNodeMap attributes) {
-		Map<String, String> map = new HashMap<String, String>();
+	public static Map<String, String> getMap(final NamedNodeMap attributes) {
+		final Map<String, String> map = new HashMap<String, String>();
 
 		for (int i = 0; i < attributes.getLength(); i++) {
-			if ((attributes.item(i) != null) && (attributes.item(i).getNodeName() != null)) {
+			if (attributes.item(i) != null && attributes.item(i).getNodeName() != null) {
 				map.put(attributes.item(i).getNodeName(), attributes.item(i).getNodeValue());
 			}
 		}
@@ -197,24 +174,6 @@ public final class XMLUtilities implements Serializable {
 		}
 
 		return list;
-	}
-
-	/**
-	 * @param n
-	 * @return
-	 * @throws TransformerException
-	 */
-	public static String nodeToString(Node n) throws TransformerException {
-		StringWriter sw = new StringWriter();
-		TransformerFactory tf = TransformerFactory.newInstance();
-		Transformer transformer = tf.newTransformer();
-		transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "no");
-		transformer.setOutputProperty(OutputKeys.METHOD, "xml");
-		transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-		transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
-
-		transformer.transform(new DOMSource(n), new StreamResult(sw));
-		return sw.toString();
 	}
 
 	/** Read an xml file.

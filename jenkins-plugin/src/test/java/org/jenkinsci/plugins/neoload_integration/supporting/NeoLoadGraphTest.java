@@ -45,10 +45,10 @@ import org.mockito.Mockito;
  *
  */
 public class NeoLoadGraphTest extends TestCase {
-	
+
 	/** Holds graph data. */
 	private DefaultCategoryDataset ds = null;
-	
+
 	/** A graph instance. */
 	private NeoLoadGraph nlg = null;
 
@@ -63,28 +63,28 @@ public class NeoLoadGraphTest extends TestCase {
 		ds.addValue(2, "rowKey", "columnKey");
 		ds.addValue(3, "rowKey", "columnKey");
 		ds.addValue(4, "rowKey", "columnKey");
-		
+
 		nlg = new NeoLoadGraph(ds, "Avg Resp Time (secs)", new Color(237, 184, 0));
 	}
-	
-	/** Test another method. 
+
+	/** Test another method.
 	 * @throws IOException */
 	@Test
 	public void testDoPNG() throws IOException {
-		StaplerResponse rsp = Mockito.mock(StaplerResponse.class);
-		ServletOutputStream sos = Mockito.mock(ServletOutputStream.class);
-		
+		final StaplerResponse rsp = Mockito.mock(StaplerResponse.class);
+		final ServletOutputStream sos = Mockito.mock(ServletOutputStream.class);
+
 		Mockito.when(rsp.getOutputStream()).thenReturn(sos);
-		
+
 		nlg.doPng(null, rsp);
 	}
-	
+
 	/**
 	 * Test method for {@link org.jenkinsci.plugins.neoload_integration.supporting.NeoLoadGraph#createGraph()}.
 	 */
 	@Test
 	public void testCreateGraph() {
-		JFreeChart chart = nlg.createGraph();
+		final JFreeChart chart = nlg.createGraph();
 		assertNotNull(chart.getPlot());
 	}
 

@@ -44,10 +44,10 @@ import org.jfree.data.category.CategoryDataset;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 
-/** This does not extend any type of "Graph" class for easier compatibility with Hudson and Jenkins. 
+/** This does not extend any type of "Graph" class for easier compatibility with Hudson and Jenkins.
  * i.e. we can more easily use the same code for both. */
 public class NeoLoadGraph implements Serializable {
-	
+
 	/** Generated. */
 	private static final long serialVersionUID = 8130335080125920473L;
 
@@ -58,15 +58,15 @@ public class NeoLoadGraph implements Serializable {
 	private static final int IMAGE_WIDTH = 500;
 
 	/** data to plot */
-	private CategoryDataset dataset;
+	private final CategoryDataset dataset;
 
 	/** y label */
-	private String yAxisLabel;
+	private final String yAxisLabel;
 
 	/** Line color to use. */
-	private Color lineColor = null;
+	private final Color lineColor;
 
-	public NeoLoadGraph(CategoryDataset dataset, String yAxisLabel, Color lineColor) {
+	public NeoLoadGraph(final CategoryDataset dataset, final String yAxisLabel, final Color lineColor) {
 		this.dataset = dataset;
 		this.yAxisLabel = yAxisLabel;
 		this.lineColor = lineColor;
@@ -88,30 +88,40 @@ public class NeoLoadGraph implements Serializable {
 		final CategoryPlot plot = chart.getCategoryPlot();
 
 		// turn the y labels sideways
-		CategoryAxis axis = plot.getDomainAxis();
-        axis.setCategoryLabelPositions(CategoryLabelPositions.UP_90);
-        
+		final CategoryAxis axis = plot.getDomainAxis();
+		axis.setCategoryLabelPositions(CategoryLabelPositions.UP_90);
+
 		plot.getRenderer().setSeriesPaint(0, lineColor);
 		plot.setBackgroundPaint(Color.white);
-		
+
 		return chart;
 	}
-	
+
 	/** This is the method Hudson uses when a dynamic png is referenced in a jelly file.
 	 * @param req
 	 * @param rsp
 	 * @throws IOException
 	 */
-	public void doPng(StaplerRequest req, StaplerResponse rsp) throws IOException {
+	public void doPng(final StaplerRequest req, final StaplerResponse rsp) throws IOException {
 		rsp.setContentType("image/png");
-        ServletOutputStream os = rsp.getOutputStream();
-        BufferedImage image = createImage(IMAGE_WIDTH, IMAGE_HEIGHT);
-        ImageIO.write(image, "PNG", os);
-        os.close();
+		final ServletOutputStream os = rsp.getOutputStream();
+		final BufferedImage image = createImage(IMAGE_WIDTH, IMAGE_HEIGHT);
+		ImageIO.write(image, "PNG", os);
+		os.close();
 	}
-	
-	public BufferedImage createImage(int width, int height) {
+
+	public BufferedImage createImage(final int width, final int height) {
 		return createGraph().createBufferedImage(width, height);
+	}
+
+	/** @return the yAxisLabel */
+	public String getyAxisLabel() {
+		return yAxisLabel;
+	}
+
+	/** @return the lineColor */
+	public Color getLineColor() {
+		return lineColor;
 	}
 
 }

@@ -36,11 +36,11 @@ import java.awt.Color;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -55,16 +55,18 @@ import org.jenkinsci.plugins.neoload_integration.supporting.PluginUtils;
 import org.jfree.data.category.DefaultCategoryDataset;
 import org.xml.sax.SAXException;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Iterables;
 import com.neotys.nl.controller.report.transform.NeoLoadReportDoc;
 
 /** Along with the jelly file and the Factory class, this class adds the two trend graphs to a job page. */
 public class ProjectSpecificAction implements ProminentProjectAction, Serializable {
 
 	/** Generated. */
-	private static final long serialVersionUID = 1330074503285540479L;
+	private static final long serialVersionUID = 8435405474316375996L;
 
 	/** A link to the Jenkins job. */
-	private AbstractProject<?, ?> project = null;
+	private final AbstractProject<?, ?> project;
 
 	/** Key is the build. Value is the NeoLoad xml report file. */
 	private Map<AbstractBuild<?, ?>, NeoLoadReportDoc> buildsAndDocs = new LinkedHashMap<AbstractBuild<?, ?>, NeoLoadReportDoc>();
@@ -83,6 +85,30 @@ public class ProjectSpecificAction implements ProminentProjectAction, Serializab
 		return "neoload";
 	}
 
+	/** Function to convert a NeoLoadReportDoc to an average response time. */
+	final Function<NeoLoadReportDoc, Float> averageResponseTimeFunction = new Function<NeoLoadReportDoc, Float>() {
+		public Float apply(final NeoLoadReportDoc nlrd) {
+			try {
+				return nlrd.getAverageResponseTime();
+			} catch (final XPathExpressionException e) {
+				LOGGER.log(Level.FINE, "Error reading average response time from " + nlrd.getDoc().getDocumentURI() + ". " + e.getMessage(), e);
+			}
+			return null;
+		}
+	};
+
+	/** Function to convert a NeoLoadReportDoc to an average response time. */
+	final Function<NeoLoadReportDoc, Float> errorRateFunction = new Function<NeoLoadReportDoc, Float>() {
+		public Float apply(final NeoLoadReportDoc nlrd) {
+			try {
+				return nlrd.getErrorRatePercentage();
+			} catch (final XPathExpressionException e) {
+				LOGGER.log(Level.FINE, "Error reading error rate from " + nlrd.getDoc().getDocumentURI() + ". " + e.getMessage(), e);
+			}
+			return null;
+		}
+	};
+
 	/** Find data to graph. */
 	public void refreshGraphData() {
 		LOGGER.finest("Finding builds to use for NeoLoad graphs. Currently I see " + buildsAndDocs.size());
@@ -90,22 +116,20 @@ public class ProjectSpecificAction implements ProminentProjectAction, Serializab
 			NeoLoadReportDoc doc = null;
 			final Map<AbstractBuild<?, ?>, NeoLoadReportDoc> newBuildsAndDocs = new LinkedHashMap<AbstractBuild<?, ?>, NeoLoadReportDoc>();
 
-			// avoid a potential npe.
-			if (project == null || project.getBuilds() == null) {
-				return;
-			}
-
 			// look through all builds of the job
-			for (final AbstractBuild<?, ?> build : project.getBuilds()) {
+			for (final AbstractBuild<?, ?> build: project.getBuilds()) {
+				doc = findXMLResultsFile(build);
+
+				// if the correct file was found, and
 				// only include successful builds.
 				if (build != null && build.getResult() != null && build.getResult().isBetterThan(Result.FAILURE)) {
-					
-					// add the html results link to the build if it's not already there. 
+
+					// add the html results link to the build if it's not already there.
 					// this is done here as well for builds that exist and don't already have the action.
-					// this covers the case when the plugin is uninstalled, the action is lost, 
+					// this covers the case when the plugin is uninstalled, the action is lost,
 					// and then the plugin is reinstalled.
 					NeoResultsAction.addActionIfNotExists(build, false);
-					
+
 					// find the xml results file.
 					doc = findXMLResultsFile(build);
 
@@ -132,12 +156,12 @@ public class ProjectSpecificAction implements ProminentProjectAction, Serializab
 	 */
 	public boolean showAvgGraph() {
 		final NeoLoadPluginOptions npo = PluginUtils.getPluginOptions(project);
-		if ((npo == null) || (!npo.isShowTrendAverageResponse())) {
+		if (npo == null || !npo.isShowTrendAverageResponse()) {
 			LOGGER.finer("Plugin options say the avg graph is OFF.");
 			return false;
 		}
 
-		final boolean graphDataExists = getAvgGraphPoints().size() > 1;
+		final boolean graphDataExists = graphDataExists();
 		LOGGER.finest("avg graph. Graph data exists: " + graphDataExists);
 		return graphDataExists;
 	}
@@ -147,14 +171,75 @@ public class ProjectSpecificAction implements ProminentProjectAction, Serializab
 	 */
 	public boolean showErrGraph() {
 		final NeoLoadPluginOptions npo = PluginUtils.getPluginOptions(project);
-		if ((npo == null) || (!npo.isShowTrendErrorRate())) {
+		if (npo == null || !npo.isShowTrendErrorRate()) {
 			LOGGER.finer("Plugin options say the error graph is OFF.");
 			return false;
 		}
 
-		final boolean graphDataExists = getErrGraphPoints().size() > 1;
-		LOGGER.finest("err graph. Graph data exists: " + graphDataExists);
-		return graphDataExists;
+		return graphDataExists();
+	}
+
+	/**
+	 * @return true if enough data exists to create a graph
+	 */
+	public boolean graphDataExists() {
+		// there must be at least two results to create the graph
+		return buildsAndDocs.size() > 1;
+	}
+
+	private final class GraphDataGrabber {
+		/** Convert a graph into an average response time or an error rate. */
+		final Function<NeoLoadReportDoc, Float> dataConverter;
+
+		final String successMessage;
+		final String yAxisLabel;
+		final Color lineColor;
+
+		/**
+		 * @param neoLoadReportDoc
+		 * @param dataConverter
+		 * @param successMessage
+		 * @param yAxisLabel
+		 * @param lineColor
+		 */
+		public GraphDataGrabber(final Function<NeoLoadReportDoc, Float> dataConverter, final String successMessage, final String yAxisLabel, final Color lineColor) {
+			this.dataConverter = dataConverter;
+			this.successMessage = successMessage;
+			this.yAxisLabel = yAxisLabel;
+			this.lineColor = lineColor;
+		}
+
+		public NeoLoadGraph go() {
+			final DefaultCategoryDataset ds = new DefaultCategoryDataset();
+			Float value = null;
+			final Map<String, Float> nums = new LinkedHashMap<String, Float>(); // linked hash maps keep the order of their keys
+
+			// get the number we want from all builds that we found earlier
+			for (final Entry<AbstractBuild<?, ?>, NeoLoadReportDoc> entry: buildsAndDocs.entrySet()) {
+				final AbstractBuild<?, ?> build = entry.getKey();
+				final NeoLoadReportDoc nlrd = entry.getValue();
+				final String buildName = build.getDisplayName() == null ? "#" + build.number : build.getDisplayName();
+
+				value = dataConverter.apply(nlrd);
+				if (value != null) {
+					LOGGER.log(Level.FINEST, successMessage + buildName + ": " + value);
+				}
+
+				if (value != null) {
+					// use the custom name, otherwise use the default name.
+					nums.put(buildName, value);
+				}
+			}
+			final List<String> keys = new ArrayList<String>(nums.keySet());
+
+			// reverse the keys so that they appear in the correct order in the graphs.
+			for (final String buildName: Iterables.reverse(keys)) {
+				ds.addValue(nums.get(buildName), "Time", buildName);
+			}
+
+			// color from ColorTable.java
+			return new NeoLoadGraph(ds, yAxisLabel, lineColor);
+		}
 	}
 
 	/**
@@ -162,97 +247,14 @@ public class ProjectSpecificAction implements ProminentProjectAction, Serializab
 	 * @throws XPathExpressionException
 	 */
 	public NeoLoadGraph getErrGraph() {
-		final DefaultCategoryDataset ds = new DefaultCategoryDataset();
-		// linked hash maps keep the order of their keys
-		final Map<String, Float> graphPoints = getErrGraphPoints();
-
-		final List<String> reverseKeys = new ArrayList<String>(graphPoints.keySet());
-		Collections.reverse(reverseKeys);
-
-		for (final String b: reverseKeys) {
-			ds.addValue(graphPoints.get(b), "Time", b);
-		}
-		// color from ColorTable.java
-		return new NeoLoadGraph(ds, "Error Rate %", new Color(200, 0, 0));
-	}
-
-	/**
-	 * @return
-	 */
-	Map<String, Float> getErrGraphPoints() {
-		Float errorRate;
-		NeoLoadReportDoc nlrd = null;
-		final Map<String, Float> graphPoints = new LinkedHashMap<String, Float>();
-
-		// get the number we want from all builds that we found earlier
-		for (final AbstractBuild<?, ?> build : buildsAndDocs.keySet()) {
-			final String buildName = build.getDisplayName() == null ? "#" + build.number : build.getDisplayName();
-			errorRate = null;
-			
-			try {
-				nlrd = buildsAndDocs.get(build);
-				errorRate = nlrd.getErrorRatePercentage();
-				LOGGER.log(Level.FINE, "Error rate found for build " + buildName + ": " + errorRate);
-			} catch (final XPathExpressionException e) {
-				LOGGER.log(Level.FINE, "Error reading error rate from " + nlrd.getDoc().getDocumentURI() + ". " + e.getMessage(), e);
-			}
-
-			if (errorRate != null) {
-				// use the custom name, otherwise use the default name.
-				graphPoints.put(buildName, errorRate);
-			}
-		}
-
-		return graphPoints;
+		return new GraphDataGrabber(errorRateFunction, "Error rate found for build ", "Error Rate %", new Color(200, 0, 0)).go();
 	}
 
 	/** Generates a graph
 	 * @throws XPathExpressionException
 	 */
 	public NeoLoadGraph getAvgGraph() {
-		final DefaultCategoryDataset ds = new DefaultCategoryDataset();
-
-		// linked hash maps keep the order of their keys
-		final Map<String, Float> nums = getAvgGraphPoints();
-		final List<String> reverseKeys = new ArrayList<String>(nums.keySet());
-		Collections.reverse(reverseKeys);
-
-		for (final String b: reverseKeys) {
-			ds.addValue(nums.get(b), "Time", b);
-		}
-
-		// color from ColorTable.java
-		return new NeoLoadGraph(ds, "Avg Resp Time (secs)", new Color(237, 184, 0));
-	}
-
-	/**
-	 * @return
-	 */
-	Map<String, Float> getAvgGraphPoints() {
-		Float avgResponseTime;
-		NeoLoadReportDoc nlrd = null;
-		// linked hash maps keep the order of their keys
-		final Map<String, Float> nums = new LinkedHashMap<String, Float>();
-
-		// get the number we want from all builds that we found earlier
-		for (final AbstractBuild<?, ?> build : buildsAndDocs.keySet()) {
-			final String buildName = build.getDisplayName() == null ? "#" + build.number : build.getDisplayName();
-			avgResponseTime = null;
-			
-			try {
-				nlrd = buildsAndDocs.get(build);
-				avgResponseTime = nlrd.getAverageResponseTime();
-				LOGGER.log(Level.FINE, "Average response time found for build " + buildName + ": " + avgResponseTime);
-			} catch (final XPathExpressionException e) {
-				LOGGER.log(Level.FINE, "Error reading average response time from " + nlrd.getDoc().getDocumentURI() + ". " + e.getMessage(), e);
-			}
-
-			if (avgResponseTime != null) {
-				// use the custom name, otherwise use the default name.
-				nums.put(buildName, avgResponseTime);
-			}
-		}
-		return nums;
+		return new GraphDataGrabber(averageResponseTimeFunction, "Average response time found for build ", "Avg Resp Time (secs)", new Color(237, 184, 0)).go();
 	}
 
 	/**
@@ -264,9 +266,9 @@ public class ProjectSpecificAction implements ProminentProjectAction, Serializab
 	 * @throws XPathExpressionException
 	 */
 	@SuppressWarnings("rawtypes")
-	private static NeoLoadReportDoc findXMLResultsFile(final AbstractBuild build) throws ParserConfigurationException, SAXException, IOException, XPathExpressionException {
+	static NeoLoadReportDoc findXMLResultsFile(final AbstractBuild build) throws ParserConfigurationException, SAXException, IOException, XPathExpressionException {
 		Artifact artifact = null;
-		final Iterator<Artifact> it = build.getArtifacts().iterator();
+		final Iterator<Artifact> it = new ArrayList<Artifact>(build.getArtifacts()).iterator();
 		NeoLoadReportDoc correctDoc = null;
 
 		// remove files that don't match
@@ -274,26 +276,24 @@ public class ProjectSpecificAction implements ProminentProjectAction, Serializab
 			artifact = it.next();
 
 			final String fileNameAbsolutePath = artifact.getFile().getAbsolutePath();
+			final NeoLoadReportDoc nlrd = new NeoLoadReportDoc(fileNameAbsolutePath);
 
 			// if the file is valid and was created during this build
 			if (!"xml".equalsIgnoreCase(FileUtils.extension(fileNameAbsolutePath))) {
 				it.remove();
-				continue;
-			}
 
-			final NeoLoadReportDoc nlrd = new NeoLoadReportDoc(fileNameAbsolutePath);
-			if (!nlrd.isValidReportDoc()) {
-				LOGGER.finest("Build " + build.number + ", Non-trend graph xml file found. File " + fileNameAbsolutePath);
+			} else if (!nlrd.isValidReportDoc()) {
+				LOGGER.finest("Non-trend graph xml file found. File " + fileNameAbsolutePath);
 				it.remove();
 
-			} else if (!nlrd.isNewerThan(build.getTimestamp())) {
+			} else if (!nlrd.hasCorrespondingDate(build)) {
 				// it's a valid report file but it's too old
-				LOGGER.finest("Build " + build.number + ", Valid report file is too old. File " + fileNameAbsolutePath + 
-						", Internal time must be after " + DateFormatUtils.format(build.getTimestamp(), "yyyy-MM-dd kk:mm:ss"));
+				LOGGER.finest("Build " + build.number + ", Valid report file does not have a corresponding date. File " + fileNameAbsolutePath +
+						", Internal time must be after " + DateFormatUtils.format(build.getTimestamp(), NeoLoadReportDoc.STANDARD_TIME_FORMAT));
 				it.remove();
 			} else {
-				LOGGER.finest("Build " + build.number + ", Valid report file found. File " + fileNameAbsolutePath + 
-						", Internal time is after " + DateFormatUtils.format(build.getTimestamp(), "yyyy-MM-dd kk:mm:ss"));
+				LOGGER.finest("Build " + build.number + ", Valid report file found. File " + fileNameAbsolutePath +
+						", Internal time is after " + DateFormatUtils.format(build.getTimestamp(), NeoLoadReportDoc.STANDARD_TIME_FORMAT));
 				correctDoc = nlrd;
 				break;
 			}

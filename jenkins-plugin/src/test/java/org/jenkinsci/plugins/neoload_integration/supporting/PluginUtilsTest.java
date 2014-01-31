@@ -36,7 +36,7 @@ import org.junit.Test;
  *
  */
 public class PluginUtilsTest extends TestCase {
-	
+
 	/** Mock project for testing. */
 	private MockObjects mo = null;
 
@@ -48,7 +48,7 @@ public class PluginUtilsTest extends TestCase {
 	public void setUp() throws Exception {
 		mo = new MockObjects();
 	}
-	
+
 	/**
 	 * Test method for {@link org.jenkinsci.plugins.neoload_integration.supporting.PluginUtils#getPluginOptions(hudson.model.AbstractProject)}.
 	 */
@@ -56,9 +56,9 @@ public class PluginUtilsTest extends TestCase {
 	public void testGetPluginOptions() {
 		NeoLoadPluginOptions npo = PluginUtils.getPluginOptions(mo.getApWithoutOptions());
 		assertTrue(npo == null);
-		
+
 		npo = PluginUtils.getPluginOptions(mo.getApWithOptions());
 		assertTrue(npo == mo.getPublisherWithNeoOptions());
 	}
-	
+
 }
