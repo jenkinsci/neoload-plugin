@@ -32,7 +32,6 @@ import java.util.List;
 import java.util.Map;
 
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerException;
 import javax.xml.xpath.XPathExpressionException;
 
 import junit.framework.TestCase;
@@ -52,11 +51,11 @@ public class XMLUtilitiesTest extends TestCase {
 
 	/** Used to find the xml document. */
 	private URL url = null;
-	
+
 	/** Holds the contents of the xml document. */
 	private Document d = null;
 
-	
+
 	/* (non-Javadoc)
 	 * @see junit.framework.TestCase#setUp()
 	 */
@@ -70,24 +69,24 @@ public class XMLUtilitiesTest extends TestCase {
 
 	/**
 	 * Test method for {@link org.jenkinsci.plugins.neoload_integration.supporting.XMLUtilities#createNodeFromText(java.lang.String)}.
-	 * @throws IOException 
-	 * @throws SAXException 
-	 * @throws ParserConfigurationException 
+	 * @throws IOException
+	 * @throws SAXException
+	 * @throws ParserConfigurationException
 	 */
 	@Test
 	public void testCreateNodeFromText() throws ParserConfigurationException, SAXException, IOException {
-		String content = "weeeeeeeeeee";
-		Node n = XMLUtilities.createNodeFromText("<test>" + content + "</test>");
-		
+		final String content = "weeeeeeeeeee";
+		final Node n = XMLUtilities.createNodeFromText("<test>" + content + "</test>");
+
 		assertTrue(content.equals(n.getTextContent()));
 	}
 
 	/**
 	 * Test method for {@link org.jenkinsci.plugins.neoload_integration.supporting.XMLUtilities#findByExpression(java.lang.String, org.w3c.dom.Node)}.
-	 * @throws XPathExpressionException 
-	 * @throws IOException 
-	 * @throws SAXException 
-	 * @throws ParserConfigurationException 
+	 * @throws XPathExpressionException
+	 * @throws IOException
+	 * @throws SAXException
+	 * @throws ParserConfigurationException
 	 */
 	@Test
 	public void testFindByExpression() throws XPathExpressionException {
@@ -98,11 +97,11 @@ public class XMLUtilitiesTest extends TestCase {
 
 	/**
 	 * Test method for {@link org.jenkinsci.plugins.neoload_integration.supporting.XMLUtilities#findFirstByExpression(java.lang.String, org.w3c.dom.Node)}.
-	 * @throws XPathExpressionException 
-	 * @throws DOMException 
-	 * @throws IOException 
-	 * @throws SAXException 
-	 * @throws ParserConfigurationException 
+	 * @throws XPathExpressionException
+	 * @throws DOMException
+	 * @throws IOException
+	 * @throws SAXException
+	 * @throws ParserConfigurationException
 	 */
 	@Test
 	public void testFindFirstByExpression() throws XPathExpressionException, ParserConfigurationException, SAXException, IOException {
@@ -111,50 +110,23 @@ public class XMLUtilitiesTest extends TestCase {
 	}
 
 	/**
-	 * Test method for {@link org.jenkinsci.plugins.neoload_integration.supporting.XMLUtilities#findFirstValueByExpression(java.lang.String, org.w3c.dom.Node)}.
-	 * @throws IOException 
-	 * @throws SAXException 
-	 * @throws ParserConfigurationException 
-	 * @throws XPathExpressionException 
-	 * @throws DOMException 
-	 */
-	@Test
-	public void testFindFirstValueByExpression() throws XPathExpressionException, ParserConfigurationException, SAXException, IOException {
-		assertTrue("en".equals(XMLUtilities.findFirstValueByExpression("/bookstore/book/title/@lang", d)));
-		assertTrue(XMLUtilities.findFirstValueByExpression("/bookstore/book/title", 
-				XMLUtilities.createNodeFromText("<empty></empty>")) == null);
-	}
-
-	/**
 	 * Test method for {@link org.jenkinsci.plugins.neoload_integration.supporting.XMLUtilities#getMap(org.w3c.dom.NamedNodeMap)}.
-	 * @throws XPathExpressionException 
+	 * @throws XPathExpressionException
 	 */
 	@Test
 	public void testGetMap() throws XPathExpressionException {
-		Map<String, String> map = XMLUtilities.getMap(XMLUtilities.findFirstByExpression("/bookstore/book/title", d).getAttributes());
+		final Map<String, String> map = XMLUtilities.getMap(XMLUtilities.findFirstByExpression("/bookstore/book/title", d).getAttributes());
 		assertTrue(map.size() > 0);
 	}
 
 	/**
 	 * Test method for {@link org.jenkinsci.plugins.neoload_integration.supporting.XMLUtilities#toList(org.w3c.dom.NodeList)}.
-	 * @throws XPathExpressionException 
+	 * @throws XPathExpressionException
 	 */
 	@Test
 	public void testToList() throws XPathExpressionException {
-		List<Node> list = XMLUtilities.findByExpression("/bookstore/book/title", d);
+		final List<Node> list = XMLUtilities.findByExpression("/bookstore/book/title", d);
 		assertTrue(list.size() > 0);
-	}
-
-	/**
-	 * Test method for {@link org.jenkinsci.plugins.neoload_integration.supporting.XMLUtilities#nodeToString(org.w3c.dom.Node)}.
-	 * @throws XPathExpressionException 
-	 * @throws TransformerException 
-	 */
-	@Test
-	public void testNodeToString() throws XPathExpressionException, TransformerException {
-		Node n = XMLUtilities.findFirstByExpression("/bookstore/book[1]/title", d);
-		String text = XMLUtilities.nodeToString(n);
-		assertTrue(text.trim().endsWith("<title lang=\"en\">Everyday Italian</title>"));
 	}
 
 	/**

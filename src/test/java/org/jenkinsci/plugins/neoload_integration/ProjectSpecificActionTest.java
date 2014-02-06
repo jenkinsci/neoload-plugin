@@ -29,20 +29,33 @@ package org.jenkinsci.plugins.neoload_integration;
 import hudson.model.Result;
 import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
+import hudson.model.Run;
 import hudson.util.RunList;
 
-import java.util.Map;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
+
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPathExpressionException;
 
 import junit.framework.TestCase;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.jenkinsci.plugins.neoload_integration.supporting.MockObjects;
 import org.jenkinsci.plugins.neoload_integration.supporting.NeoLoadGraph;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
+import org.xml.sax.SAXException;
+
+import com.neotys.nl.controller.report.transform.NeoLoadReportDoc;
 
 public class ProjectSpecificActionTest extends TestCase {
-	
+
 	/** Objects for testing. */
 	private MockObjects mo = null;
 
@@ -54,141 +67,170 @@ public class ProjectSpecificActionTest extends TestCase {
 	public void setUp() throws Exception {
 		mo = new MockObjects();
 	}
-	
+
 	@Test
 	public void testProjectSpecificAction() {
-		@SuppressWarnings("unused")
-		ProjectSpecificAction psa = new ProjectSpecificAction(mo.getApWithOptions()); 
+		final ProjectSpecificAction projectSpecificAction = new ProjectSpecificAction(mo.getApWithOptions());
+		assertNotNull(projectSpecificAction);
 	}
 
 	@Test
 	public void testGetUrlName() {
-		ProjectSpecificAction psa = new ProjectSpecificAction(mo.getApWithOptions());
+		final ProjectSpecificAction psa = new ProjectSpecificAction(mo.getApWithOptions());
 		assertTrue(psa.getUrlName() != null);
 	}
 
 	@Test
 	public void testShowAvgGraph() {
 		ProjectSpecificAction psa = new ProjectSpecificAction(mo.getApWithoutOptions());
-		AbstractBuild<?, ?> ab = mo.getAbstractBuild();
+		final AbstractBuild<?, ?> ab = mo.getAbstractBuild();
 		Mockito.when(ab.getResult()).thenReturn(Result.FAILURE);
 		assertFalse(psa.showAvgGraph());
-		
+
 		psa = new ProjectSpecificAction(mo.getApWithOptions());
 		assertFalse(psa.showAvgGraph());
 	}
 
 	@Test
 	public void testShowErrGraph() {
-		ProjectSpecificAction psa = new ProjectSpecificAction(mo.getApWithoutOptions()); 
+		ProjectSpecificAction psa = new ProjectSpecificAction(mo.getApWithoutOptions());
 		assertFalse(psa.showErrGraph());
-		
+
 		psa = new ProjectSpecificAction(mo.getApWithOptions());
 		assertFalse(psa.showErrGraph());
 	}
 
 	@Test
+	public void testGraphDataExists() {
+		final ProjectSpecificAction psa = new ProjectSpecificAction(mo.getApWithoutOptions());
+		psa.graphDataExists();
+	}
+
+	@Test
 	public void testGetErrGraph() {
-		ProjectSpecificAction psa = new ProjectSpecificAction(mo.getApWithoutOptions());
-		NeoLoadGraph g = psa.getErrGraph();
+		final ProjectSpecificAction psa = new ProjectSpecificAction(mo.getApWithoutOptions());
+		final NeoLoadGraph g = psa.getErrGraph();
 		assertTrue(g != null);
 	}
 
 	@Test
 	public void testGetAvgGraph() {
-		ProjectSpecificAction psa = new ProjectSpecificAction(mo.getApWithoutOptions());
-		NeoLoadGraph g = psa.getAvgGraph();
+		final ProjectSpecificAction psa = new ProjectSpecificAction(mo.getApWithoutOptions());
+		final NeoLoadGraph g = psa.getAvgGraph();
 		assertTrue(g != null);
 	}
 
+	@SuppressWarnings("null")
 	@Test
-	public void testGetErrGraph2() {
-		AbstractProject ap = mo.getApWithOptions();
-		
-		RunList<AbstractBuild<?, ?>> rl = ap.getBuilds();
+	public void testGetErrGraph2() throws IOException {
+		final AbstractProject<?,? extends AbstractBuild<?,?>> ap = mo.getApWithOptions();
+
+		final RunList<AbstractBuild<?,?>> rl = (RunList<AbstractBuild<?, ?>>) ap.getBuilds();
 		// add the same build to the project multiple times
-		rl.add(mo.getAbstractBuild());
-		rl.add(mo.getAbstractBuild());
-		rl.add(mo.getAbstractBuild());
+		final AbstractBuild<?, ?> abstractBuild = mo.getAbstractBuild();
+		rl.add(abstractBuild);
+		rl.add(abstractBuild);
+		rl.add(abstractBuild);
 		Mockito.when(ap.getBuilds()).thenReturn(rl);
 
-		ProjectSpecificAction psa = new ProjectSpecificAction(ap);
+		final List<Run<?, ?>.Artifact> artifacts = abstractBuild.getArtifacts();
+		for (final Run<?, ?>.Artifact a: artifacts) {
+			NeoResultsActionTest.setArtifactFileTimetoAfterBuildTime(abstractBuild, a);
+
+			if ("xml".equalsIgnoreCase(FilenameUtils.getExtension(a.getFileName()))) {
+				String contents = FileUtils.readFileToString(a.getFile());
+				if (contents.contains("start=\"")) {
+					final String replacementDate =
+							new SimpleDateFormat(NeoResultsActionTest.STANDARD_TIME_FORMAT).format(
+									abstractBuild.getTimestamp().getTimeInMillis() + TimeUnit.MILLISECONDS.convert(60, TimeUnit.SECONDS));
+					contents = contents.replaceAll(Pattern.quote("start=\"" + MockObjects.getStartDateInXmlFile()),
+							"std_start_time=\"" + replacementDate + "\" dontUse_start=\"dont use me");
+					FileUtils.write(a.getFile(), contents, "UTF-8");
+				}
+			}
+		}
+
+		final ProjectSpecificAction psa = new ProjectSpecificAction(ap);
 		psa.refreshGraphData();
-		NeoLoadGraph g = psa.getErrGraph();
+		final NeoLoadGraph g = psa.getErrGraph();
 		assertTrue(g != null);
+		assertTrue(g.getyAxisLabel().toLowerCase().contains("error rate"));
 	}
 
+	@SuppressWarnings("null")
 	@Test
-	public void testGetAvgGraph2() {
-		AbstractProject ap = mo.getApWithOptions();
-		
-		RunList<AbstractBuild<?, ?>> rl = ap.getBuilds();
+	public void testGetAvgGraph2() throws IOException {
+		final AbstractProject<?,? extends AbstractBuild<?,?>> ap = mo.getApWithOptions();
+
+		final RunList<AbstractBuild<?,?>> rl = (RunList<AbstractBuild<?, ?>>) ap.getBuilds();
 		// add the same build to the project multiple times
-		rl.add(mo.getAbstractBuild());
-		rl.add(mo.getAbstractBuild());
-		rl.add(mo.getAbstractBuild());
+		final AbstractBuild<?, ?> abstractBuild = mo.getAbstractBuild();
+		rl.add(abstractBuild);
+		rl.add(abstractBuild);
+		rl.add(abstractBuild);
 		Mockito.when(ap.getBuilds()).thenReturn(rl);
 
-		ProjectSpecificAction psa = new ProjectSpecificAction(ap);
+		final List<Run<?, ?>.Artifact> artifacts = abstractBuild.getArtifacts();
+		for (final Run<?, ?>.Artifact a: artifacts) {
+			NeoResultsActionTest.setArtifactFileTimetoAfterBuildTime(abstractBuild, a);
+
+			if ("xml".equalsIgnoreCase(FilenameUtils.getExtension(a.getFileName()))) {
+				String contents = FileUtils.readFileToString(a.getFile());
+				if (contents.contains("start=\"")) {
+					final String replacementDate =
+							new SimpleDateFormat(NeoResultsActionTest.STANDARD_TIME_FORMAT).format(
+									abstractBuild.getTimestamp().getTimeInMillis() + TimeUnit.MILLISECONDS.convert(60, TimeUnit.SECONDS));
+					contents = contents.replaceAll(Pattern.quote("start=\"" + MockObjects.getStartDateInXmlFile()),
+							"std_start_time=\"" + replacementDate + "\" dontUse_start=\"dont use me");
+					FileUtils.write(a.getFile(), contents, "UTF-8");
+				}
+			}
+		}
+		final ProjectSpecificAction psa = new ProjectSpecificAction(ap);
 		psa.refreshGraphData();
-		NeoLoadGraph g = psa.getAvgGraph();
+		final NeoLoadGraph g = psa.getAvgGraph();
 		assertTrue(g != null);
+		assertTrue(g.getyAxisLabel().toLowerCase().contains("avg") || g.getyAxisLabel().toLowerCase().contains("average"));
 	}
 
 	@Test
-	public void testGetAvgGraphPoints() {
-		AbstractProject ap = mo.getApWithOptions();
-		
-		RunList<AbstractBuild<?, ?>> rl = ap.getBuilds();
-		// add the same build to the project multiple times
-		rl.add(mo.getAbstractBuild());
-		rl.add(mo.getAbstractBuild());
-		rl.add(mo.getAbstractBuild());
-		Mockito.when(ap.getBuilds()).thenReturn(rl);
+	public void testFindXmlResultsFileValidFileHasNoCorrespondingDate() throws IOException, XPathExpressionException, ParserConfigurationException, SAXException {
+		final AbstractBuild<?, ?> abstractBuild = mo.getAbstractBuild();
 
-		ProjectSpecificAction psa = new ProjectSpecificAction(ap);
-		psa.refreshGraphData();
-		Map<String, Float> points = psa.getAvgGraphPoints();
-		assertTrue(points.size() > 0);
-		
-		AbstractBuild<?, ?> build = rl.get(0);
-		Mockito.when(build.getDisplayName()).thenReturn("bob");
-		points = psa.getAvgGraphPoints();
-		assertTrue(points.get("bob") != null);
-	}
+		NeoLoadReportDoc result = ProjectSpecificAction.findXMLResultsFile(abstractBuild);
+		assertNull("should have an invalid date", result);
 
-	@Test
-	public void testGetErrGraphPoints() {
-		AbstractProject ap = mo.getApWithOptions();
-		
-		RunList<AbstractBuild<?, ?>> rl = ap.getBuilds();
-		// add the same build to the project multiple times
-		rl.add(mo.getAbstractBuild());
-		rl.add(mo.getAbstractBuild());
-		rl.add(mo.getAbstractBuild());
-		Mockito.when(ap.getBuilds()).thenReturn(rl);
+		final List<Run<?, ?>.Artifact> artifacts = abstractBuild.getArtifacts();
+		for (final Run<?, ?>.Artifact a: artifacts) {
+			NeoResultsActionTest.setArtifactFileTimetoAfterBuildTime(abstractBuild, a);
 
-		ProjectSpecificAction psa = new ProjectSpecificAction(ap);
-		psa.refreshGraphData();
-		Map<String, Float> points = psa.getErrGraphPoints();
-		assertTrue(points.size() > 0);
-		
-		AbstractBuild<?, ?> build = rl.get(0);
-		Mockito.when(build.getDisplayName()).thenReturn("bob");
-		points = psa.getErrGraphPoints();
-		assertTrue(points.get("bob") != null);
+			if ("xml".equalsIgnoreCase(FilenameUtils.getExtension(a.getFileName()))) {
+				String contents = FileUtils.readFileToString(a.getFile());
+				if (contents.contains("start=\"")) {
+					final String replacementDate =
+							new SimpleDateFormat(NeoResultsActionTest.STANDARD_TIME_FORMAT).format(
+									abstractBuild.getTimestamp().getTimeInMillis() + TimeUnit.MILLISECONDS.convert(60, TimeUnit.SECONDS));
+					contents = contents.replaceAll(Pattern.quote("start=\"" + MockObjects.getStartDateInXmlFile()),
+							"std_start_time=\"" + replacementDate + "\" dontUse_start=\"dont use me");
+					FileUtils.write(a.getFile(), contents, "UTF-8");
+				}
+			}
+		}
+
+		result = ProjectSpecificAction.findXMLResultsFile(abstractBuild);
+		assertNotNull("should have a valid date", result);
 	}
 
 	@Test
 	public void testGetIconFileName() {
-		ProjectSpecificAction psa = new ProjectSpecificAction(mo.getApWithoutOptions());
-		assertTrue(null == psa.getIconFileName());
+		final ProjectSpecificAction psa = new ProjectSpecificAction(mo.getApWithoutOptions());
+		psa.getIconFileName();
 	}
 
 	@Test
 	public void testGetDisplayName() {
-		ProjectSpecificAction psa = new ProjectSpecificAction(mo.getApWithoutOptions());
-		assertTrue(null != psa.getDisplayName());
+		final ProjectSpecificAction psa = new ProjectSpecificAction(mo.getApWithoutOptions());
+		psa.getDisplayName();
 	}
 
 }

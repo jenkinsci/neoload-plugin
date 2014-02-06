@@ -26,6 +26,9 @@
  */
 package com.neotys.nl.controller.report.transform;
 
+import hudson.model.AbstractBuild;
+
+import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -37,13 +40,19 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.time.DateFormatUtils;
 import org.jenkinsci.plugins.neoload_integration.supporting.PluginUtils;
 import org.jenkinsci.plugins.neoload_integration.supporting.XMLUtilities;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
+import org.xml.sax.SAXException;
+
+import com.google.common.base.Objects;
 
 /** A wrapper for an xml document.
  * @author ajohnson
@@ -51,28 +60,39 @@ import org.w3c.dom.Node;
  */
 public class NeoLoadReportDoc {
 
+	/** A default return value when a valid date can't be found (January 1, 1970, 00:00:00 GMT). */
+	public static final Date DATE_1970 = new Date(0);
+
+	/** A time format that is used for all languages in the context of this plugin. */
+	public static final String STANDARD_TIME_FORMAT = "yyyy-MM-dd kk:mm:ss";
+
 	/** The actual xml document. */
-	private Document doc = null;
+	private final Document doc;
 
 	/** Log various messages. */
 	private static final Logger LOGGER = Logger.getLogger(NeoLoadReportDoc.class.getName());
 
 	/** Constructor.
 	 * @param xmlFilePath
+	 * @throws ParserConfigurationException
+	 * @throws SAXException
+	 * @throws IOException
 	 */
 	public NeoLoadReportDoc(final String xmlFilePath) {
+		Document tempDoc = null;
 		try {
-			if ((xmlFilePath != null) &&
-					("xml".equalsIgnoreCase(FilenameUtils.getExtension(xmlFilePath)))) {
+			if (xmlFilePath != null &&
+					"xml".equalsIgnoreCase(FilenameUtils.getExtension(xmlFilePath))) {
 
-				doc = XMLUtilities.readXmlFile(xmlFilePath);
+				tempDoc = XMLUtilities.readXmlFile(xmlFilePath);
 			} else {
 				// to avoid npe
-				doc = XMLUtilities.createNodeFromText("<empty></empty>").getOwnerDocument();
+				tempDoc = XMLUtilities.createNodeFromText("<empty></empty>").getOwnerDocument();
 			}
 		} catch (final Exception e) {
-			LOGGER.log(Level.WARNING, "Error reading xml file " + xmlFilePath + ". " + e.getMessage(), e);
+			LOGGER.log(Level.WARNING, "Error reading xml file. " + e.getMessage(), e);
 		}
+		doc = tempDoc;
 	}
 
 	public NeoLoadReportDoc(final Document doc) {
@@ -84,13 +104,9 @@ public class NeoLoadReportDoc {
 	 * @throws XPathExpressionException
 	 */
 	public boolean isValidReportDoc() throws XPathExpressionException {
-		if (doc == null) {
-			return false;
-		}
-
 		final List<Node> nodes = XMLUtilities.findByExpression("/report/summary/all-summary/statistic-item", doc);
 
-		if ((nodes == null) || (nodes.size() == 0)) {
+		if (nodes == null || nodes.size() == 0) {
 			return false;
 		}
 
@@ -102,7 +118,14 @@ public class NeoLoadReportDoc {
 	 * @throws XPathExpressionException
 	 */
 	public Float getAverageResponseTime() throws XPathExpressionException {
-		return getGenericAvgValue("/report/summary/all-summary/statistic-item", "virtualuser");
+		// @type='httppage' finds a node where with an attribute named "type" with a value of "httppage".
+		// @avg finds the value of the attribute named "avg"
+		final Node errorRateNode = XMLUtilities.findFirstByExpression("/report/summary/all-summary/statistic-item[@type='httppage']/@avg", doc);
+
+		if (errorRateNode != null) {
+			return extractNeoLoadNumber(errorRateNode.getNodeValue());
+		}
+		return null;
 	}
 
 	/**
@@ -110,46 +133,40 @@ public class NeoLoadReportDoc {
 	 * @throws XPathExpressionException
 	 */
 	public Float getErrorRatePercentage() throws XPathExpressionException {
-		return getGenericAvgValue("/report/summary/all-summary/statistic-item", "httppage");
+		// @name='error_percentile' finds a node where with an attribute named "name" with a value of "error_percentile".
+		final Node errorRateNode = XMLUtilities.findFirstByExpression("/report/summary/statistics/statistic[@name='error_percentile']/@value", doc);
+
+		if (errorRateNode != null) {
+			return extractNeoLoadNumber(errorRateNode.getNodeValue());
+		}
+		return null;
 	}
 
 	/**
+	 * @param valArg
 	 * @return
-	 * @throws XPathExpressionException
 	 */
-	private Float getGenericAvgValue(final String path, final String typeAttributeValue) throws XPathExpressionException {
-		final List<Node> nodes = XMLUtilities.findByExpression(path, doc);
-		Float numVal = null;
-		String val = null;
+	private static Float extractNeoLoadNumber(final String valArg) {
+		String val = StringUtils.trimToEmpty(valArg);
 
-		// look at the nodes we found
-		for (final Node searchNode : nodes) {
-			// look for the avg response time node
-			val = XMLUtilities.findFirstValueByExpression("@type", searchNode);
-			if (typeAttributeValue.equalsIgnoreCase(val)) {
-				// this is the correct node. get the avg response time value.
-				val = XMLUtilities.findFirstValueByExpression("@avg", searchNode);
-				// remove spaces etc
-				val = val.replaceAll(",", ".").replaceAll(" ", "");
-				// special case for percentages
-				val = val.replaceAll(Pattern.quote("%"), "");
-				// special case for percentages
-				val = val.replaceAll(Pattern.quote("+"), "");
-				// special case for less than 0.01%
-				if ("<0.01".equals(val)) {
-					numVal = 0f;
-				} else {
-					try {
-						numVal = Float.valueOf(val);
-					} catch (final Exception e) {
-						// we couldn't convert the result to an actual number so the value will not be included.
-						// this could be +INF, -INF, " - ", NaN, etc. See com.neotys.nl.util.FormatUtils.java, getTextNumber().
-					}
-				}
-			}
+		// remove spaces etc
+		val = val.replaceAll(",", ".").replaceAll(" ", "");
+		// special case for percentages
+		val = val.replaceAll(Pattern.quote("%"), "");
+		// special case for percentages
+		val = val.replaceAll(Pattern.quote("+"), "");
+		// special case for less than 0.01%
+		if ("<0.01".equals(val)) {
+			return 0f;
 		}
 
-		return numVal;
+		try {
+			return Float.valueOf(val);
+		} catch (final Exception e) {
+			// we couldn't convert the result to an actual number so the value will not be included.
+			// this could be +INF, -INF, " - ", NaN, etc. See com.neotys.nl.util.FormatUtils.java, getTextNumber().
+		}
+		return null;
 	}
 
 	/** @return the doc */
@@ -162,34 +179,63 @@ public class NeoLoadReportDoc {
 	 * @return
 	 * @throws XPathExpressionException
 	 */
-	public boolean isNewerThan(final Calendar calBuildTime) throws XPathExpressionException {
+	public boolean hasCorrespondingDate(final AbstractBuild<?, ?> build) throws XPathExpressionException {
+		final Calendar buildStartTime = PluginUtils.getBuildStartTime(build);
+		final Calendar buildEndTime = PluginUtils.getBuildEndTime(build);
+		// we add X seconds leeway because sometimes the endTime matches the processed time exactly.
+		buildEndTime.add(Calendar.SECOND, 15);
+
+		final Calendar fileCreationTimeCal = getNeoLoadCreationDate();
+
+		final boolean hasCorrespondingDate = fileCreationTimeCal.after(buildStartTime) && fileCreationTimeCal.before(buildEndTime);
+		LOGGER.fine("Build " + build.number + ", hasCorrespondingDate buildStart / fileCreate / buildend: " +
+				DateFormatUtils.format(buildStartTime, STANDARD_TIME_FORMAT) + " / " +
+				DateFormatUtils.format(fileCreationTimeCal, STANDARD_TIME_FORMAT) + " / " +
+				DateFormatUtils.format(buildEndTime, STANDARD_TIME_FORMAT) + " , hasCorrespondingDate: " + hasCorrespondingDate);
+
+		return hasCorrespondingDate;
+	}
+
+	Calendar getNeoLoadCreationDate() throws XPathExpressionException {
 		final List<Node> nodes = XMLUtilities.findByExpression("/report/summary/test", doc);
 
-		// false if we didn't find the time
-		if ((nodes == null) || (nodes.size() != 1)) {
-			return false;
+		// we didn't find the time so we use 1970 as a default.
+		if (nodes == null || nodes.size() != 1) {
+			return PluginUtils.toCalendar(DATE_1970);
 		}
 
 		final Map<String, String> attributes = XMLUtilities.getMap(nodes.get(0).getAttributes());
-
 		try {
-			// look for a time formatted in a standard way
-			if (attributes.containsKey("std_start_time")) {
-				final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd kk:mm:ss");
-				final Date d = sdf.parse(attributes.get("std_start_time"));
-				return PluginUtils.toCalendar(d).after(calBuildTime);
-			}
+			final String fileCreationTimeStr = Objects.firstNonNull(attributes.get("std_start_time"), attributes.get("start"));
+			final Date fileCreationTime = parseFileCreationTime(fileCreationTimeStr);
+			final Calendar fileCreationTimeCal = PluginUtils.toCalendar(fileCreationTime);
+
+			return fileCreationTimeCal;
+
+		} catch (final Exception e) {
+			// this may be a null pointer exception from the {@code Objects#firstNonNull()} method.
+			LOGGER.log(Level.WARNING, "Issue parsing dates in " + doc.getDocumentURI(), e);
+			return PluginUtils.toCalendar(DATE_1970);
+		}
+	}
+
+	/**
+	 * @param fileCreationTimeStr
+	 * @return
+	 */
+	Date parseFileCreationTime(final String fileCreationTimeStr) {
+		try {
+			// try the standard format.
+			final SimpleDateFormat sdf = new SimpleDateFormat(STANDARD_TIME_FORMAT);
+			return sdf.parse(fileCreationTimeStr);
 		} catch (final Exception e) {
 			// don't care
 		}
 
-		final String startTime = attributes.get("start");
-
 		// try English. Mar 20, 2013 3:01:26 PM
 		try {
 			final DateFormat df = DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT, Locale.ENGLISH);
-			final Date d = df.parse(startTime);
-			return PluginUtils.toCalendar(d).after(calBuildTime);
+			return df.parse(fileCreationTimeStr);
 		} catch (final Exception e) {
 			// don't care
 		}
@@ -197,8 +243,7 @@ public class NeoLoadReportDoc {
 		// try French. 22 mars 2013 11:07:33
 		try {
 			final DateFormat df = DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT, Locale.FRENCH);
-			final Date d = df.parse(startTime);
-			return PluginUtils.toCalendar(d).after(calBuildTime);
+			return df.parse(fileCreationTimeStr);
 		} catch (final Exception e) {
 			// don't care
 		}
@@ -206,14 +251,13 @@ public class NeoLoadReportDoc {
 		// try local machine format
 		try {
 			final DateFormat df = DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT, Locale.getDefault());
-			final Date d = df.parse(startTime);
-			return PluginUtils.toCalendar(d).after(calBuildTime);
+			return df.parse(fileCreationTimeStr);
 		} catch (final Exception e) {
 			// can't figure out what the date format is...
-			LOGGER.log(Level.FINE, "Can't parse date in xml file " + doc.getDocumentURI());
+			LOGGER.log(Level.FINE, "Can't parse date (" + fileCreationTimeStr + ") in xml file " + doc.getDocumentURI());
 		}
 
-		return false;
+		return DATE_1970;
 	}
 
 }

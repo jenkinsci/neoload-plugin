@@ -41,7 +41,7 @@ import org.junit.Test;
 import org.kohsuke.stapler.StaplerRequest;
 
 public class ProjectSpecificActionFactoryTest extends TestCase {
-	
+
 	/** Mock project for testing. */
 	private MockObjects mo = null;
 
@@ -53,21 +53,21 @@ public class ProjectSpecificActionFactoryTest extends TestCase {
 	public void setUp() throws Exception {
 		mo = new MockObjects();
 	}
-	
+
 	@Test
 	public void testCreateForAbstractProject() {
-		ProjectSpecificActionFactory psa = new ProjectSpecificActionFactory();
-		Collection<? extends Action> c = psa.createFor(mo.getApWithOptions());
+		final ProjectSpecificActionFactory psa = new ProjectSpecificActionFactory();
+		final Collection<? extends Action> c = psa.createFor(mo.getApWithOptions());
 		assertFalse(c.isEmpty());
 		assertTrue(c.size() == 1);
 	}
 
 	@Test
 	public void testGetDescriptor() throws FormException {
-		ProjectSpecificActionFactory psa = new ProjectSpecificActionFactory();
-		DescriptorImplPSA d = (DescriptorImplPSA) psa.getDescriptor();
+		final ProjectSpecificActionFactory psa = new ProjectSpecificActionFactory();
+		final DescriptorImplPSA d = (DescriptorImplPSA) psa.getDescriptor();
 		assertNotNull(d);
-		
+
 		d.getDisplayName();
 		d.newInstance((StaplerRequest)null, (JSONObject)null);
 		d.configure((StaplerRequest)null, (JSONObject)null);

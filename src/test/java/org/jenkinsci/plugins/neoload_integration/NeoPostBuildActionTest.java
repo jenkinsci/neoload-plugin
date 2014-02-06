@@ -34,7 +34,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class NeoPostBuildActionTest extends TestCase {
-	
+
 	/** Mock project for testing. */
 	private MockObjects mo = null;
 
@@ -46,29 +46,29 @@ public class NeoPostBuildActionTest extends TestCase {
 	public void setUp() throws Exception {
 		mo = new MockObjects();
 	}
-	
+
 	@Test
 	public void testNeoPostBuildAction() {
-		@SuppressWarnings("unused")
-		NeoPostBuildAction npba = new NeoPostBuildAction(false, false);
+		final NeoPostBuildAction neoPostBuildAction = new NeoPostBuildAction(false, false);
+		assertNotNull(neoPostBuildAction);
 	}
 
 	@Test
 	public void testNeoPostBuildActionDescriptorImpl() {
-		NeoPostBuildAction.DescriptorImpl di = new NeoPostBuildAction.DescriptorImpl();
+		final NeoPostBuildAction.DescriptorImpl di = new NeoPostBuildAction.DescriptorImpl();
 		di.getDisplayName();
 		di.isApplicable(null);
 	}
 
 	@Test
 	public void testPerform() {
-		NeoPostBuildAction npba = new NeoPostBuildAction(false, false);
+		final NeoPostBuildAction npba = new NeoPostBuildAction(false, false);
 		npba.perform(mo.getAbstractBuild(), null, null);
 	}
 
 	@Test
 	public void testGetRequiredMonitorService() {
-		NeoPostBuildAction npba = new NeoPostBuildAction(false, false);
+		final NeoPostBuildAction npba = new NeoPostBuildAction(false, false);
 		assertTrue(npba.getRequiredMonitorService() == BuildStepMonitor.NONE);
 	}
 
