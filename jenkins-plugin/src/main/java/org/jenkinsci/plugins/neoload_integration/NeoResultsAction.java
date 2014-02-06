@@ -150,23 +150,20 @@ public class NeoResultsAction implements Action, Serializable {
 	 */
 	@SuppressWarnings("rawtypes")
 	private FileAndContent findHtmlReportArtifact() {
-		Artifact artifact = null;
 		final Iterator<?> it = build.getArtifacts().iterator();
-		String content = null;
 		FileAndContent ac = null;
 
 		// remove files that don't match
 		while (it.hasNext()) {
-			artifact = (Artifact) it.next();
+			final Artifact artifact = (Artifact) it.next();
 
 			// if it's an html file
 			if (artifact.getFileName().length() > 4 &&
 					"html".equalsIgnoreCase(artifact.getFileName().substring(artifact.getFileName().length() - 4))) {
 
 				// verify file contents
-				content = null;
 				try {
-					content = FileUtils.fileRead(artifact.getFile().getAbsolutePath());
+					final String content = FileUtils.fileRead(artifact.getFile().getAbsolutePath());
 					if (content != null && isNeoLoadHTMLReport(content)) {
 						// verify that the file was created during the current build
 						if (isFromTheCurrentBuild(artifact, content)) {
@@ -176,8 +173,8 @@ public class NeoResultsAction implements Action, Serializable {
 						}
 						processingForTheFirstTime = false;
 						LOGGER.log(Level.WARNING,
-								"Build " + build.number + ", Found " + artifact.getFile().getAbsolutePath() + ", but it's linked to "
-										+ "a different build.");
+								"Build " + build.number + ", Found " + artifact.getFile().getAbsolutePath() + 
+									", but it's linked to a different build.");
 					}
 				} catch (final Exception e) {
 					LOGGER.log(Level.FINE, "Error reading file. " + e.getMessage(), e);
