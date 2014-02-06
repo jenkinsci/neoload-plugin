@@ -12,7 +12,7 @@
 	<name>NeoLoad Plugin</name>
 	<url>https://wiki.jenkins-ci.org/display/JENKINS/NeoLoad+Plugin</url>
 	<artifactId>neoload-jenkins-plugin</artifactId>
-	<version>1.0.1</version>
+	<version>1.0.2-SNAPSHOT</version>
 
 	<packaging>hpi</packaging>
 	<description>Integrates NeoLoad results, generates trend graphs, and links to NeoLoad reports.</description>
