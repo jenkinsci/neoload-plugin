@@ -2,7 +2,7 @@
 using Simple.OData.Client;
 
 /*
- * Copyright (c) 2014, Neotys
+ * Copyright (c) 2015, Neotys
  * All rights reserved.
  */
 namespace Neotys.DataExchangeAPI.Client
@@ -41,7 +41,7 @@ namespace Neotys.DataExchangeAPI.Client
 		{
 			if (Enabled)
 			{
-                ODataEntry createdSession = readEntity(SessionIds.SESSION, Sessions.toProperties(context, apiKey));
+                ODataEntry createdSession = ReadEntity(SessionIds.SESSION, Sessions.toProperties(context, apiKey));
 				this.sessionId = SessionIds.fromEntryProperties(createdSession.AsDictionary());
 			}
 			else
@@ -68,7 +68,7 @@ namespace Neotys.DataExchangeAPI.Client
 			properties[SessionIds.SESSION_ID] = sessionId;
 			try
 			{
-				createEntity(Entries.ENTRY, properties);
+				CreateEntity(Entries.Entry, properties);
 			}
 			catch (Microsoft.OData.Core.ODataException oDataException)
 			{
@@ -99,7 +99,7 @@ namespace Neotys.DataExchangeAPI.Client
 			}
 			try
 			{
-				createFeed(Entries.ENTRIES, entriesProperties);
+				CreateFeed(Entries.Entry, entriesProperties);
 			}
 			catch (Microsoft.OData.Core.ODataException oDataException)
 			{
@@ -138,7 +138,7 @@ namespace Neotys.DataExchangeAPI.Client
 					// From NeoLoad 5.1 : parsing is done on Server side
 					IDictionary<string, object> properties = XMLEntries.toProperties(xml, parentPath, timestamp, charset);
 					properties[SessionIds.SESSION_ID] = sessionId;
-					createEntity(XMLEntries.XMLENTRIES, properties);
+					CreateEntity(XMLEntries.XMLENTRIES, properties);
 				}
 			}
 			catch (Microsoft.OData.Core.ODataException oDataException)

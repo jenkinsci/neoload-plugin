@@ -8,7 +8,6 @@ using Neotys.DataExchangeAPI.UtilsFromJava;
  */
 namespace Neotys.DataExchangeAPI.Model
 {
-
 	/// <summary>
 	/// The Entry is an element sent to the Data Exchange API Server.
 	/// 
@@ -17,7 +16,6 @@ namespace Neotys.DataExchangeAPI.Model
 	/// </summary>
 	public class Entry : IComparable<Entry>
 	{
-
 		private readonly IList<string> path;
 		private readonly double? value;
 		private readonly long timestamp;

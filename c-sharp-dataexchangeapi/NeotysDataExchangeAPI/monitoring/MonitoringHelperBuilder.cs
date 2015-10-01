@@ -28,8 +28,8 @@ namespace Neotys.DataExchangeAPI.Monitoring
 		/// <exception cref="NullPointerException"> if a parameter is null. </exception>
 		public MonitoringHelperBuilder(MonitoringSupplier monitoringSupplier, IDataExchangeAPIClient client)
 		{
-			this.monitoringSupplier = JavaUtils<MonitoringSupplier>.checkNotNull(monitoringSupplier);
-			this.client = JavaUtils<IDataExchangeAPIClient>.checkNotNull(client);
+			this.monitoringSupplier = JavaUtils.checkNotNull<MonitoringSupplier>(monitoringSupplier);
+			this.client = JavaUtils.checkNotNull<IDataExchangeAPIClient>(client);
 		}
 
 		public MonitoringHelper build()
@@ -52,7 +52,7 @@ namespace Neotys.DataExchangeAPI.Monitoring
 		/// <exception cref="NullPointerException"> if scriptName is null. </exception>
 		public virtual MonitoringHelperBuilder scriptName(string scriptName)
 		{
-			this.scriptName_Renamed = JavaUtils<string>.checkNotNull(scriptName);
+			this.scriptName_Renamed = JavaUtils.checkNotNull<string>(scriptName);
 			return this;
 		}
 
@@ -62,7 +62,7 @@ namespace Neotys.DataExchangeAPI.Monitoring
 		/// <exception cref="NullPointerException"> if parentPath is null. </exception>
 		public virtual MonitoringHelperBuilder parentPath(IList<string> parentPath)
 		{
-			this.parentPath_Renamed = JavaUtils<IList<string>>.checkNotNull(parentPath);
+			this.parentPath_Renamed = JavaUtils.checkNotNull<IList<string>>(parentPath);
 			return this;
 		}
 
@@ -71,7 +71,7 @@ namespace Neotys.DataExchangeAPI.Monitoring
 		/// <exception cref="NullPointerException"> if charset is null. </exception>
 		public virtual MonitoringHelperBuilder charset(string charset)
 		{
-			this.charset_Renamed = JavaUtils<string>.checkNotNull(charset);
+			this.charset_Renamed = JavaUtils.checkNotNull<string>(charset);
 			return this;
 		}
 

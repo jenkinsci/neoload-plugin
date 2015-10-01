@@ -18,7 +18,6 @@ namespace Neotys.DataExchangeAPI.Error
 	/// </summary>
 	public class NeotysAPIException : Exception
 	{
-
 		public sealed class ErrorType
 		{
 			// APIs
@@ -175,9 +174,9 @@ namespace Neotys.DataExchangeAPI.Error
 		/// <exception cref="NullPointerException"> if a parameter is null. </exception>
 		public NeotysAPIException(ErrorType errorType, string details, Exception wrappedException)
 		{
-			this.errorType = JavaUtils<ErrorType>.checkNotNull(errorType);
-			this.details = JavaUtils<string>.checkNotNull(details);
-			this.wrappedException = JavaUtils<Exception>.checkNotNull(wrappedException);
+			this.errorType = JavaUtils.checkNotNull<ErrorType>(errorType);
+			this.details = JavaUtils.checkNotNull<string>(details);
+			this.wrappedException = JavaUtils.checkNotNull<Exception>(wrappedException);
 		}
 
 		/// <summary>
@@ -188,9 +187,9 @@ namespace Neotys.DataExchangeAPI.Error
 		/// <exception cref="NullPointerException"> if a parameter is null. </exception>
 		public NeotysAPIException(ErrorType errorType, Exception wrappedException)
 		{
-			this.errorType = JavaUtils<ErrorType>.checkNotNull(errorType);
+			this.errorType = JavaUtils.checkNotNull<ErrorType>(errorType);
 			this.details = "";
-			this.wrappedException = JavaUtils<Exception>.checkNotNull(wrappedException);
+			this.wrappedException = JavaUtils.checkNotNull<Exception>(wrappedException);
 		}
 
 		/// <summary>
@@ -200,8 +199,8 @@ namespace Neotys.DataExchangeAPI.Error
 		/// <exception cref="NullPointerException"> if a parameter is null. </exception>
 		public NeotysAPIException(ErrorType errorType, string details)
 		{
-			this.errorType = JavaUtils<ErrorType>.checkNotNull(errorType);
-			this.details = JavaUtils<string>.checkNotNull(details);
+			this.errorType = JavaUtils.checkNotNull<ErrorType>(errorType);
+			this.details = JavaUtils.checkNotNull<string>(details);
 			this.wrappedException = null;
 		}
 
@@ -211,7 +210,7 @@ namespace Neotys.DataExchangeAPI.Error
 		/// <exception cref="NullPointerException"> if errorType is null. </exception>
 		public NeotysAPIException(ErrorType errorType)
 		{
-			this.errorType = JavaUtils<ErrorType>.checkNotNull(errorType);
+			this.errorType = JavaUtils.checkNotNull<ErrorType>(errorType);
 			this.details = "";
 			this.wrappedException = null;
 		}
@@ -224,7 +223,7 @@ namespace Neotys.DataExchangeAPI.Error
 		{
 			this.errorType = ErrorType.NL_API_ERROR;
 			this.details = "";
-			this.wrappedException = JavaUtils<Exception>.checkNotNull(wrappedException);
+			this.wrappedException = JavaUtils.checkNotNull<Exception>(wrappedException);
 		}
 
 		/// <summary>

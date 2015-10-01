@@ -48,32 +48,32 @@ namespace Neotys.DataExchangeAPI.Rest.Util
 			object objectHardware = contextProperties[HARDWARE];
 			if (objectHardware != null)
 			{
-				contextBuilder.Hardware(Escaper.escape(objectHardware.ToString()));
+				contextBuilder.Hardware = Escaper.escape(objectHardware.ToString());
 			}
 			object objectOs = contextProperties[OS];
 			if (objectOs != null)
 			{
-				contextBuilder.Os(Escaper.escape(objectOs.ToString()));
+				contextBuilder.Os = Escaper.escape(objectOs.ToString());
 			}
 			object objectSoftware = contextProperties[SOFTWARE];
 			if (objectSoftware != null)
 			{
-				contextBuilder.Software(Escaper.escape(objectSoftware.ToString()));
+				contextBuilder.Software = Escaper.escape(objectSoftware.ToString());
 			}
 			object objectLocation = contextProperties[LOCATION];
 			if (objectLocation != null)
 			{
-				contextBuilder.Location(Escaper.escape(objectLocation.ToString()));
+				contextBuilder.Location = Escaper.escape(objectLocation.ToString());
 			}
 			object objectScript = contextProperties[SCRIPT];
 			if (objectScript != null)
 			{
-				contextBuilder.Script(Escaper.escape(objectScript.ToString()));
+				contextBuilder.Script = Escaper.escape(objectScript.ToString());
 			}
 			object objectInstanceId = contextProperties[INSTANCEID];
 			if (objectInstanceId != null)
 			{
-				contextBuilder.InstanceId(Escaper.escape(objectInstanceId.ToString()));
+				contextBuilder.InstanceId = Escaper.escape(objectInstanceId.ToString());
 			}
 			return contextBuilder.build();
 		}
@@ -88,27 +88,27 @@ namespace Neotys.DataExchangeAPI.Rest.Util
 			string[] splits = contextLine.Split(new char[] { separator });
 			if (!System.String.IsNullOrEmpty(splits[HARDWARE_INDEX]))
 			{
-				contextBuilder.Hardware(escape(splits[HARDWARE_INDEX]));
+				contextBuilder.Hardware = escape(splits[HARDWARE_INDEX]);
 			}
 			if (!System.String.IsNullOrEmpty(splits[OS_INDEX]))
 			{
-				contextBuilder.Os(escape(splits[OS_INDEX]));
+				contextBuilder.Os = escape(splits[OS_INDEX]);
 			}
 			if (!System.String.IsNullOrEmpty(splits[SOFTWARE_INDEX]))
 			{
-				contextBuilder.Software(escape(splits[SOFTWARE_INDEX]));
+				contextBuilder.Software = escape(splits[SOFTWARE_INDEX]);
 			}
 			if (!System.String.IsNullOrEmpty(splits[LOCATION_INDEX]))
 			{
-				contextBuilder.Location(escape(splits[LOCATION_INDEX]));
+				contextBuilder.Location = escape(splits[LOCATION_INDEX]);
 			}
 			if (!System.String.IsNullOrEmpty(splits[SCRIPT_INDEX]))
 			{
-				contextBuilder.Script(escape(splits[SCRIPT_INDEX]));
+				contextBuilder.Script = escape(splits[SCRIPT_INDEX]);
 			}
 			if (!System.String.IsNullOrEmpty(splits[INSTANCEID_INDEX]))
 			{
-				contextBuilder.InstanceId(escape(splits[INSTANCEID_INDEX]));
+				contextBuilder.InstanceId = escape(splits[INSTANCEID_INDEX]);
 			}
 			return contextBuilder.build();
 		}

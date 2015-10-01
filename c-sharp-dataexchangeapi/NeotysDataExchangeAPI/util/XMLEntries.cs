@@ -44,9 +44,9 @@ namespace Neotys.DataExchangeAPI.Rest.Util
 			xmlEntriesProperties[XML] = xml;
 			if (parentPath != null)
 			{
-				xmlEntriesProperties[Entries.PATH] = Entries.pathListToString(parentPath);
+				xmlEntriesProperties[Entries.Path] = Entries.pathListToString(parentPath);
 			}
-			xmlEntriesProperties[Entries.TIMESTAMP] = timestamp;
+			xmlEntriesProperties[Entries.Timestamp] = timestamp;
 			xmlEntriesProperties[CHARSET] = charset;
 			return xmlEntriesProperties;
 		}
@@ -89,7 +89,7 @@ namespace Neotys.DataExchangeAPI.Rest.Util
             System.Xml.XmlDocument doc = new System.Xml.XmlDocument();
             doc.LoadXml(contentAsXML);
 
-			return getEntries(doc.ChildNodes, JavaUtils<IList<string>>.checkNotNull(parentPath), timestamp);
+			return getEntries(doc.ChildNodes, JavaUtils.checkNotNull<IList<string>>(parentPath), timestamp);
 		}
 
 

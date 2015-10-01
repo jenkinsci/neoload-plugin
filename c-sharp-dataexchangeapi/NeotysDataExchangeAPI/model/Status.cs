@@ -22,9 +22,9 @@ namespace Neotys.DataExchangeAPI.Model
 
         public sealed class State
 		{
-            public static readonly string PASS = "PASS";
-            public static readonly string FAIL = "FAIL";
-
+            public static readonly string Pass = "PASS";
+            public static readonly string Fail = "FAIL";
+            public static readonly IList<string> ValidStateValues = new List<string> { Pass, Fail };
 		}
 
 		internal Status(StatusBuilder statusBuilder)

@@ -1,23 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-
+using JavaUtils = Neotys.DataExchangeAPI.UtilsFromJava.JavaUtils;
 /*
  * Copyright (c) 2015, Neotys
  * All rights reserved.
  */
 namespace Neotys.DataExchangeAPI.Rest.Util
 {
-
 	using Entry = Neotys.DataExchangeAPI.Model.Entry;
 	using EntryBuilder = Neotys.DataExchangeAPI.Model.EntryBuilder;
 	using Status = Neotys.DataExchangeAPI.Model.Status;
 	using NeotysAPIException = Neotys.DataExchangeAPI.Error.NeotysAPIException;
-	using ErrorType = Neotys.DataExchangeAPI.Error.NeotysAPIException.ErrorType;
-    using TimeUnit = Neotys.DataExchangeAPI.UtilsFromJava.TimeUnit;
 
     /// <summary>
-    /// Util class to handle <seealso cref="Entry"/>.
+    /// Util class to handle <seealso cref="Model.Entry"/>.
     /// 
     /// @author srichert
     /// 
@@ -25,16 +22,15 @@ namespace Neotys.DataExchangeAPI.Rest.Util
     public sealed class Entries
 	{
 
-		public const string ENTRY = "Entry";
-		public const string ENTRIES = "Entries";
-		public const string PATH = "Path";
-		public const string VALUE = "Value";
-		public const string TIMESTAMP = "Timestamp";
-		public const string URL = "Url";
-		public const string UNIT = "Unit";
-		public const string STATUS = "Status";
+		public const string Entry = "Entry";
+		public const string Path = "Path";
+		public const string Value = "Value";
+		public const string Timestamp = "Timestamp";
+		public const string Url = "Url";
+		public const string Unit = "Unit";
+		public const string Status = "Status";
 
-		private const char SEPARATOR = '|';
+		private const char Separator = '|';
 
 		private Entries()
 		{
@@ -48,7 +44,7 @@ namespace Neotys.DataExchangeAPI.Rest.Util
 			long timestamp = getTimestamp(entryProperties, isRequired);
 			EntryBuilder entryBuilder = new EntryBuilder(path, timestamp);
 
-			object objectValue = entryProperties[VALUE];
+			object objectValue = entryProperties[Value];
 			if (objectValue != null)
 			{
 				try
@@ -62,12 +58,12 @@ namespace Neotys.DataExchangeAPI.Rest.Util
 				}
 			}
 
-			object objectUrl = entryProperties[URL];
+			object objectUrl = entryProperties[Url];
 			if (objectUrl != null)
 			{
 				entryBuilder.Url = objectUrl.ToString();
 			}
-			object objectUnit = entryProperties[UNIT];
+			object objectUnit = entryProperties[Unit];
 			if (objectUnit != null)
 			{
 				entryBuilder.Unit = Escaper.escape(objectUnit.ToString());
@@ -117,7 +113,7 @@ namespace Neotys.DataExchangeAPI.Rest.Util
 
 		protected internal static IList<string> getPath(IDictionary<string, object> entryProperties, bool isRequired)
 		{
-			object objectPath = entryProperties[PATH];
+			object objectPath = entryProperties[Path];
 			if (objectPath == null || System.String.IsNullOrEmpty(objectPath.ToString()))
 			{
 				if (isRequired)
@@ -131,14 +127,14 @@ namespace Neotys.DataExchangeAPI.Rest.Util
 
 		protected internal static long getTimestamp(IDictionary<string, object> entryProperties, bool isRequired)
 		{
-			object objectTimestamp = entryProperties[TIMESTAMP];
+			object objectTimestamp = entryProperties[Timestamp];
 			if (objectTimestamp == null)
 			{
 				if (isRequired)
 				{
 					throw new NeotysAPIException(NeotysAPIException.ErrorType.NL_API_INVALID_ARGUMENT, "Missing entry timestamp.");
 				}
-				return TimeUnit.CurrentTimeMilliseconds();
+				return JavaUtils.CurrentTimeMilliseconds();
 			}
 			try
 			{
@@ -155,28 +151,28 @@ namespace Neotys.DataExchangeAPI.Rest.Util
 			IDictionary<string, object> entryProperties = new Dictionary<string, object>();
 			if (entry.Path != null)
 			{
-				entryProperties[PATH] = Entries.pathListToString(entry.Path);
+				entryProperties[Path] = Entries.pathListToString(entry.Path);
 			}
-			entryProperties[VALUE] = entry.Value;
-			entryProperties[TIMESTAMP] = entry.Timestamp;
+			entryProperties[Value] = entry.Value;
+			entryProperties[Timestamp] = entry.Timestamp;
 			if (entry.Url != null)
 			{
-				entryProperties[URL] = entry.Url;
+				entryProperties[Url] = entry.Url;
 			}
 			if (entry.Unit != null)
 			{
-				entryProperties[UNIT] = entry.Unit;
+				entryProperties[Unit] = entry.Unit;
 			}
 			if (entry.Status != null)
 			{
-				entryProperties[STATUS] = Statuses.toProperties(entry.Status);
+				entryProperties[Status] = Statuses.toProperties(entry.Status);
 			}
 			return entryProperties;
 		}
 
 		public static IList<string> pathStringToList(string pathString)
 		{
-			return pathStringToList(pathString, SEPARATOR);
+			return pathStringToList(pathString, Separator);
 		}
 
 		public static IList<string> pathStringToList(string pathString, char separator)
@@ -209,7 +205,7 @@ namespace Neotys.DataExchangeAPI.Rest.Util
 
 		public static string pathListToString(IList<string> pathList)
 		{
-			return pathListToString(pathList, SEPARATOR);
+			return pathListToString(pathList, Separator);
 		}
 
 		public static string getDisplayPath(Entry entry)

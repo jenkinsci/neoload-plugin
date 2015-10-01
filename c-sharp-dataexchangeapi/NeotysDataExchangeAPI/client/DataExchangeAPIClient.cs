@@ -17,7 +17,6 @@ namespace Neotys.DataExchangeAPI.Client
 	/// </summary>
 	public interface IDataExchangeAPIClient
 	{
-
 		/// <summary>
 		/// Send an <seealso cref="Entry"/> to the Data Exchange server. </summary>
 		/// <param name="entry"> </param>

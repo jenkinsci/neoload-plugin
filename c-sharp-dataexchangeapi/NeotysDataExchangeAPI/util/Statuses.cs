@@ -108,12 +108,12 @@ namespace Neotys.DataExchangeAPI.Rest.Util
 			}
 			if (exception != null)
 			{
-				statusBuilder.State = Status.State.FAIL;
+				statusBuilder.State = Status.State.Fail;
 				statusBuilder.Message = exception.Message;
 			}
 			else
 			{
-				statusBuilder.State = Status.State.PASS;
+				statusBuilder.State = Status.State.Pass;
 			}
 			return statusBuilder.Build();
 		}

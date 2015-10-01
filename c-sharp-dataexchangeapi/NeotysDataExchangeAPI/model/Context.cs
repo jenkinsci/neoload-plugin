@@ -25,12 +25,12 @@ namespace Neotys.DataExchangeAPI.Model
 
 		internal Context(ContextBuilder contextBuilder)
 		{
-			this.hardware = contextBuilder.Hardware();
-			this.os = contextBuilder.Os();
-			this.software = contextBuilder.Software();
-			this.location = contextBuilder.Location();
-			this.script = contextBuilder.Script();
-			this.instanceId = contextBuilder.InstanceId();
+			this.hardware = contextBuilder.Hardware;
+			this.os = contextBuilder.Os;
+			this.software = contextBuilder.Software;
+			this.location = contextBuilder.Location;
+			this.script = contextBuilder.Script;
+			this.instanceId = contextBuilder.InstanceId;
 		}
 
 		public virtual string Hardware

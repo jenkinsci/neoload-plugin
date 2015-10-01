@@ -1,7 +1,7 @@
 ﻿using Neotys.DataExchangeAPI.UtilsFromJava;
 
 /*
- * Copyright (c) 2014, Neotys
+ * Copyright (c) 2015, Neotys
  * All rights reserved.
  */
 namespace Neotys.DataExchangeAPI.Client
@@ -76,16 +76,7 @@ namespace Neotys.DataExchangeAPI.Client
 		/// <exception cref="NeotysAPIException"> </exception>
 		public static IDataExchangeAPIClient NewClient(string url, Context context, string apiKey)
 		{
-			try
-			{
-                return new DataExchangeAPIClientOlingo(url, context, apiKey);
-            }
-			catch (System.Exception e)
-			{
-                System.Console.WriteLine("------------------------------------------------------------");
-                System.Console.WriteLine(e);
-                throw new NeotysAPIException(e);
-			}
+            return new DataExchangeAPIClientOlingo(url, context, apiKey);
 		}
 	}
 
