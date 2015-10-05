@@ -41,7 +41,7 @@ namespace Neotys.DataExchangeAPI.UtilsFromJava
             return typeName + ":{" + string.Join(",", values) + "}";
         }
 
-        public string reflectionToString(object obj)
+        public string ReflectionToString(object obj)
         {
             StringBuilder sb = new StringBuilder();
             foreach (System.Reflection.PropertyInfo property in obj.GetType().GetProperties())

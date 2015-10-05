@@ -13,7 +13,7 @@
             this.multiplierToMilliseconds = multiplierToMilliseconds;
         }
 
-        public long toMilliseconds(long howMany)
+        public long ToMilliseconds(long howMany)
         {
             return howMany * multiplierToMilliseconds;
         }

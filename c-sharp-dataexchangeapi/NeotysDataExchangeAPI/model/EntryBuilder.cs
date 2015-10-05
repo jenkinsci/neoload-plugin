@@ -31,7 +31,7 @@ namespace Neotys.DataExchangeAPI.Model
 		/// <exception cref="NullPointerException"> if the path is null. </exception>
 		public EntryBuilder(IList<string> pathArgument, long timestamp)
 		{
-			this.path = JavaUtils.checkNotNull<IList<string>>(pathArgument);
+			this.path = JavaUtils.CheckNotNull<IList<string>>(pathArgument);
 			this._timestamp = timestamp;
 		}
 

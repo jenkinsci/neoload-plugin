@@ -22,7 +22,7 @@ namespace Neotys.DataExchangeAPI.Model
 
 		/// <exception cref="NullPointerException"> if path is null. </exception>
 		/// <param name="path"> </param>
-		private TimerBuilder(IList<string> path) : base(JavaUtils.checkNotNull<IList<string>>(path), JavaUtils.CurrentTimeMilliseconds())
+		private TimerBuilder(IList<string> path) : base(JavaUtils.CheckNotNull<IList<string>>(path), JavaUtils.CurrentTimeMilliseconds())
 		{
 			Unit = DefaultUnit;
 		}
@@ -32,9 +32,9 @@ namespace Neotys.DataExchangeAPI.Model
 		/// <param name="scriptName"> </param>
 		/// <param name="timerName"> </param>
 		/// <exception cref="NullPointerException"> if scriptName or timerName is null. </exception>
-		public static TimerBuilder start(string scriptName, string timerName)
+		public static TimerBuilder Start(string scriptName, string timerName)
 		{
-			IList<string> path = new List<string>(new[] { JavaUtils.checkNotNull<string>(scriptName), TimersName, JavaUtils.checkNotNull<string>(timerName) });
+			IList<string> path = new List<string>(new[] { JavaUtils.CheckNotNull<string>(scriptName), TimersName, JavaUtils.CheckNotNull<string>(timerName) });
 			return new TimerBuilder(path);
 		}
 
@@ -45,7 +45,7 @@ namespace Neotys.DataExchangeAPI.Model
 		/// <exception cref="NullPointerException"> if timerName is null. </exception>
 		public static TimerBuilder Start(string timerName)
 		{
-			IList<string> path = new List<string>(new[] { TimersName, JavaUtils.checkNotNull<string>(timerName) });
+			IList<string> path = new List<string>(new[] { TimersName, JavaUtils.CheckNotNull<string>(timerName) });
 			return new TimerBuilder(path);
 		}
 
@@ -54,9 +54,9 @@ namespace Neotys.DataExchangeAPI.Model
 		/// <param name="timerPath">
 		/// @return </param>
 		/// <exception cref="NullPointerException"> if timePath is null. </exception>
-		public static TimerBuilder start(IList<string> timerPath)
+		public static TimerBuilder Start(IList<string> timerPath)
 		{
-            return new TimerBuilder(JavaUtils.checkNotNull<IList<string>>(timerPath));
+            return new TimerBuilder(JavaUtils.CheckNotNull<IList<string>>(timerPath));
 		}
 
 		/// <summary>
@@ -65,10 +65,10 @@ namespace Neotys.DataExchangeAPI.Model
 		/// <param name="timerName">
 		/// @return </param>
 		/// <exception cref="NullPointerException"> if parentPath or timerName is null. </exception>
-		public static TimerBuilder start(IList<string> parentPath, string timerName)
+		public static TimerBuilder Start(IList<string> parentPath, string timerName)
 		{
-			IList<string> path = new List<string>(JavaUtils.checkNotNull<IList<string>>(parentPath));
-			path.Add(JavaUtils.checkNotNull<string>(timerName));
+			IList<string> path = new List<string>(JavaUtils.CheckNotNull<IList<string>>(parentPath));
+			path.Add(JavaUtils.CheckNotNull<string>(timerName));
 			return new TimerBuilder(path);
 		}
 

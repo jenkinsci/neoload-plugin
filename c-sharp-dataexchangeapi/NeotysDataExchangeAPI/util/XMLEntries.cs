@@ -22,7 +22,7 @@ namespace Neotys.DataExchangeAPI.Rest.Util
 		public const string CHARSET = "Charset";
 		public const string DEFAULT_CHARSET = "UTF-8";
 
-		public static IList<Entry> fromProperties(IDictionary<string, object> entryProperties)
+		public static IList<Entry> FromProperties(IDictionary<string, object> entryProperties)
 		{
 			IList<string> path = Entries.getPath(entryProperties, false);
 			long timestamp = Entries.getTimestamp(entryProperties, false);
@@ -30,7 +30,7 @@ namespace Neotys.DataExchangeAPI.Rest.Util
 			string charset = getCharset(entryProperties);
 			try
 			{
-				return fromXML(xml, path, timestamp, charset);
+				return FromXML(xml, path, timestamp, charset);
 			}
 			catch (System.Exception e)
 			{
@@ -38,13 +38,13 @@ namespace Neotys.DataExchangeAPI.Rest.Util
 			}
 		}
 
-		public static IDictionary<string, object> toProperties(string xml, IList<string> parentPath, long timestamp, string charset)
+		public static IDictionary<string, object> ToProperties(string xml, IList<string> parentPath, long timestamp, string charset)
 		{
 			IDictionary<string, object> xmlEntriesProperties = new Dictionary<string, object>();
 			xmlEntriesProperties[XML] = xml;
 			if (parentPath != null)
 			{
-				xmlEntriesProperties[Entries.Path] = Entries.pathListToString(parentPath);
+				xmlEntriesProperties[Entries.Path] = Entries.PathListToString(parentPath);
 			}
 			xmlEntriesProperties[Entries.Timestamp] = timestamp;
 			xmlEntriesProperties[CHARSET] = charset;
@@ -73,26 +73,24 @@ namespace Neotys.DataExchangeAPI.Rest.Util
 		}
 
 
-		/// <summary>
-		/// Parse an XML content to create a list of <seealso cref="Entry"/>. </summary>
-		/// <param name="contentAsXML"> : the xml string containing the XML to parse </param>
-		/// <param name="parentPath"> : initial path to add at the begining of all entries </param>
-		/// <param name="timestamp"> : the timestamp when the XML file has been computed
-		/// @return </param>
-		/// <exception cref="ParserConfigurationException"> </exception>
-		/// <exception cref="IOException"> </exception>
-		/// <exception cref="SAXException"> </exception>
-		/// <exception cref="NullPointerException"> if contentAsXML or parentPath is null. </exception>
-		public static IList<Entry> fromXML(string contentAsXML, IList<string> parentPath, long timestamp, string charset)
-		{
+        /// <summary>
+        /// Parse an XML content to create a list of <seealso cref="Entry"/>. </summary>
+        /// <param name="contentAsXML"> : the xml string containing the XML to parse </param>
+        /// <param name="parentPath"> : initial path to add at the begining of all entries </param>
+        /// <param name="timestamp"> : the timestamp when the XML file has been computed
+        /// @return </param>
+        /// <exception cref="ParserConfigurationException"> </exception>
+        /// <exception cref="IOException"> </exception>
+        /// <exception cref="SAXException"> </exception>
+        /// <exception cref="NullPointerException"> if contentAsXML or parentPath is null. </exception>
+        public static IList<Entry> FromXML(string contentAsXML, IList<string> parentPath, long timestamp, string charset)
+        {
 
             System.Xml.XmlDocument doc = new System.Xml.XmlDocument();
             doc.LoadXml(contentAsXML);
 
-			return getEntries(doc.ChildNodes, JavaUtils.checkNotNull<IList<string>>(parentPath), timestamp);
-		}
-
-
+            return getEntries(doc.ChildNodes, JavaUtils.CheckNotNull<IList<string>>(parentPath), timestamp);
+        }
 
 		private static IList<Entry> getEntries(System.Xml.XmlNodeList nodeList, IList<string> parentPath, long timestamp)
 		{

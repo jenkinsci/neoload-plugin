@@ -6,8 +6,6 @@
  */
 namespace Neotys.DataExchangeAPI.Rest.Util
 {
-
-
 	using Context = Neotys.DataExchangeAPI.Model.Context;
 	using ContextBuilder = Neotys.DataExchangeAPI.Model.ContextBuilder;
 
@@ -19,14 +17,13 @@ namespace Neotys.DataExchangeAPI.Rest.Util
 	/// </summary>
 	public sealed class Contexts
 	{
-
-		public const string ELEMENT_NAME = "Context";
-		public const string HARDWARE = "Hardware";
-		public const string OS = "Os";
-		public const string SOFTWARE = "Software";
-		public const string LOCATION = "Location";
-		public const string SCRIPT = "Script";
-		public const string INSTANCEID = "InstanceId";
+		public const string ElementName = "Context";
+		public const string Hardware = "Hardware";
+		public const string Os = "Os";
+		public const string Software = "Software";
+		public const string Location = "Location";
+		public const string Script = "Script";
+		public const string InstanceId = "InstanceId";
 
 		private const int HARDWARE_INDEX = 0;
 		private const int OS_INDEX = 1;
@@ -42,43 +39,43 @@ namespace Neotys.DataExchangeAPI.Rest.Util
 			throw new System.AccessViolationException();
 		}
 
-		public static Context fromProperties(IDictionary<string, object> contextProperties)
+		public static Context FromProperties(IDictionary<string, object> contextProperties)
 		{
 			ContextBuilder contextBuilder = new ContextBuilder();
-			object objectHardware = contextProperties[HARDWARE];
+			object objectHardware = contextProperties[Hardware];
 			if (objectHardware != null)
 			{
-				contextBuilder.Hardware = Escaper.escape(objectHardware.ToString());
+				contextBuilder.Hardware = Escaper.Escape(objectHardware.ToString());
 			}
-			object objectOs = contextProperties[OS];
+			object objectOs = contextProperties[Os];
 			if (objectOs != null)
 			{
-				contextBuilder.Os = Escaper.escape(objectOs.ToString());
+				contextBuilder.Os = Escaper.Escape(objectOs.ToString());
 			}
-			object objectSoftware = contextProperties[SOFTWARE];
+			object objectSoftware = contextProperties[Software];
 			if (objectSoftware != null)
 			{
-				contextBuilder.Software = Escaper.escape(objectSoftware.ToString());
+				contextBuilder.Software = Escaper.Escape(objectSoftware.ToString());
 			}
-			object objectLocation = contextProperties[LOCATION];
+			object objectLocation = contextProperties[Location];
 			if (objectLocation != null)
 			{
-				contextBuilder.Location = Escaper.escape(objectLocation.ToString());
+				contextBuilder.Location = Escaper.Escape(objectLocation.ToString());
 			}
-			object objectScript = contextProperties[SCRIPT];
+			object objectScript = contextProperties[Script];
 			if (objectScript != null)
 			{
-				contextBuilder.Script = Escaper.escape(objectScript.ToString());
+				contextBuilder.Script = Escaper.Escape(objectScript.ToString());
 			}
-			object objectInstanceId = contextProperties[INSTANCEID];
+			object objectInstanceId = contextProperties[InstanceId];
 			if (objectInstanceId != null)
 			{
-				contextBuilder.InstanceId = Escaper.escape(objectInstanceId.ToString());
+				contextBuilder.InstanceId = Escaper.Escape(objectInstanceId.ToString());
 			}
 			return contextBuilder.build();
 		}
 
-		public static Context fromLine(string contextLine, char separator)
+		public static Context FromLine(string contextLine, char separator)
 		{
 			ContextBuilder contextBuilder = new ContextBuilder();
 			if (System.String.IsNullOrEmpty(contextLine) || System.String.IsNullOrEmpty("" + separator))
@@ -88,62 +85,62 @@ namespace Neotys.DataExchangeAPI.Rest.Util
 			string[] splits = contextLine.Split(new char[] { separator });
 			if (!System.String.IsNullOrEmpty(splits[HARDWARE_INDEX]))
 			{
-				contextBuilder.Hardware = escape(splits[HARDWARE_INDEX]);
+				contextBuilder.Hardware = Escape(splits[HARDWARE_INDEX]);
 			}
 			if (!System.String.IsNullOrEmpty(splits[OS_INDEX]))
 			{
-				contextBuilder.Os = escape(splits[OS_INDEX]);
+				contextBuilder.Os = Escape(splits[OS_INDEX]);
 			}
 			if (!System.String.IsNullOrEmpty(splits[SOFTWARE_INDEX]))
 			{
-				contextBuilder.Software = escape(splits[SOFTWARE_INDEX]);
+				contextBuilder.Software = Escape(splits[SOFTWARE_INDEX]);
 			}
 			if (!System.String.IsNullOrEmpty(splits[LOCATION_INDEX]))
 			{
-				contextBuilder.Location = escape(splits[LOCATION_INDEX]);
+				contextBuilder.Location = Escape(splits[LOCATION_INDEX]);
 			}
 			if (!System.String.IsNullOrEmpty(splits[SCRIPT_INDEX]))
 			{
-				contextBuilder.Script = escape(splits[SCRIPT_INDEX]);
+				contextBuilder.Script = Escape(splits[SCRIPT_INDEX]);
 			}
 			if (!System.String.IsNullOrEmpty(splits[INSTANCEID_INDEX]))
 			{
-				contextBuilder.InstanceId = escape(splits[INSTANCEID_INDEX]);
+				contextBuilder.InstanceId = Escape(splits[INSTANCEID_INDEX]);
 			}
 			return contextBuilder.build();
 		}
 
-		public static IDictionary<string, object> toProperties(Context context)
+		public static IDictionary<string, object> ToProperties(Context context)
 		{
 			IDictionary<string, object> contextProperties = new Dictionary<string, object>();
 			if (context.Hardware != null)
 			{
-				contextProperties[HARDWARE] = context.Hardware;
+				contextProperties[Hardware] = context.Hardware;
 			}
 			if (context.Os != null)
 			{
-				contextProperties[OS] = context.Os;
+				contextProperties[Os] = context.Os;
 			}
 			if (context.Software != null)
 			{
-				contextProperties[SOFTWARE] = context.Software;
+				contextProperties[Software] = context.Software;
 			}
 			if (context.Location != null)
 			{
-				contextProperties[LOCATION] = context.Location;
+				contextProperties[Location] = context.Location;
 			}
 			if (context.Script != null)
 			{
-				contextProperties[SCRIPT] = context.Script;
+				contextProperties[Script] = context.Script;
 			}
 			if (context.InstanceId != null)
 			{
-				contextProperties[INSTANCEID] = context.InstanceId;
+				contextProperties[InstanceId] = context.InstanceId;
 			}
 			return contextProperties;
 		}
 
-		public static string getPlatform(Context context)
+		public static string GetPlatform(Context context)
 		{
 			if (System.String.IsNullOrEmpty(context.Hardware) && System.String.IsNullOrEmpty(context.Os))
 			{
@@ -160,9 +157,9 @@ namespace Neotys.DataExchangeAPI.Rest.Util
 			return context.Hardware + HARDWARE_OS_SEPARATOR + context.Os;
 		}
 
-		private static string escape(string @string)
+		private static string Escape(string @string)
 		{
-			return Escaper.escape(@string);
+			return Escaper.Escape(@string);
 		}
 	}
 

@@ -10,7 +10,7 @@ namespace Neotys.DataExchangeAPI.UtilsFromJava
     {
         private static readonly System.DateTime java1970 = new System.DateTime(1970, 1, 1, 0, 0, 0, System.DateTimeKind.Utc);
 
-        public static T checkNotNull<T>(T value)
+        public static T CheckNotNull<T>(T value)
         {
             if (value == null)
             {

@@ -42,7 +42,7 @@ namespace ConsoleApplication3
                 sb.Message = "message " + i;
                 sb.State = Status.State.Pass;
 
-                sb.Code = "code " + i;
+                sb.Code = ("code " + i);
                 eb.Status = sb.Build();
 
                 client.AddEntry(eb.Build());

@@ -14,12 +14,12 @@ namespace Neotys.DataExchangeAPI.Rest.Util
 	{
         private const string API_KEY = "ApiKey";
 
-        public static IDictionary<string, object> toProperties(Context context = null, string apiKey = "")
+        public static IDictionary<string, object> ToProperties(Context context = null, string apiKey = "")
 		{
 			IDictionary<string, object> sessionProperties = new Dictionary<string, object>();
 			if (context != null)
 			{
-				sessionProperties[Contexts.ELEMENT_NAME] = Contexts.toProperties(context);
+				sessionProperties[Contexts.ElementName] = Contexts.ToProperties(context);
 			}
 			sessionProperties[API_KEY] = apiKey;
 			return sessionProperties;

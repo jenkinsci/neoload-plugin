@@ -83,7 +83,7 @@ namespace Neotys.DataExchangeAPI.Model
 
 		public override string ToString()
 		{
-            return new ToStringBuilder<Entry>(this).reflectionToString(this);
+            return new ToStringBuilder<Entry>(this).ReflectionToString(this);
 		}
 
 		public virtual int CompareTo(Entry o)

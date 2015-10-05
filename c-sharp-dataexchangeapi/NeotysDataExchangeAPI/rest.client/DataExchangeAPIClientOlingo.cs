@@ -41,8 +41,8 @@ namespace Neotys.DataExchangeAPI.Client
 		{
 			if (Enabled)
 			{
-                ODataEntry createdSession = ReadEntity(SessionIds.SESSION, Sessions.toProperties(context, apiKey));
-				this.sessionId = SessionIds.fromEntryProperties(createdSession.AsDictionary());
+                ODataEntry createdSession = ReadEntity(SessionIds.SESSION, Sessions.ToProperties(context, apiKey));
+				this.sessionId = SessionIds.FromEntryProperties(createdSession.AsDictionary());
 			}
 			else
 			{
@@ -64,7 +64,7 @@ namespace Neotys.DataExchangeAPI.Client
 			{
 				return;
 			}
-			IDictionary<string, object> properties = Entries.toProperties(entry);
+			IDictionary<string, object> properties = Entries.ToProperties(entry);
 			properties[SessionIds.SESSION_ID] = sessionId;
 			try
 			{
@@ -93,7 +93,7 @@ namespace Neotys.DataExchangeAPI.Client
 			IList<IDictionary<string, object>> entriesProperties = new List<IDictionary<string, object>>();
 			foreach (Entry entry in entries)
 			{
-				IDictionary<string, object> properties = Entries.toProperties(entry);
+				IDictionary<string, object> properties = Entries.ToProperties(entry);
 				properties[SessionIds.SESSION_ID] = sessionId;
 				entriesProperties.Add(properties);
 			}
@@ -130,13 +130,13 @@ namespace Neotys.DataExchangeAPI.Client
 				if (Edm.FindDeclaredType("com.neotys.neoload.api.dataexchange.XMLEntries") == null)
 				{
 					// NeoLoad 5.0 : parsing is done on Client side
-					IList<Entry> entries = XMLEntries.fromXML(xml, parentPath, timestamp, charset);
+					IList<Entry> entries = XMLEntries.FromXML(xml, parentPath, timestamp, charset);
 					AddEntries(entries);
 				}
 				else
 				{
 					// From NeoLoad 5.1 : parsing is done on Server side
-					IDictionary<string, object> properties = XMLEntries.toProperties(xml, parentPath, timestamp, charset);
+					IDictionary<string, object> properties = XMLEntries.ToProperties(xml, parentPath, timestamp, charset);
 					properties[SessionIds.SESSION_ID] = sessionId;
 					CreateEntity(XMLEntries.XMLENTRIES, properties);
 				}

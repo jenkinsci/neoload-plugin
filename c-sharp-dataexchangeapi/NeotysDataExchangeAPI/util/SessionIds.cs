@@ -27,7 +27,7 @@ namespace Neotys.DataExchangeAPI.Rest.Util
             throw new System.AccessViolationException();
 		}
 
-		public static string fromEntryProperties(IDictionary<string, object> entryProperties)
+		public static string FromEntryProperties(IDictionary<string, object> entryProperties)
 		{
 			object objectSessionId = entryProperties[SessionIds.SESSION_ID];
 			if (objectSessionId == null)

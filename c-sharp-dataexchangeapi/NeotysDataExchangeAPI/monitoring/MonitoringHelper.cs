@@ -61,11 +61,11 @@ namespace Neotys.DataExchangeAPI.Monitoring
 		/// There is a 30 seconds delay between the termination of one monitoring execution and the commencement of the next.
 		/// If monitoring is already in progress, ignore and return false. </summary>
 		/// <returns> true if the monitoring has been started. </returns>
-		public virtual bool startMonitoring()
+		public virtual bool StartMonitoring()
 		{
 			lock (this)
 			{
-				return startMonitoring(VITALS_MONITORING_DELAY, VITALS_MONITORING_DELAY_UNIT);
+				return StartMonitoring(VITALS_MONITORING_DELAY, VITALS_MONITORING_DELAY_UNIT);
 			}
 		}
 
@@ -76,7 +76,7 @@ namespace Neotys.DataExchangeAPI.Monitoring
 		/// <param name="unit"> : the time unit of the delay parameter. </param>
 		/// <returns> true if the monitoring has been started. </returns>
 		/// <exception cref="NullPointerException"> if unit is null. </exception>
-		public virtual bool startMonitoring(long delay, TimeUnit unit)
+		public virtual bool StartMonitoring(long delay, TimeUnit unit)
 		{
 			lock (this)
 			{
@@ -86,7 +86,7 @@ namespace Neotys.DataExchangeAPI.Monitoring
 					return false;
 				}
 
-                timer = new System.Threading.Timer(TimerCallback, null, 0, unit.toMilliseconds(delay));
+                timer = new System.Threading.Timer(TimerCallback, null, 0, unit.ToMilliseconds(delay));
                 alreadyExecuting = true;
 
 				return true;
@@ -107,11 +107,11 @@ namespace Neotys.DataExchangeAPI.Monitoring
         /// <param name="delay"> : the delay between the termination of one monitoring execution and the commencement of the next. </param>
         /// <param name="unit"> : the time unit of the delay parameter. </param>
         /// <returns> true if the monitoring has been stopped. </returns>
-        public virtual bool stopMonitoring()
+        public virtual bool StopMonitoring()
 		{
 			lock (this)
 			{
-				return stopMonitoring(VITALS_MONITORING_TERMINATION_TIMEOUT, VITALS_MONITORING_TERMINATION_TIMEOUT_UNIT);
+				return StopMonitoring(VITALS_MONITORING_TERMINATION_TIMEOUT, VITALS_MONITORING_TERMINATION_TIMEOUT_UNIT);
 			}
 		}
 
@@ -124,7 +124,7 @@ namespace Neotys.DataExchangeAPI.Monitoring
 		/// <param name="unit"> : the time unit of the timeout parameter. </param>
 		/// <returns> true if the monitoring has been stopped. </returns>
 		/// <exception cref="NullPointerException"> if unit is null. </exception>
-		public virtual bool stopMonitoring(long timeout, TimeUnit unit)
+		public virtual bool StopMonitoring(long timeout, TimeUnit unit)
 		{
 			lock (this)
 			{

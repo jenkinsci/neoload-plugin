@@ -19,14 +19,14 @@ namespace Neotys.DataExchangeAPI.Rest.Util
             throw new System.AccessViolationException();
 		}
 
-		private static readonly char[] FORBIDDEN_CHARS = new char[] {'�', '�', '$', '\"', '[', ']', '<', '>', '|', '*', '�', '?', '�', '�', '#', '`', '@', '^', '�', '�', '�'};
-
+        private static readonly char[] FORBIDDEN_CHARS = { '£', '€', '$', '\"', '[', ']', '<', '>', '|', '*', '¤', '?', '§',
+            'µ', '#', '`', '@', '^', '²', '°', '¨' };
 
 		/// <summary>
 		/// Replace special characters in a string. </summary>
 		/// <param name="name">
 		/// @return </param>
-		public static string escape(string name)
+		public static string Escape(string name)
 		{
 			if (name == null)
 			{

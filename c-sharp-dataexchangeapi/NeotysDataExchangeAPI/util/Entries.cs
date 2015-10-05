@@ -37,7 +37,7 @@ namespace Neotys.DataExchangeAPI.Rest.Util
             throw new System.AccessViolationException();
         }
 
-        public static Entry fromProperties(IDictionary<string, object> entryProperties)
+        public static Entry FromProperties(IDictionary<string, object> entryProperties)
 		{
 			const bool isRequired = true;
 			IList<string> path = getPath(entryProperties, isRequired);
@@ -66,7 +66,7 @@ namespace Neotys.DataExchangeAPI.Rest.Util
 			object objectUnit = entryProperties[Unit];
 			if (objectUnit != null)
 			{
-				entryBuilder.Unit = Escaper.escape(objectUnit.ToString());
+				entryBuilder.Unit = Escaper.Escape(objectUnit.ToString());
 			}
 			object objectStatus = entryProperties[Statuses.ELEMENT_NAME];
 			if (objectStatus != null)
@@ -75,7 +75,7 @@ namespace Neotys.DataExchangeAPI.Rest.Util
 				{
 					throw new NeotysAPIException(NeotysAPIException.ErrorType.NL_API_INVALID_ARGUMENT, "Invalid entry status: " + objectStatus);
 				}
-				Status status = Statuses.fromProperties((IDictionary<string, object>) objectStatus);
+				Status status = Statuses.FromProperties((IDictionary<string, object>) objectStatus);
 				if (status != null)
 				{
 					entryBuilder.Status = status;
@@ -89,7 +89,7 @@ namespace Neotys.DataExchangeAPI.Rest.Util
 		/// <param name="difference"> </param>
 		/// <param name="entry">
 		/// @return </param>
-		public static Entry shift(Entry entry, long difference)
+		public static Entry Shift(Entry entry, long difference)
 		{
 			EntryBuilder eb = new EntryBuilder(entry.Path, entry.Timestamp + difference);
 			if (entry.Status != null)
@@ -122,7 +122,7 @@ namespace Neotys.DataExchangeAPI.Rest.Util
 				}
 				return new List<string>();
 			}
-			return pathStringToList(objectPath.ToString());
+			return PathStringToList(objectPath.ToString());
 		}
 
 		protected internal static long getTimestamp(IDictionary<string, object> entryProperties, bool isRequired)
@@ -146,12 +146,12 @@ namespace Neotys.DataExchangeAPI.Rest.Util
 			}
 		}
 
-		public static IDictionary<string, object> toProperties(Entry entry)
+		public static IDictionary<string, object> ToProperties(Entry entry)
 		{
 			IDictionary<string, object> entryProperties = new Dictionary<string, object>();
 			if (entry.Path != null)
 			{
-				entryProperties[Path] = Entries.pathListToString(entry.Path);
+				entryProperties[Path] = Entries.PathListToString(entry.Path);
 			}
 			entryProperties[Value] = entry.Value;
 			entryProperties[Timestamp] = entry.Timestamp;
@@ -165,17 +165,17 @@ namespace Neotys.DataExchangeAPI.Rest.Util
 			}
 			if (entry.Status != null)
 			{
-				entryProperties[Status] = Statuses.toProperties(entry.Status);
+				entryProperties[Status] = Statuses.ToProperties(entry.Status);
 			}
 			return entryProperties;
 		}
 
-		public static IList<string> pathStringToList(string pathString)
+		public static IList<string> PathStringToList(string pathString)
 		{
-			return pathStringToList(pathString, Separator);
+			return PathStringToList(pathString, Separator);
 		}
 
-		public static IList<string> pathStringToList(string pathString, char separator)
+		public static IList<string> PathStringToList(string pathString, char separator)
 		{
 			if (System.String.IsNullOrEmpty(pathString))
 			{
@@ -184,12 +184,12 @@ namespace Neotys.DataExchangeAPI.Rest.Util
 			IList<string> pathList = new List<string>();
             foreach (String pathElement in new List<string>(pathString.Split(new char[] { separator })))
 			{
-				pathList.Add(Escaper.escape(pathElement));
+				pathList.Add(Escaper.Escape(pathElement));
 			}
 			return pathList;
 		}
 
-		public static string pathListToString(IList<string> pathList, char separator)
+		public static string PathListToString(IList<string> pathList, char separator)
 		{
 			if (pathList == null || pathList.Count == 0)
 			{
@@ -203,14 +203,14 @@ namespace Neotys.DataExchangeAPI.Rest.Util
 			return sb.ToString().Substring(0, sb.Length - 1);
 		}
 
-		public static string pathListToString(IList<string> pathList)
+		public static string PathListToString(IList<string> pathList)
 		{
-			return pathListToString(pathList, Separator);
+			return PathListToString(pathList, Separator);
 		}
 
-		public static string getDisplayPath(Entry entry)
+		public static string GetDisplayPath(Entry entry)
 		{
-			return pathListToString(entry.Path, '/');
+			return PathListToString(entry.Path, '/');
 		}
 
 	}

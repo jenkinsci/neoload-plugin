@@ -16,23 +16,29 @@ namespace Neotys.DataExchangeAPI.Model
 	public sealed class StatusBuilder
 	{
         /** The only valid values here are null, PASS, FAIL. */
-		public string Code
+		public string Code { get; set; }
+
+        public string Message { get; set; }
+        private string _state;
+
+        public string State
         {
             get
             {
-                return Code;
+                return _state;
             }
             set
             {
-                if (!Status.State.ValidStateValues.Contains(value)) {
-                    throw new System.ArgumentOutOfRangeException(value + " is an invalid state value. Valid values are: " + Status.State.ValidStateValues);
+
+                if (!Status.State.ValidStateValues.Contains(value))
+                {
+                    throw new System.ArgumentOutOfRangeException(value + " is an invalid state value. Valid values are: " + 
+                        string.Join(", ", Status.State.ValidStateValues.ToArray()));
                 }
-                Code = value;
+
+                _state = value;
             }
         }
-
-        public string Message { get; set; }
-        public string State { get; set; }
 
         public Status Build()
         {

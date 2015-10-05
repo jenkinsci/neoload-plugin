@@ -31,7 +31,7 @@ namespace Neotys.DataExchangeAPI.Client
 		/// <exception cref="ODataException"> </exception>
 		/// <exception cref="URISyntaxException"> </exception>
 		/// <exception cref="NeotysAPIException"> </exception>
-		public static IDataExchangeAPIClient newClient(string url)
+		public static IDataExchangeAPIClient NewClient(string url)
 		{
 			return NewClient(url, null, null);
 		}
@@ -45,7 +45,7 @@ namespace Neotys.DataExchangeAPI.Client
 		/// <exception cref="ODataException"> </exception>
 		/// <exception cref="URISyntaxException"> </exception>
 		/// <exception cref="NeotysAPIException"> </exception>
-		public static IDataExchangeAPIClient newClient(string url, Context context)
+		public static IDataExchangeAPIClient NewClient(string url, Context context)
 		{
 			return NewClient(url, context, null);
 		}
@@ -59,7 +59,7 @@ namespace Neotys.DataExchangeAPI.Client
 		/// <exception cref="ODataException"> </exception>
 		/// <exception cref="URISyntaxException"> </exception>
 		/// <exception cref="NeotysAPIException"> </exception>
-		public static IDataExchangeAPIClient newClient(string url, string apiKey)
+		public static IDataExchangeAPIClient NewClient(string url, string apiKey)
 		{
 			return NewClient(url, null, apiKey);
 		}

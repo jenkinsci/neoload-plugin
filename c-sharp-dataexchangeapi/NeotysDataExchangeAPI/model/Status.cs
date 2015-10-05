@@ -24,7 +24,7 @@ namespace Neotys.DataExchangeAPI.Model
 		{
             public static readonly string Pass = "PASS";
             public static readonly string Fail = "FAIL";
-            public static readonly IList<string> ValidStateValues = new List<string> { Pass, Fail };
+            public static readonly List<string> ValidStateValues = new List<string> { Pass, Fail };
 		}
 
 		internal Status(StatusBuilder statusBuilder)
@@ -58,7 +58,7 @@ namespace Neotys.DataExchangeAPI.Model
         
 		public override string ToString()
 		{
-            return new ToStringBuilder<Status>(this).reflectionToString(this);
+            return new ToStringBuilder<Status>(this).ReflectionToString(this);
 		}
         
 

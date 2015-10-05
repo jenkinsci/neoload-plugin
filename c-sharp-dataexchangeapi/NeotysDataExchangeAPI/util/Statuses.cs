@@ -7,8 +7,6 @@ using System.Collections.Generic;
  */
 namespace Neotys.DataExchangeAPI.Rest.Util
 {
-
-
 	using Status = Neotys.DataExchangeAPI.Model.Status;
 	//using State = Neotys.DataExchangeAPI.Model.Status.State;
 	using StatusBuilder = Neotys.DataExchangeAPI.Model.StatusBuilder;
@@ -32,7 +30,7 @@ namespace Neotys.DataExchangeAPI.Rest.Util
             throw new System.AccessViolationException();
 		}
 
-		public static Status fromProperties(IDictionary<string, object> statusProperties)
+		public static Status FromProperties(IDictionary<string, object> statusProperties)
 		{
 			object objectCode = statusProperties[CODE];
 			object objectMessage = statusProperties[MESSAGE];
@@ -44,7 +42,7 @@ namespace Neotys.DataExchangeAPI.Rest.Util
 			StatusBuilder statusBuilder = new StatusBuilder();
 			if (objectCode != null)
 			{
-				statusBuilder.Code = Escaper.escape(objectCode.ToString());
+				statusBuilder.Code = Escaper.Escape(objectCode.ToString());
 			}
 			if (objectMessage != null)
 			{
@@ -57,7 +55,7 @@ namespace Neotys.DataExchangeAPI.Rest.Util
 			return statusBuilder.Build();
 		}
 
-		public static IDictionary<string, object> toProperties(Status status)
+		public static IDictionary<string, object> ToProperties(Status status)
 		{
 			IDictionary<string, object> statusProperties = new Dictionary<string, object>();
 			if (status.Code != null)
@@ -75,16 +73,16 @@ namespace Neotys.DataExchangeAPI.Rest.Util
 			return statusProperties;
 		}
 
-		public static Status newStatus(string code, string message, string state)
+		public static Status NewStatus(string code, string message, string state)
 		{
 			StatusBuilder statusBuilder = new StatusBuilder();
 			if (!System.String.IsNullOrEmpty(code))
 			{
-				statusBuilder.Code = Escaper.escape(code);
+				statusBuilder.Code = Escaper.Escape(code);
 			}
 			if (!System.String.IsNullOrEmpty(message))
 			{
-				statusBuilder.Message = Escaper.escape(message);
+				statusBuilder.Message = Escaper.Escape(message);
 			}
 			if (!System.String.IsNullOrEmpty(state))
 			{
@@ -99,12 +97,12 @@ namespace Neotys.DataExchangeAPI.Rest.Util
 		/// <param name="code"> </param>
 		/// <param name="exception">
 		/// @return </param>
-		public static Status newStatus(string code, Exception exception)
+		public static Status NewStatus(string code, Exception exception)
 		{
 			StatusBuilder statusBuilder = new StatusBuilder();
 			if (!System.String.IsNullOrEmpty(code))
 			{
-				statusBuilder.Code = Escaper.escape(code);
+				statusBuilder.Code = Escaper.Escape(code);
 			}
 			if (exception != null)
 			{
