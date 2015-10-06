@@ -16,9 +16,9 @@ namespace Neotys.DataExchangeAPI.Monitoring
 		private readonly MonitoringSupplier monitoringSupplier;
 		private readonly IDataExchangeAPIClient client;
 
-		private string script;
-		private IList<string> _parentPath;
-		private string _charset = XMLEntries.DEFAULT_CHARSET;
+		public string ScriptName { get; set; }
+		public IList<string> ParentPath { get; set; }
+        public string Charset { get; set; } = XMLEntries.DEFAULT_CHARSET;
 
 		/// <summary>
 		/// Create a MonitoringHelperBuilder.
@@ -32,49 +32,19 @@ namespace Neotys.DataExchangeAPI.Monitoring
 			this.client = JavaUtils.CheckNotNull<IDataExchangeAPIClient>(client);
 		}
 
-		public MonitoringHelper build()
+		public MonitoringHelper Build()
 		{
 			IList<string> path = new List<string>();
-			if (script != null)
+			if (ScriptName != null)
 			{
-				path.Add(script);
+				path.Add(ScriptName);
 			}
-			if (_parentPath != null)
+			if (ParentPath != null)
 			{
-				((List<string>)path).AddRange(_parentPath);
+				((List<string>)path).AddRange(ParentPath);
 			}
-			return new MonitoringHelper(monitoringSupplier, client, path, _charset);
+			return new MonitoringHelper(monitoringSupplier, client, path, Charset);
 		}
-
-		/// 
-		/// <param name="scriptName">
-		/// @return </param>
-		/// <exception cref="NullPointerException"> if scriptName is null. </exception>
-		public virtual MonitoringHelperBuilder scriptName(string scriptName)
-		{
-			this.script = JavaUtils.CheckNotNull<string>(scriptName);
-			return this;
-		}
-
-		/// 
-		/// <param name="parentPath">
-		/// @return </param>
-		/// <exception cref="NullPointerException"> if parentPath is null. </exception>
-		public virtual MonitoringHelperBuilder parentPath(IList<string> parentPath)
-		{
-			this._parentPath = JavaUtils.CheckNotNull<IList<string>>(parentPath);
-			return this;
-		}
-
-		/// <param name="charset"> : the charset of the String provided by the monitoringSupplier.
-		/// @return </param>
-		/// <exception cref="NullPointerException"> if charset is null. </exception>
-		public virtual MonitoringHelperBuilder charset(string charset)
-		{
-			this._charset = JavaUtils.CheckNotNull<string>(charset);
-			return this;
-		}
-
 	}
 
 }

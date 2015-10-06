@@ -30,12 +30,6 @@ namespace Neotys.DataExchangeAPI.Error
 			public static readonly ErrorType NL_DATAEXCHANGE_NOT_LICENSED = new ErrorType("NL_DATAEXCHANGE_NOT_LICENSED", InnerEnum.NL_DATAEXCHANGE_NOT_LICENSED);
 			public static readonly ErrorType NL_DATAEXCHANGE_NO_TEST_RUNNING = new ErrorType("NL_DATAEXCHANGE_NO_TEST_RUNNING", InnerEnum.NL_DATAEXCHANGE_NO_TEST_RUNNING);
 
-			// RECORDING
-			public static readonly ErrorType NL_RECORDING_NOT_LICENSED = new ErrorType("NL_RECORDING_NOT_LICENSED", InnerEnum.NL_RECORDING_NOT_LICENSED);
-			public static readonly ErrorType NL_RECORDING_ILLEGAL_STATE_FOR_OPERATION = new ErrorType("NL_RECORDING_ILLEGAL_STATE_FOR_OPERATION", InnerEnum.NL_RECORDING_ILLEGAL_STATE_FOR_OPERATION);
-			public static readonly ErrorType NL_RECORDING_CANNOT_GET_RECORDER_SETTINGS = new ErrorType("NL_RECORDING_CANNOT_GET_RECORDER_SETTINGS", InnerEnum.NL_RECORDING_CANNOT_GET_RECORDER_SETTINGS);
-			public static readonly ErrorType NL_RECORDING_CANNOT_GET_RECORDING_STATUS = new ErrorType("NL_RECORDING_CANNOT_GET_RECORDING_STATUS", InnerEnum.NL_RECORDING_CANNOT_GET_RECORDING_STATUS);
-
 			private static readonly IList<ErrorType> valueList = new List<ErrorType>();
 
 			static ErrorType()
@@ -46,10 +40,6 @@ namespace Neotys.DataExchangeAPI.Error
 				valueList.Add(NL_API_INVALID_ARGUMENT);
 				valueList.Add(NL_DATAEXCHANGE_NOT_LICENSED);
 				valueList.Add(NL_DATAEXCHANGE_NO_TEST_RUNNING);
-				valueList.Add(NL_RECORDING_NOT_LICENSED);
-				valueList.Add(NL_RECORDING_ILLEGAL_STATE_FOR_OPERATION);
-				valueList.Add(NL_RECORDING_CANNOT_GET_RECORDER_SETTINGS);
-				valueList.Add(NL_RECORDING_CANNOT_GET_RECORDING_STATUS);
 			}
 
 			public enum InnerEnum
@@ -230,7 +220,7 @@ namespace Neotys.DataExchangeAPI.Error
 		/// Parse an error message to create a NeotysAPIException. </summary>
 		/// <param name="errorMessage">
 		/// @return </param>
-		public static NeotysAPIException parse(string errorMessage)
+		public static NeotysAPIException Parse(string errorMessage)
 		{
 			if (System.String.IsNullOrEmpty(errorMessage))
 			{
@@ -240,7 +230,9 @@ namespace Neotys.DataExchangeAPI.Error
 			{
 				string strErrorType = errorMessage.Substring(0, errorMessage.IndexOf(BEGIN_DETAILS, StringComparison.Ordinal));
 				ErrorType errorTypeLocal = ErrorType.fromString(strErrorType);
-                string strErrorDetails = "";// StringHelperClass.SubstringSpecial(errorMessage, errorMessage.IndexOf(BEGIN_DETAILS, StringComparison.Ordinal) + BEGIN_DETAILS.Length, errorMessage.IndexOf(END_DETAILS, StringComparison.Ordinal));
+                int detailBegin = errorMessage.IndexOf(BEGIN_DETAILS) + 1;
+                int detailLength = errorMessage.Length - 1 - detailBegin;
+                string strErrorDetails = errorMessage.Substring(detailBegin, detailLength);
 				return new NeotysAPIException(errorTypeLocal, strErrorDetails);
 			}
 			ErrorType errorType = ErrorType.fromString(errorMessage);

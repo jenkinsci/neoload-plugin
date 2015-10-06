@@ -8,7 +8,6 @@ using Neotys.DataExchangeAPI.UtilsFromJava;
  */
 namespace Neotys.DataExchangeAPI.Monitoring
 {
-    using System.Threading;
     using IDataExchangeAPIClient = Neotys.DataExchangeAPI.Client.IDataExchangeAPIClient;
 
     /// <summary>
@@ -39,12 +38,12 @@ namespace Neotys.DataExchangeAPI.Monitoring
 
 		private const int CORE_POOL_SIZE = 1;
 		private const long VITALS_MONITORING_DELAY = 30;
-		private static readonly TimeUnit VITALS_MONITORING_DELAY_UNIT = TimeUnit.SECONDS;
+		private static readonly TimeUnit VITALS_MONITORING_DELAY_UNIT = TimeUnit.Seconds;
 		private const long VITALS_MONITORING_TERMINATION_TIMEOUT = 60;
-		private static readonly TimeUnit VITALS_MONITORING_TERMINATION_TIMEOUT_UNIT = TimeUnit.SECONDS;
+		private static readonly TimeUnit VITALS_MONITORING_TERMINATION_TIMEOUT_UNIT = TimeUnit.Seconds;
 
         // Executes a thread for monitoring every X seconds.
-        private System.Threading.Timer timer;
+        private System.Timers.Timer timer;
 
         private bool alreadyExecuting = false;
 
@@ -86,14 +85,18 @@ namespace Neotys.DataExchangeAPI.Monitoring
 					return false;
 				}
 
-                timer = new System.Threading.Timer(TimerCallback, null, 0, unit.ToMilliseconds(delay));
+                timer = new System.Timers.Timer();
+                timer.Elapsed += new System.Timers.ElapsedEventHandler(TimerCallback);
+                timer.Interval = unit.ToMilliseconds(delay);
+                timer.Enabled = true;
+
                 alreadyExecuting = true;
 
 				return true;
 			}
 		}
 
-        private void TimerCallback(Object o)
+        private void TimerCallback(object source, System.Timers.ElapsedEventArgs e)
         {
             MonitoringExecutor monitoringExecutor = new MonitoringExecutor(this);
             monitoringExecutor.run();
@@ -136,13 +139,11 @@ namespace Neotys.DataExchangeAPI.Monitoring
 				}
 				try
 				{
-                    WaitHandle myWaitHandle = new MyWaitHandle();
-                    timer.Dispose(myWaitHandle);
-                    System.Threading.WaitHandle.WaitAny(new WaitHandle[] { myWaitHandle });
-                    
+                    timer.Enabled = false;
                     alreadyExecuting = false;
+                    timer.Dispose();
                 }
-				finally
+                finally
 				{
 					timer = null;
                     alreadyExecuting = false;
@@ -171,15 +172,12 @@ namespace Neotys.DataExchangeAPI.Monitoring
 						outerInstance.client.AddXMLEntries(xml, outerInstance.parentPath, timestamp, outerInstance.charset);
 					}
 				}
-				catch (Exception)
+				catch (Exception e)
 				{
-				}
-			}
+                    Console.WriteLine(e);
+                }
+            }
 		}
-
-        private class MyWaitHandle : WaitHandle
-        {
-        }
     }
 
 }

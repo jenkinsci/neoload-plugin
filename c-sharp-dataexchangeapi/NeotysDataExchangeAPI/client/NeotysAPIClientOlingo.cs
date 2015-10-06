@@ -10,6 +10,7 @@ using Entry = Neotys.DataExchangeAPI.Model.Entry;
 using EntryBuilder = Neotys.DataExchangeAPI.Model.EntryBuilder;
 using EdmxReader = Microsoft.Data.Edm.Csdl.EdmxReader;
 using System.Threading.Tasks;
+using NeotysAPIException = Neotys.DataExchangeAPI.Error.NeotysAPIException;
 
 /*
  * Copyright (c) 2015, Neotys
@@ -132,7 +133,11 @@ namespace Neotys.DataExchangeAPI.Client
                 {
                     // this means we got a response from the server with a specific message.
                     Simple.OData.Client.WebRequestException inner = (Simple.OData.Client.WebRequestException)e.InnerException;
-                    //throw new System.Exception(inner.Response + " : " + inner.Message);
+                    NeotysAPIException napie = NeotysAPIException.Parse(inner.Response);
+                    if (napie != null)
+                    {
+                        throw napie;
+                    }
                     throw inner;
 
                 }
