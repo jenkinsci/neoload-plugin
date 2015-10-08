@@ -17,11 +17,20 @@ namespace ConsoleApplication3
     class Program
     {
 
-        static readonly string CLIENT_ADDRESS = "http://localhost:7400/DataExchange/v1/Service.svc";
+        static string CLIENT_ADDRESS = "http://localhost:7400/DataExchange/v1/Service.svc";
 
         static void Main(string[] args)
         {
             Console.WriteLine("helloooooooo           " + DateTime.Now.Ticks + " " + args);
+
+            if (args != null && args.Length > 0 && args[0] != null && args[0].Length > 0)
+            {
+                Console.WriteLine("Using custom server address: " + args[0]);
+                CLIENT_ADDRESS = args[0];
+            } else
+            {
+                Console.WriteLine("Using default server address: " + CLIENT_ADDRESS);
+            }
 
             /*
             	* Code: Test sending custom values using the timer builder. 
@@ -30,15 +39,15 @@ namespace ConsoleApplication3
                     monitoringHelper. TestMonitoringHelper();
                 * Command line: Test expected error messages: 
                 	public static readonly ErrorType NL_API_ERROR = new ErrorType("NL_API_ERROR", InnerEnum.NL_API_ERROR);
-			        public static readonly ErrorType NL_API_KEY_NOT_ALLOWED = new ErrorType("NL_API_KEY_NOT_ALLOWED", InnerEnum.NL_API_KEY_NOT_ALLOWED);
+			        ok - public static readonly ErrorType NL_API_KEY_NOT_ALLOWED = new ErrorType("NL_API_KEY_NOT_ALLOWED", InnerEnum.NL_API_KEY_NOT_ALLOWED);
 			        public static readonly ErrorType NL_API_ILLEGAL_SESSION = new ErrorType("NL_API_ILLEGAL_SESSION", InnerEnum.NL_API_ILLEGAL_SESSION);
 			        public static readonly ErrorType NL_API_INVALID_ARGUMENT = new ErrorType("NL_API_INVALID_ARGUMENT", InnerEnum.NL_API_INVALID_ARGUMENT);
 
 			        // DATAEXCHANGE
 			        public static readonly ErrorType NL_DATAEXCHANGE_NOT_LICENSED = new ErrorType("NL_DATAEXCHANGE_NOT_LICENSED", InnerEnum.NL_DATAEXCHANGE_NOT_LICENSED);
-			        public static readonly ErrorType NL_DATAEXCHANGE_NO_TEST_RUNNING = new ErrorType("NL_DATAEXCHANGE_NO_TEST_RUNNING", InnerEnum.NL_DATAEXCHANGE_NO_TEST_RUNNING);
+			        ok - public static readonly ErrorType NL_DATAEXCHANGE_NO_TEST_RUNNING = new ErrorType("NL_DATAEXCHANGE_NO_TEST_RUNNING", InnerEnum.NL_DATAEXCHANGE_NO_TEST_RUNNING);
 
-                    (Code:) invalid value for Status.STATE.
+                    (Code:) invalid value for Status.STATE. TestInvalidState();
                 * Code: Test sending invalid characters in a path {'£', '€', '$', '\"', '[', ']', '<', '>', '|', '*', '¤', '?', '§',
 		            'µ', '#', '`', '@', '^', '²', '°', '¨' };
                     TestInvalidCharacters();
@@ -50,9 +59,30 @@ namespace ConsoleApplication3
             TestAddXmlEntries();
             TestMonitoringHelper();
             TestInvalidCharacters();
+            TestInvalidState();
 
             Console.WriteLine("press any key to exit. " + DateTime.Now.Ticks);
             Console.ReadKey();
+        }
+        private static void TestInvalidState()
+        {
+            bool exceptionCaught = false;
+            StatusBuilder sb = new StatusBuilder();
+            try
+            {
+                sb.State = "BAD STATE";
+            }
+            catch (Exception)
+            {
+                exceptionCaught = true;
+            }
+            if (exceptionCaught)
+            {
+                Console.WriteLine("Invalid state exception test. => PASS");
+            } else
+            {
+                Console.WriteLine("Invalid state exception test. => FAIL");
+            }
         }
 
         private static void TestInvalidCharacters()
@@ -68,7 +98,7 @@ namespace ConsoleApplication3
             cb.Software = "example software" + invalidChars;
             cb.Script = "TestInvalidCharacters_SN" + invalidChars;
             cb.InstanceId = DateTime.Now.Ticks + invalidChars;
-            IDataExchangeAPIClient client = DataExchangeAPIClientFactory.NewClient("CLIENT_ADDRESS",
+            IDataExchangeAPIClient client = DataExchangeAPIClientFactory.NewClient(CLIENT_ADDRESS,
                     cb.build(), "apiKeyToSend");
 
             TimerBuilder tb = TimerBuilder.Start("TimerBuilder_TestInvalidCharacters");
@@ -100,7 +130,7 @@ namespace ConsoleApplication3
             cb.Software = "example software";
             cb.Script = "TestMonitoringHelper_SN";
             cb.InstanceId = DateTime.Now.Ticks + "";
-            IDataExchangeAPIClient client = DataExchangeAPIClientFactory.NewClient("CLIENT_ADDRESS",
+            IDataExchangeAPIClient client = DataExchangeAPIClientFactory.NewClient(CLIENT_ADDRESS,
                     cb.build(), "apiKeyToSend");
 
             MonitoringHelperBuilder mhb = new MonitoringHelperBuilder(new MyMonitoringSupplier(), client);
@@ -145,7 +175,7 @@ namespace ConsoleApplication3
             cb.Software = "example software";
             cb.Script = "TestAddXmlEntries_SN";
             cb.InstanceId = DateTime.Now.Ticks + "";
-            IDataExchangeAPIClient client = DataExchangeAPIClientFactory.NewClient("CLIENT_ADDRESS",
+            IDataExchangeAPIClient client = DataExchangeAPIClientFactory.NewClient(CLIENT_ADDRESS,
                     cb.build(), "apiKeyToSend");
 
             IList<string> parentPath = new List<string> { "TestAddXmlEntries_PP", "Add Xml Entries" };
@@ -162,7 +192,7 @@ namespace ConsoleApplication3
             cb.Software = "example software";
             cb.Script = "TestVerifyAllFieldsFilled_SN";
             cb.InstanceId = DateTime.Now.Ticks + "";
-            IDataExchangeAPIClient client = DataExchangeAPIClientFactory.NewClient("CLIENT_ADDRESS",
+            IDataExchangeAPIClient client = DataExchangeAPIClientFactory.NewClient(CLIENT_ADDRESS,
                     cb.build(), "apiKeyToSend");
 
             TimerBuilder tb = TimerBuilder.Start("TimerBuilder_timerName_verify_all_fields_filled");
