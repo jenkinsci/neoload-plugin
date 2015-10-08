@@ -89,7 +89,7 @@ namespace Neotys.DataExchangeAPI.Rest.Util
             System.Xml.XmlDocument doc = new System.Xml.XmlDocument();
             doc.LoadXml(contentAsXML);
 
-            return getEntries(doc.ChildNodes, JavaUtils.CheckNotNull<IList<string>>(parentPath), timestamp);
+            return getEntries(doc.ChildNodes, Preconditions.CheckNotNull<IList<string>>(parentPath), timestamp);
         }
 
 		private static IList<Entry> getEntries(System.Xml.XmlNodeList nodeList, IList<string> parentPath, long timestamp)

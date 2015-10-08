@@ -19,11 +19,10 @@ namespace Neotys.DataExchangeAPI.Rest.Util
 	/// </summary>
 	public sealed class Statuses
 	{
-
-		public const string ELEMENT_NAME = "Status";
-		public const string CODE = "Code";
-		public const string MESSAGE = "Message";
-		public const string STATE = "State";
+		public const string ElementName = "Status";
+		public const string Code = "Code";
+		public const string Message = "Message";
+		public const string State = "State";
 
 		private Statuses()
 		{
@@ -32,9 +31,9 @@ namespace Neotys.DataExchangeAPI.Rest.Util
 
 		public static Status FromProperties(IDictionary<string, object> statusProperties)
 		{
-			object objectCode = statusProperties[CODE];
-			object objectMessage = statusProperties[MESSAGE];
-			object objectState = statusProperties[STATE];
+			object objectCode = statusProperties[Code];
+			object objectMessage = statusProperties[Message];
+			object objectState = statusProperties[State];
 			if (objectCode == null && objectMessage == null && objectState == null)
 			{
 				return null;
@@ -60,15 +59,15 @@ namespace Neotys.DataExchangeAPI.Rest.Util
 			IDictionary<string, object> statusProperties = new Dictionary<string, object>();
 			if (status.Code != null)
 			{
-				statusProperties[CODE] = status.Code;
+				statusProperties[Code] = status.Code;
 			}
 			if (status.Message != null)
 			{
-				statusProperties[MESSAGE] = status.Message;
+				statusProperties[Message] = status.Message;
 			}
 			if (status.getState() != null)
 			{
-				statusProperties[STATE] = status.getState();
+				statusProperties[State] = status.getState();
 			}
 			return statusProperties;
 		}

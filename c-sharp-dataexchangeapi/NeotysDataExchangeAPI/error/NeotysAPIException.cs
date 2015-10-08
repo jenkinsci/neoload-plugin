@@ -65,20 +65,13 @@ namespace Neotys.DataExchangeAPI.Error
 
             internal ErrorType(string name, InnerEnum innerEnum)
             {
-                try {
-                    nameValue = name;
-                    ordinalValue = nextOrdinal++;
-                    innerEnumValue = innerEnum;
+                nameValue = name;
+                ordinalValue = nextOrdinal++;
+                innerEnumValue = innerEnum;
 
-                    this.message = this.nameValue.Replace("_", "-");
-
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e);
-                    Console.WriteLine(e);
-                }
+                this.message = this.nameValue.Replace("_", "-");
             }
+
 			public override string ToString()
 			{
 				return this.message;
@@ -164,9 +157,9 @@ namespace Neotys.DataExchangeAPI.Error
 		/// <exception cref="NullPointerException"> if a parameter is null. </exception>
 		public NeotysAPIException(ErrorType errorType, string details, Exception wrappedException)
 		{
-			this.errorType = JavaUtils.CheckNotNull<ErrorType>(errorType);
-			this.details = JavaUtils.CheckNotNull<string>(details);
-			this.wrappedException = JavaUtils.CheckNotNull<Exception>(wrappedException);
+			this.errorType = Preconditions.CheckNotNull<ErrorType>(errorType);
+			this.details = Preconditions.CheckNotNull<string>(details);
+			this.wrappedException = Preconditions.CheckNotNull<Exception>(wrappedException);
 		}
 
 		/// <summary>
@@ -177,9 +170,9 @@ namespace Neotys.DataExchangeAPI.Error
 		/// <exception cref="NullPointerException"> if a parameter is null. </exception>
 		public NeotysAPIException(ErrorType errorType, Exception wrappedException)
 		{
-			this.errorType = JavaUtils.CheckNotNull<ErrorType>(errorType);
+			this.errorType = Preconditions.CheckNotNull<ErrorType>(errorType);
 			this.details = "";
-			this.wrappedException = JavaUtils.CheckNotNull<Exception>(wrappedException);
+			this.wrappedException = Preconditions.CheckNotNull<Exception>(wrappedException);
 		}
 
 		/// <summary>
@@ -189,8 +182,8 @@ namespace Neotys.DataExchangeAPI.Error
 		/// <exception cref="NullPointerException"> if a parameter is null. </exception>
 		public NeotysAPIException(ErrorType errorType, string details)
 		{
-			this.errorType = JavaUtils.CheckNotNull<ErrorType>(errorType);
-			this.details = JavaUtils.CheckNotNull<string>(details);
+			this.errorType = Preconditions.CheckNotNull<ErrorType>(errorType);
+			this.details = Preconditions.CheckNotNull<string>(details);
 			this.wrappedException = null;
 		}
 
@@ -200,7 +193,7 @@ namespace Neotys.DataExchangeAPI.Error
 		/// <exception cref="NullPointerException"> if errorType is null. </exception>
 		public NeotysAPIException(ErrorType errorType)
 		{
-			this.errorType = JavaUtils.CheckNotNull<ErrorType>(errorType);
+			this.errorType = Preconditions.CheckNotNull<ErrorType>(errorType);
 			this.details = "";
 			this.wrappedException = null;
 		}
@@ -213,7 +206,7 @@ namespace Neotys.DataExchangeAPI.Error
 		{
 			this.errorType = ErrorType.NL_API_ERROR;
 			this.details = "";
-			this.wrappedException = JavaUtils.CheckNotNull<Exception>(wrappedException);
+			this.wrappedException = Preconditions.CheckNotNull<Exception>(wrappedException);
 		}
 
 		/// <summary>

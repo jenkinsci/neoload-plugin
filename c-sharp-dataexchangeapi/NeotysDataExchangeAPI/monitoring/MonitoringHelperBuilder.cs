@@ -28,8 +28,8 @@ namespace Neotys.DataExchangeAPI.Monitoring
 		/// <exception cref="NullPointerException"> if a parameter is null. </exception>
 		public MonitoringHelperBuilder(MonitoringSupplier monitoringSupplier, IDataExchangeAPIClient client)
 		{
-			this.monitoringSupplier = JavaUtils.CheckNotNull<MonitoringSupplier>(monitoringSupplier);
-			this.client = JavaUtils.CheckNotNull<IDataExchangeAPIClient>(client);
+			this.monitoringSupplier = Preconditions.CheckNotNull<MonitoringSupplier>(monitoringSupplier);
+			this.client = Preconditions.CheckNotNull<IDataExchangeAPIClient>(client);
 		}
 
 		public MonitoringHelper Build()

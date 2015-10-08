@@ -25,15 +25,27 @@ namespace Neotys.DataExchangeAPI.Model
 		public string Unit { get; set; }
         public Status Status { get; set; }
 
-		/// 
-		/// <param name="pathArgument"> </param>
-		/// <param name="timestamp"> </param>
-		/// <exception cref="NullPointerException"> if the path is null. </exception>
-		public EntryBuilder(IList<string> pathArgument, long timestamp)
-		{
-			this.path = JavaUtils.CheckNotNull<IList<string>>(pathArgument);
-			this._timestamp = timestamp;
-		}
+        // Used for the CurrentTimeMilliseconds() method.
+        private static readonly System.DateTime java1970 = new System.DateTime(1970, 1, 1, 0, 0, 0, System.DateTimeKind.Utc);
+
+        /// 
+        /// <param name="pathArgument"> </param>
+        /// <param name="timestamp"> </param>
+        /// <exception cref="NullPointerException"> if the path is null. </exception>
+        public EntryBuilder(IList<string> pathArgument, long timestamp)
+        {
+            this.path = Preconditions.CheckNotNull<IList<string>>(pathArgument);
+            this._timestamp = timestamp;
+        }
+
+        /// 
+        /// <param name="pathArgument"> </param>
+        /// <exception cref="NullPointerException"> if the path is null. </exception>
+        public EntryBuilder(IList<string> pathArgument)
+        {
+            this.path = Preconditions.CheckNotNull<IList<string>>(pathArgument);
+            this._timestamp = CurrentTimeMilliseconds();
+        }
 
         public Entry Build()
 		{
@@ -47,6 +59,13 @@ namespace Neotys.DataExchangeAPI.Model
 				return path;
 			}
 		}
-	}
+
+        /** Return the current time in the same way java does System.currentTimeMilliseconds();. */
+        public static long CurrentTimeMilliseconds()
+        {
+            return (long)System.DateTime.Now.ToUniversalTime().Subtract(java1970).TotalMilliseconds;
+        }
+
+    }
 
 }

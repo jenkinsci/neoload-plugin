@@ -6,17 +6,15 @@ using System.Threading.Tasks;
 using Neotys.DataExchangeAPI.Model;
 using IDataExchangeAPIClient = Neotys.DataExchangeAPI.Client.IDataExchangeAPIClient;
 using DataExchangeAPIClientFactory = Neotys.DataExchangeAPI.Client.DataExchangeAPIClientFactory;
-using JavaUtils = Neotys.DataExchangeAPI.UtilsFromJava.JavaUtils;
+using Preconditions = Neotys.DataExchangeAPI.UtilsFromJava.Preconditions;
 using MonitoringHelperBuilder = Neotys.DataExchangeAPI.Monitoring.MonitoringHelperBuilder;
 using MonitoringSupplier = Neotys.DataExchangeAPI.Monitoring.MonitoringSupplier;
 using MonitoringHelper = Neotys.DataExchangeAPI.Monitoring.MonitoringHelper;
-using TimeUnit = Neotys.DataExchangeAPI.UtilsFromJava.TimeUnit;
 
 namespace ConsoleApplication3
 {
     class Program
     {
-
         static string CLIENT_ADDRESS = "http://localhost:7400/DataExchange/v1/Service.svc";
 
         static void Main(string[] args)
@@ -58,6 +56,7 @@ namespace ConsoleApplication3
             TestVerifyAllFieldsFilled();
             TestAddXmlEntries();
             TestMonitoringHelper();
+            TestMonitoringHelperBadXML();
             TestInvalidCharacters();
             TestInvalidState();
 
@@ -106,7 +105,7 @@ namespace ConsoleApplication3
             {
                 System.Threading.Thread.Sleep(100);
                 EntryBuilder eb = new EntryBuilder(new List<string> { "TestInvalidCharacters_PP",
-                    invalidChars }, JavaUtils.CurrentTimeMilliseconds());
+                    invalidChars }, EntryBuilder.CurrentTimeMilliseconds());
 
                 eb.Unit = "units" + invalidChars;
                 eb.Value = (double)i;
@@ -135,14 +134,13 @@ namespace ConsoleApplication3
 
             MonitoringHelperBuilder mhb = new MonitoringHelperBuilder(new MyMonitoringSupplier(), client);
 
-            // TODO decide on fluent or C# for mhb methods.
             mhb.ParentPath = new List<string> { "MyMonitoringSupplier_PP" };
             mhb.ScriptName = "MyMonitoringSupplier_SN";
 
             MonitoringHelper mh = mhb.Build();
 
             Console.Write("Monitroing using the helper ");
-            mh.StartMonitoring(1, TimeUnit.Seconds);
+            mh.StartMonitoring(TimeSpan.FromSeconds(1));
 
             for (int i = 0; i < 5; i++)
             {
@@ -159,7 +157,54 @@ namespace ConsoleApplication3
         {
             public override IList<string> get()
             {
-                IList<string> someList = new List<string> { "<data>" + JavaUtils.CurrentTimeMilliseconds() + "</data>" };
+                IList<string> someList = new List<string> { "<data>" + EntryBuilder.CurrentTimeMilliseconds() + "</data>" };
+                return someList;
+            }
+        }
+
+        private static void TestMonitoringHelperBadXML()
+        {
+            ContextBuilder cb = new ContextBuilder();
+            cb.Hardware = "example hardware";
+            cb.Location = "example location";
+            cb.Software = "example software";
+            cb.Script = "MyMonitoringSupplierBadXML_SN";
+            cb.InstanceId = DateTime.Now.Ticks + "";
+            IDataExchangeAPIClient client = DataExchangeAPIClientFactory.NewClient(CLIENT_ADDRESS,
+                    cb.build(), "apiKeyToSend");
+
+            MonitoringHelperBuilder mhb = new MonitoringHelperBuilder(new MyMonitoringSupplierBadXML(), client);
+
+            mhb.ParentPath = new List<string> { "MyMonitoringSupplierBadXML_PP" };
+            mhb.ScriptName = "MyMonitoringSupplierBadXMLr_SN";
+
+            MonitoringHelper mh = mhb.Build();
+
+            Console.WriteLine("Monitroing using the helper (bad xml) ");
+            mh.StartMonitoring(TimeSpan.FromSeconds(1));
+
+            MonitoringHelper.Debug = true;
+            for (int i = 0; i < 5; i++)
+            {
+                if (i >= 3)
+                {
+                    MonitoringHelper.Debug = false;
+                }
+                System.Threading.Thread.Sleep(1000);
+                Console.Write(".");
+            }
+
+            mh.StopMonitoring();
+
+            Console.WriteLine(" Done.");
+        }
+
+        private class MyMonitoringSupplierBadXML : MonitoringSupplier
+        {
+            public override IList<string> get()
+            {
+                IList<string> someList = new List<string> { "<datssssa>" + 
+                    EntryBuilder.CurrentTimeMilliseconds()};
                 return someList;
             }
         }
@@ -180,7 +225,7 @@ namespace ConsoleApplication3
 
             IList<string> parentPath = new List<string> { "TestAddXmlEntries_PP", "Add Xml Entries" };
 
-            client.AddXMLEntries(xml, parentPath, JavaUtils.CurrentTimeMilliseconds(), null);
+            client.AddXMLEntries(xml, parentPath, EntryBuilder.CurrentTimeMilliseconds(), null);
         }
 
         private static void TestVerifyAllFieldsFilled()
@@ -200,7 +245,7 @@ namespace ConsoleApplication3
             {
                 System.Threading.Thread.Sleep(1000);
                 EntryBuilder eb = new EntryBuilder(new List<string> { "TestVerifyAllFieldsFilled_PP", "Entry", "Path",
-                    "Verify_All_Fields_Filled" }, JavaUtils.CurrentTimeMilliseconds());
+                    "Verify_All_Fields_Filled" }, EntryBuilder.CurrentTimeMilliseconds());
 
                 eb.Unit = "units";
                 eb.Value = (double)i;
@@ -213,7 +258,7 @@ namespace ConsoleApplication3
                 eb.Status = sb.Build();
 
                 client.AddEntry(eb.Build());
-                Console.WriteLine("Sent entry with value " + i + ", time: " + JavaUtils.CurrentTimeMilliseconds());
+                Console.WriteLine("Sent entry with value " + i + ", time: " + EntryBuilder.CurrentTimeMilliseconds());
 
                 eb.Url = eb.Url + "/multipleSentAtOnce";
                 Entry entry = eb.Build();

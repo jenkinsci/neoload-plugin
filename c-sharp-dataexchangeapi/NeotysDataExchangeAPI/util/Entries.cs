@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using JavaUtils = Neotys.DataExchangeAPI.UtilsFromJava.JavaUtils;
+using Preconditions = Neotys.DataExchangeAPI.UtilsFromJava.Preconditions;
 /*
  * Copyright (c) 2015, Neotys
  * All rights reserved.
@@ -68,7 +68,7 @@ namespace Neotys.DataExchangeAPI.Rest.Util
 			{
 				entryBuilder.Unit = Escaper.Escape(objectUnit.ToString());
 			}
-			object objectStatus = entryProperties[Statuses.ELEMENT_NAME];
+			object objectStatus = entryProperties[Statuses.ElementName];
 			if (objectStatus != null)
 			{
 				if (!(objectStatus is IDictionary<string, object>))
@@ -134,7 +134,7 @@ namespace Neotys.DataExchangeAPI.Rest.Util
 				{
 					throw new NeotysAPIException(NeotysAPIException.ErrorType.NL_API_INVALID_ARGUMENT, "Missing entry timestamp.");
 				}
-				return JavaUtils.CurrentTimeMilliseconds();
+				return EntryBuilder.CurrentTimeMilliseconds();
 			}
 			try
 			{

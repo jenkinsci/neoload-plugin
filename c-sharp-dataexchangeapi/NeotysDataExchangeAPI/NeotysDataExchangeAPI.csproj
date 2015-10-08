@@ -110,8 +110,7 @@
     <Compile Include="client\NeotysAPIClientOlingo.cs" />
     <Compile Include="utils.fromjava\EqualsBuilder.cs" />
     <Compile Include="utils.fromjava\HashCodeBuilder.cs" />
-    <Compile Include="utils.fromjava\JavaUtils.cs" />
-    <Compile Include="utils.fromjava\TimeUnit.cs" />
+    <Compile Include="utils.fromjava\Preconditions.cs" />
     <Compile Include="utils.fromjava\ToStringBuilder.cs" />
     <Compile Include="utils.rest\Escaper.cs" />
     <Compile Include="util\Contexts.cs" />
