@@ -157,7 +157,7 @@ namespace Neotys.DataExchangeAPI.Monitoring
 			{
 				try
 				{
-					long timestamp = EntryBuilder.CurrentTimeMilliseconds();
+					long timestamp = EntryBuilder.CurrentTimeMilliseconds;
 					IList<string> xmls = outerInstance.monitoringSupplier.get();
 					foreach (String xml in xmls)
 					{

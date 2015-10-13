@@ -134,7 +134,7 @@ namespace Neotys.DataExchangeAPI.Rest.Util
 				{
 					throw new NeotysAPIException(NeotysAPIException.ErrorType.NL_API_INVALID_ARGUMENT, "Missing entry timestamp.");
 				}
-				return EntryBuilder.CurrentTimeMilliseconds();
+				return EntryBuilder.CurrentTimeMilliseconds;
 			}
 			try
 			{

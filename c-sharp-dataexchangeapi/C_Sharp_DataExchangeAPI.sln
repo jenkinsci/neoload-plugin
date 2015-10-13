@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.23107.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleApplication3", "ConsoleApplication3\ConsoleApplication3.csproj", "{FC91644E-E28A-4D48-B73A-D6667987C72E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BasicTests", "BasicTests\BasicTests.csproj", "{FC91644E-E28A-4D48-B73A-D6667987C72E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NeotysDataExchangeAPI", "NeotysDataExchangeAPI\NeotysDataExchangeAPI.csproj", "{A3EC76DC-DDFE-4D78-86DE-598DB0555B9A}"
 EndProject

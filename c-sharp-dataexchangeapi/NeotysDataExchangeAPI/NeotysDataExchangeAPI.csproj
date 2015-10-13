@@ -108,17 +108,17 @@
     <Compile Include="rest.client\DataExchangeAPIClientFactory.cs" />
     <Compile Include="rest.client\DataExchangeAPIClientOlingo.cs" />
     <Compile Include="client\NeotysAPIClientOlingo.cs" />
-    <Compile Include="utils.fromjava\EqualsBuilder.cs" />
-    <Compile Include="utils.fromjava\HashCodeBuilder.cs" />
-    <Compile Include="utils.fromjava\Preconditions.cs" />
-    <Compile Include="utils.fromjava\ToStringBuilder.cs" />
+    <Compile Include="utils\EqualsBuilder.cs" />
+    <Compile Include="utils\HashCodeBuilder.cs" />
+    <Compile Include="utils\Preconditions.cs" />
+    <Compile Include="utils\ToStringBuilder.cs" />
     <Compile Include="utils.rest\Escaper.cs" />
-    <Compile Include="util\Contexts.cs" />
-    <Compile Include="util\Entries.cs" />
-    <Compile Include="util\SessionIds.cs" />
-    <Compile Include="util\Sessions.cs" />
-    <Compile Include="util\Statuses.cs" />
-    <Compile Include="util\XMLEntries.cs" />
+    <Compile Include="utils.rest\Contexts.cs" />
+    <Compile Include="utils.rest\Entries.cs" />
+    <Compile Include="utils.rest\SessionIds.cs" />
+    <Compile Include="utils.rest\Sessions.cs" />
+    <Compile Include="utils.rest\Statuses.cs" />
+    <Compile Include="utils.rest\XMLEntries.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

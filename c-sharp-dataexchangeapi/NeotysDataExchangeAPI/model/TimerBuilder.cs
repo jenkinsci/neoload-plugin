@@ -22,7 +22,7 @@ namespace Neotys.DataExchangeAPI.Model
 
 		/// <exception cref="NullPointerException"> if path is null. </exception>
 		/// <param name="path"> </param>
-		private TimerBuilder(IList<string> path) : base(Preconditions.CheckNotNull<IList<string>>(path), EntryBuilder.CurrentTimeMilliseconds())
+		private TimerBuilder(IList<string> path) : base(Preconditions.CheckNotNull<IList<string>>(path), EntryBuilder.CurrentTimeMilliseconds)
 		{
 			Unit = DefaultUnit;
 		}
@@ -78,7 +78,7 @@ namespace Neotys.DataExchangeAPI.Model
 		/// </summary>
 		public Entry Stop()
 		{
-			long endTime = EntryBuilder.CurrentTimeMilliseconds();
+			long endTime = EntryBuilder.CurrentTimeMilliseconds;
             base.Value = (double)endTime - Timestamp;
 			return Build();
 		}

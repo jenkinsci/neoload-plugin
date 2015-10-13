@@ -11,15 +11,16 @@ using MonitoringHelperBuilder = Neotys.DataExchangeAPI.Monitoring.MonitoringHelp
 using MonitoringSupplier = Neotys.DataExchangeAPI.Monitoring.MonitoringSupplier;
 using MonitoringHelper = Neotys.DataExchangeAPI.Monitoring.MonitoringHelper;
 
+/** This class uses the DataExchangeAPI in various ways for testing purposes. */
 namespace ConsoleApplication3
 {
-    class Program
+    class BasicTests
     {
         static string CLIENT_ADDRESS = "http://localhost:7400/DataExchange/v1/Service.svc";
 
         static void Main(string[] args)
         {
-            Console.WriteLine("helloooooooo           " + DateTime.Now.Ticks + " " + args);
+            Console.WriteLine("Begin           " + EntryBuilder.CurrentTimeMilliseconds + " " + args + "\n");
 
             if (args != null && args.Length > 0 && args[0] != null && args[0].Length > 0)
             {
@@ -60,7 +61,7 @@ namespace ConsoleApplication3
             TestInvalidCharacters();
             TestInvalidState();
 
-            Console.WriteLine("press any key to exit. " + DateTime.Now.Ticks);
+            Console.WriteLine("\nPress any key to exit. " + EntryBuilder.CurrentTimeMilliseconds);
             Console.ReadKey();
         }
         private static void TestInvalidState()
@@ -105,7 +106,7 @@ namespace ConsoleApplication3
             {
                 System.Threading.Thread.Sleep(100);
                 EntryBuilder eb = new EntryBuilder(new List<string> { "TestInvalidCharacters_PP",
-                    invalidChars }, EntryBuilder.CurrentTimeMilliseconds());
+                    invalidChars }, EntryBuilder.CurrentTimeMilliseconds);
 
                 eb.Unit = "units" + invalidChars;
                 eb.Value = (double)i;
@@ -157,7 +158,7 @@ namespace ConsoleApplication3
         {
             public override IList<string> get()
             {
-                IList<string> someList = new List<string> { "<data>" + EntryBuilder.CurrentTimeMilliseconds() + "</data>" };
+                IList<string> someList = new List<string> { "<data>" + EntryBuilder.CurrentTimeMilliseconds + "</data>" };
                 return someList;
             }
         }
@@ -204,7 +205,7 @@ namespace ConsoleApplication3
             public override IList<string> get()
             {
                 IList<string> someList = new List<string> { "<datssssa>" + 
-                    EntryBuilder.CurrentTimeMilliseconds()};
+                    EntryBuilder.CurrentTimeMilliseconds};
                 return someList;
             }
         }
@@ -225,7 +226,7 @@ namespace ConsoleApplication3
 
             IList<string> parentPath = new List<string> { "TestAddXmlEntries_PP", "Add Xml Entries" };
 
-            client.AddXMLEntries(xml, parentPath, EntryBuilder.CurrentTimeMilliseconds(), null);
+            client.AddXMLEntries(xml, parentPath, EntryBuilder.CurrentTimeMilliseconds, null);
         }
 
         private static void TestVerifyAllFieldsFilled()
@@ -245,7 +246,7 @@ namespace ConsoleApplication3
             {
                 System.Threading.Thread.Sleep(1000);
                 EntryBuilder eb = new EntryBuilder(new List<string> { "TestVerifyAllFieldsFilled_PP", "Entry", "Path",
-                    "Verify_All_Fields_Filled" }, EntryBuilder.CurrentTimeMilliseconds());
+                    "Verify_All_Fields_Filled" }, EntryBuilder.CurrentTimeMilliseconds);
 
                 eb.Unit = "units";
                 eb.Value = (double)i;
@@ -258,7 +259,7 @@ namespace ConsoleApplication3
                 eb.Status = sb.Build();
 
                 client.AddEntry(eb.Build());
-                Console.WriteLine("Sent entry with value " + i + ", time: " + EntryBuilder.CurrentTimeMilliseconds());
+                Console.WriteLine("Sent entry with value " + i + ", time: " + EntryBuilder.CurrentTimeMilliseconds);
 
                 eb.Url = eb.Url + "/multipleSentAtOnce";
                 Entry entry = eb.Build();
