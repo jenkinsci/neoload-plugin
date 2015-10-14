@@ -1,0 +1,488 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>NeotysDataExchangeAPI</name>
+    </assembly>
+    <members>
+        <member name="T:Neotys.DataExchangeAPI.Client.IDataExchangeAPIClient">
+            <summary>
+            Neotys Data Exchange API Client interface.
+            
+            @author srichert
+            
+            </summary>
+        </member>
+        <member name="M:Neotys.DataExchangeAPI.Client.IDataExchangeAPIClient.AddEntry(Neotys.DataExchangeAPI.Model.Entry)">
+            <summary>
+            Send an <seealso cref="T:Neotys.DataExchangeAPI.Model.Entry"/> to the Data Exchange server. </summary>
+            <param name="entry"> </param>
+            <exception cref="!:GeneralSecurityException"> </exception>
+            <exception cref="!:IOException"> </exception>
+            <exception cref="!:URISyntaxException"> </exception>
+            <exception cref="T:Neotys.DataExchangeAPI.Error.NeotysAPIException"> </exception>
+        </member>
+        <member name="M:Neotys.DataExchangeAPI.Client.IDataExchangeAPIClient.AddEntries(System.Collections.Generic.IList{Neotys.DataExchangeAPI.Model.Entry})">
+            <summary>
+            Send a <seealso cref="!:List"/> of <seealso cref="T:Neotys.DataExchangeAPI.Model.Entry"/> to the Data Exchange server. </summary>
+            <param name="entries"> </param>
+            <exception cref="!:GeneralSecurityException"> </exception>
+            <exception cref="!:IOException"> </exception>
+            <exception cref="!:URISyntaxException"> </exception>
+            <exception cref="T:Neotys.DataExchangeAPI.Error.NeotysAPIException"> </exception>
+        </member>
+        <member name="M:Neotys.DataExchangeAPI.Client.IDataExchangeAPIClient.AddXMLEntries(System.String,System.Collections.Generic.IList{System.String},System.Int64,System.String)">
+            <summary>
+            Send a XML file to the Data Exchange server. </summary>
+            <param name="contentAsXML"> </param>
+            <param name="parentPath"> </param>
+            <param name="timestamp"> </param>
+            <param name="charset"> </param>
+            <exception cref="!:GeneralSecurityException"> </exception>
+            <exception cref="!:IOException"> </exception>
+            <exception cref="!:URISyntaxException"> </exception>
+            <exception cref="T:Neotys.DataExchangeAPI.Error.NeotysAPIException"> </exception>
+            <exception cref="!:ParserConfigurationException"> </exception>
+            <exception cref="!:SAXException"> </exception>
+        </member>
+        <member name="T:Neotys.DataExchangeAPI.Client.DataExchangeAPIClientFactory">
+            <summary>
+            Factory to build DataExchangeAPIClient based on Apache Olingo implementation.
+            
+            @author srichert
+            
+            </summary>
+        </member>
+        <member name="M:Neotys.DataExchangeAPI.Client.DataExchangeAPIClientFactory.NewClient(System.String)">
+            <summary>
+            Create a new Data Exchange client, connected to the server at the end point 'url'. </summary>
+            <param name="url"> </param>
+            <exception cref="T:Neotys.DataExchangeAPI.Error.NeotysAPIException"> </exception>
+        </member>
+        <member name="M:Neotys.DataExchangeAPI.Client.DataExchangeAPIClientFactory.NewClient(System.String,Neotys.DataExchangeAPI.Model.Context)">
+            <summary>
+            Create a new Data Exchange client, connected to the server at the end point 'url', with the <seealso cref="T:Neotys.DataExchangeAPI.Model.Context"/> context. </summary>
+            <param name="url"> </param>
+            <param name="context"> </param>
+            <exception cref="T:Neotys.DataExchangeAPI.Error.NeotysAPIException"> </exception>
+        </member>
+        <member name="M:Neotys.DataExchangeAPI.Client.DataExchangeAPIClientFactory.NewClient(System.String,System.String)">
+            <summary>
+            Create a new Data Exchange client, connected to the server at the end point 'url', with authenticating with 'apiKey'. </summary>
+            <param name="url"> </param>
+            <param name="apiKey"> </param>
+            <exception cref="T:Neotys.DataExchangeAPI.Error.NeotysAPIException"> </exception>
+        </member>
+        <member name="M:Neotys.DataExchangeAPI.Client.DataExchangeAPIClientFactory.NewClient(System.String,Neotys.DataExchangeAPI.Model.Context,System.String)">
+            <summary>
+            Create a new Data Exchange client, connected to the server at the end point 'url', with the <seealso cref="T:Neotys.DataExchangeAPI.Model.Context"/> context, and authenticating with 'apiKey'. </summary>
+            <param name="url"> </param>
+            <param name="context"> </param>
+            <param name="apiKey"> </param>
+            <exception cref="T:Neotys.DataExchangeAPI.Error.NeotysAPIException"> </exception>
+        </member>
+        <member name="T:Neotys.DataExchangeAPI.Client.DataExchangeAPIClientOlingo">
+            <summary>
+            An implementation of a Data Exchange API Client, based on Apache Olingo framework.
+            
+            @author srichert
+            
+            </summary>
+        </member>
+        <member name="M:Neotys.DataExchangeAPI.Client.DataExchangeAPIClientOlingo.#ctor(System.String,Neotys.DataExchangeAPI.Model.Context,System.String)">
+            <summary>
+            Create a new Data Exchange client, connected to the server at the end point 'url', with the context <seealso cref="T:Neotys.DataExchangeAPI.Model.Context"/>, and authenticating with 'apiKey'. </summary>
+            <param name="url"> </param>
+            <param name="context"> </param>
+            <param name="apiKey"> </param>
+            <exception cref="!:GeneralSecurityException"> </exception>
+            <exception cref="!:IOException"> </exception>
+            <exception cref="!:ODataException"> </exception>
+            <exception cref="!:URISyntaxException"> </exception>
+            <exception cref="T:Neotys.DataExchangeAPI.Error.NeotysAPIException"> </exception>
+        </member>
+        <member name="M:Neotys.DataExchangeAPI.Client.DataExchangeAPIClientOlingo.AddEntry(Neotys.DataExchangeAPI.Model.Entry)">
+            <summary>
+            Send an <seealso cref="T:Neotys.DataExchangeAPI.Model.Entry"/> to the Data Exchange server. </summary>
+            <param name="entry"> </param>
+            <exception cref="!:ODataException"> </exception>
+            <exception cref="!:GeneralSecurityException"> </exception>
+            <exception cref="!:IOException"> </exception>
+            <exception cref="!:URISyntaxException"> </exception>
+            <exception cref="T:Neotys.DataExchangeAPI.Error.NeotysAPIException"> </exception>
+        </member>
+        <member name="M:Neotys.DataExchangeAPI.Client.DataExchangeAPIClientOlingo.AddEntries(System.Collections.Generic.IList{Neotys.DataExchangeAPI.Model.Entry})">
+            <summary>
+            Send a <seealso cref="!:List"/> of <seealso cref="T:Neotys.DataExchangeAPI.Model.Entry"/> to the Data Exchange server. </summary>
+            <param name="entries"> </param>
+            <exception cref="!:ODataException"> </exception>
+            <exception cref="!:GeneralSecurityException"> </exception>
+            <exception cref="!:IOException"> </exception>
+            <exception cref="!:URISyntaxException"> </exception>
+            <exception cref="T:Neotys.DataExchangeAPI.Error.NeotysAPIException"> </exception>
+        </member>
+        <member name="M:Neotys.DataExchangeAPI.Client.DataExchangeAPIClientOlingo.AddXMLEntries(System.String,System.Collections.Generic.IList{System.String},System.Int64,System.String)">
+            <summary>
+            Send a XML file to the Data Exchange server. </summary>
+            <param name="xml"> </param>
+            <param name="parentPath"> </param>
+            <param name="timestamp"> </param>
+            <param name="charset"> </param>
+            <exception cref="!:GeneralSecurityException"> </exception>
+            <exception cref="!:IOException"> </exception>
+            <exception cref="!:URISyntaxException"> </exception>
+            <exception cref="T:Neotys.DataExchangeAPI.Error.NeotysAPIException"> </exception>
+            <exception cref="!:ParserConfigurationException"> </exception>
+            <exception cref="!:SAXException"> </exception>
+        </member>
+        <member name="T:Neotys.DataExchangeAPI.Client.NeotysAPIClientOlingo">
+            <summary>
+            Contains common utilities to connect to a Neotys OData API Server using Apache Olingo implementation.
+            
+            @author srichert
+            
+            </summary>
+        </member>
+        <member name="F:Neotys.DataExchangeAPI.Client.NeotysAPIClientOlingo.ArgClientEnabled">
+            <summary>
+            Use -Dnl.client.enabled=false to disable the interaction with the Rest API server.
+            </summary>
+        </member>
+        <member name="T:Neotys.DataExchangeAPI.Error.NeotysAPIException">
+            <summary>
+            Exception that can occur while interacting with Neotys API server.
+            
+            @author srichert
+            
+            </summary>
+        </member>
+        <member name="M:Neotys.DataExchangeAPI.Error.NeotysAPIException.#ctor(Neotys.DataExchangeAPI.Error.NeotysAPIException.ErrorType,System.String,System.Exception)">
+            <summary>
+            Create a new NeotysAPIException based on an ErrorType, a details message, and an exception. </summary>
+            <param name="errorType"> </param>
+            <param name="details"> </param>
+            <param name="wrappedException"> </param>
+            <exception cref="!:NullPointerException"> if a parameter is null. </exception>
+        </member>
+        <member name="M:Neotys.DataExchangeAPI.Error.NeotysAPIException.#ctor(Neotys.DataExchangeAPI.Error.NeotysAPIException.ErrorType,System.Exception)">
+            <summary>
+            Create a new NeotysAPIException based on an ErrorType and an exception. </summary>
+            <param name="errorType"> </param>
+            <param name="details"> </param>
+            <param name="wrappedException"> </param>
+            <exception cref="!:NullPointerException"> if a parameter is null. </exception>
+        </member>
+        <member name="M:Neotys.DataExchangeAPI.Error.NeotysAPIException.#ctor(Neotys.DataExchangeAPI.Error.NeotysAPIException.ErrorType,System.String)">
+            <summary>
+            Create a new NeotysAPIException based on an ErrorType, and a details message. </summary>
+            <param name="errorType"> </param>
+            <param name="details"> </param>
+            <exception cref="!:NullPointerException"> if a parameter is null. </exception>
+        </member>
+        <member name="M:Neotys.DataExchangeAPI.Error.NeotysAPIException.#ctor(Neotys.DataExchangeAPI.Error.NeotysAPIException.ErrorType)">
+            <summary>
+            Create a new NeotysAPIException based on an ErrorType. </summary>
+            <param name="errorType"> </param>
+            <exception cref="!:NullPointerException"> if errorType is null. </exception>
+        </member>
+        <member name="M:Neotys.DataExchangeAPI.Error.NeotysAPIException.#ctor(System.Exception)">
+            <summary>
+            Create a new NeotysAPIException based on an exception. </summary>
+            <param name="wrappedException"> </param>
+            <exception cref="!:NullPointerException"> if wrappedException is null. </exception>
+        </member>
+        <member name="M:Neotys.DataExchangeAPI.Error.NeotysAPIException.Parse(System.String)">
+            <summary>
+            Parse an error message to create a NeotysAPIException. </summary>
+            <param name="errorMessage">
+            @return </param>
+        </member>
+        <member name="P:Neotys.DataExchangeAPI.Error.NeotysAPIException.Message">
+            <summary>
+            Return the message.
+            </summary>
+        </member>
+        <member name="P:Neotys.DataExchangeAPI.Error.NeotysAPIException.WrappedException">
+            <summary>
+            Return the exception.
+            @return
+            </summary>
+        </member>
+        <member name="M:Neotys.DataExchangeAPI.Error.NeotysAPIException.getErrorType">
+            <summary>
+            Return the error type.
+            @return
+            </summary>
+        </member>
+        <member name="P:Neotys.DataExchangeAPI.Error.NeotysAPIException.Details">
+            <summary>
+            Return the details message.
+            @return
+            </summary>
+        </member>
+        <member name="T:Neotys.DataExchangeAPI.Model.Context">
+            <summary>
+            The context contains informations related to the entry sent to the DataExchangeAPIServer.
+            
+            @author srichert
+            
+            </summary>
+        </member>
+        <member name="T:Neotys.DataExchangeAPI.Model.ContextBuilder">
+            <summary>
+            Builder for object <seealso cref="T:Neotys.DataExchangeAPI.Model.Context"/>.
+            
+            @author srichert
+            
+            </summary>
+        </member>
+        <member name="T:Neotys.DataExchangeAPI.Model.Entry">
+            <summary>
+            The Entry is an element sent to the Data Exchange API Server.
+            
+            @author srichert
+            
+            </summary>
+        </member>
+        <member name="T:Neotys.DataExchangeAPI.Model.EntryBuilder">
+            <summary>
+            Builder for object <seealso cref="T:Neotys.DataExchangeAPI.Model.Entry"/>.
+            
+            @author srichert
+            
+            </summary>
+        </member>
+        <member name="F:Neotys.DataExchangeAPI.Model.EntryBuilder.java1970">
+            <summary>
+            Used for the CurrentTimeMilliseconds method. </summary>
+        </member>
+        <member name="P:Neotys.DataExchangeAPI.Model.EntryBuilder.CurrentTimeMilliseconds">
+            <summary>
+            Return the current time in the same way java does System.CurrentTimeMilliseconds;. </summary>
+        </member>
+        <member name="M:Neotys.DataExchangeAPI.Model.EntryBuilder.#ctor(System.Collections.Generic.IList{System.String},System.Int64)">
+            
+            <param name="pathArgument"> </param>
+            <param name="timestamp"> </param>
+            <exception cref="!:NullPointerException"> if the path is null. </exception>
+        </member>
+        <member name="M:Neotys.DataExchangeAPI.Model.EntryBuilder.#ctor(System.Collections.Generic.IList{System.String})">
+            
+            <param name="pathArgument"> </param>
+            <exception cref="!:NullPointerException"> if the path is null. </exception>
+        </member>
+        <member name="T:Neotys.DataExchangeAPI.Model.Status">
+            <summary>
+            The Status contains informations related to the <seealso cref="T:Neotys.DataExchangeAPI.Model.Entry"/> sent to the DataExchangeAPIServer.
+            
+            @author srichert
+            
+            </summary>
+        </member>
+        <member name="T:Neotys.DataExchangeAPI.Model.StatusBuilder">
+            <summary>
+            Builder for object <seealso cref="T:Neotys.DataExchangeAPI.Model.Status"/>.
+            
+            @author srichert
+            
+            </summary>
+        </member>
+        <member name="P:Neotys.DataExchangeAPI.Model.StatusBuilder.State">
+            <summary>
+             The only valid values here are null, PASS, FAIL.
+            </summary>
+        </member>
+        <member name="T:Neotys.DataExchangeAPI.Model.TimerBuilder">
+            <summary>
+            Util class to handle Timers.
+            
+            @author srichert
+            
+            </summary>
+        </member>
+        <member name="M:Neotys.DataExchangeAPI.Model.TimerBuilder.#ctor(System.Collections.Generic.IList{System.String})">
+            <exception cref="!:NullPointerException"> if path is null. </exception>
+            <param name="path"> </param>
+        </member>
+        <member name="M:Neotys.DataExchangeAPI.Model.TimerBuilder.Start(System.String,System.String)">
+            <summary>
+            Build a new timer by specifying the script name and the timer name. </summary>
+            <param name="scriptName"> </param>
+            <param name="timerName"> </param>
+            <exception cref="!:NullPointerException"> if scriptName or timerName is null. </exception>
+        </member>
+        <member name="M:Neotys.DataExchangeAPI.Model.TimerBuilder.Start(System.String)">
+            <summary>
+            Build a new timer by specifying the timer name. </summary>
+            <param name="timerName">
+            @return </param>
+            <exception cref="!:NullPointerException"> if timerName is null. </exception>
+        </member>
+        <member name="M:Neotys.DataExchangeAPI.Model.TimerBuilder.Start(System.Collections.Generic.IList{System.String})">
+            <summary>
+            Build a new timer by specifying the timer path. </summary>
+            <param name="timerPath">
+            @return </param>
+            <exception cref="!:NullPointerException"> if timePath is null. </exception>
+        </member>
+        <member name="M:Neotys.DataExchangeAPI.Model.TimerBuilder.Start(System.Collections.Generic.IList{System.String},System.String)">
+            <summary>
+            Build a new timer by specifying the parent path and the timer name. </summary>
+            <param name="parentPath"> </param>
+            <param name="timerName">
+            @return </param>
+            <exception cref="!:NullPointerException"> if parentPath or timerName is null. </exception>
+        </member>
+        <member name="M:Neotys.DataExchangeAPI.Model.TimerBuilder.Stop">
+            <summary>
+            Create an entry for the timer, with the transaction time as value.
+            @return
+            </summary>
+        </member>
+        <member name="T:Neotys.DataExchangeAPI.Monitoring.MonitoringHelper">
+            <summary>
+            This helper facilitates the monitoring. The monitoring is processed by another thread, executed at scheduled rate.
+            
+            A typical usage of this MonitoringHelper would be to start the monitoring
+            when the script starts, and stop the monitoring when the script ends. For example:
+            
+            public void run() throws Exception {
+            
+            		final MonitoringHelper monitoringHelper = (new MonitoringHelperBuilder(monitoringSupplier, dataExchangeAPIClient)).build();
+            
+            	monitoringHelper.startMonitoring();
+            
+            	// some transactions
+            
+            	monitoringHelper.stopMonitoring();
+            }
+            
+            @author srichert
+            </summary>
+        </member>
+        <member name="F:Neotys.DataExchangeAPI.Monitoring.MonitoringHelper._lock">
+            <summary> Wait for the current execution to finish before stopping. </summary>
+        </member>
+        <member name="F:Neotys.DataExchangeAPI.Monitoring.MonitoringHelper.timer">
+            <summary> Executes a thread for monitoring every X seconds. </summary>
+            <param name="pathArgument"> </param>
+            <param name="timestamp"> </param>
+            <exception cref="!:NullPointerException"> if the path is null. </exception>
+        </member>
+        <member name="M:Neotys.DataExchangeAPI.Monitoring.MonitoringHelper.StartMonitoring">
+            <summary>
+            Start the monitoring with a scheduled rate and return true.
+            If monitoring is already in progress, ignore and return false. </summary>
+            <returns> true if the monitoring has been started. </returns>
+        </member>
+        <member name="M:Neotys.DataExchangeAPI.Monitoring.MonitoringHelper.StartMonitoring(System.TimeSpan)">
+            <summary>
+            Start the monitoring with a scheduled rate of a specific delay from the input parameter, and return true.
+            If monitoring is already in progress, ignore and return false. </summary>
+            <param name="timeSpan"> : the delay between the termination of one monitoring execution and the commencement of the next. </param>
+            <returns> true if the monitoring has been started. </returns>
+            <exception cref="!:NullPointerException"> if the timeSpan is null. </exception>
+        </member>
+        <member name="M:Neotys.DataExchangeAPI.Monitoring.MonitoringHelper.StopMonitoring">
+            <summary>
+            Stop monitoring after the current monitoring task has completed execution (or after a timeout of 60 seconds), and return
+            true once stopped.
+            If monitoring is not running, ignore and return false. </summary>
+            <returns> true if the monitoring has been stopped. </returns>
+        </member>
+        <member name="M:Neotys.DataExchangeAPI.Monitoring.MonitoringHelper.StopMonitoring(System.TimeSpan)">
+            <summary>
+            Stop the monitoring after the current monitoring task has completed execution (or after a timeout), and return true once stopped.
+            If monitoring is not running, ignore and return false. </summary>
+            <param name="timeSpan"> : the maximum time to wait </param>
+            <returns> true if the monitoring has been stopped. </returns>
+            <exception cref="!:NullPointerException"> if unit is null. </exception>
+        </member>
+        <member name="M:Neotys.DataExchangeAPI.Monitoring.MonitoringHelperBuilder.#ctor(Neotys.DataExchangeAPI.Monitoring.MonitoringSupplier,Neotys.DataExchangeAPI.Client.IDataExchangeAPIClient)">
+            <summary>
+            Create a MonitoringHelperBuilder.
+            </summary>
+            <param name="monitoringSupplier"> : define the monitoring supplier to retrieve the list of XML file containing the monitoring output. </param>
+            <param name="client"> : the Data Exchange API client used to send data to the Data Exchange API Server. </param>
+            <exception cref="!:NullPointerException"> if a parameter is null. </exception>
+        </member>
+        <!-- Badly formed XML comment ignored for member "T:Neotys.DataExchangeAPI.Monitoring.MonitoringSupplier" -->
+        <member name="M:Neotys.DataExchangeAPI.Utils.Preconditions.CheckNotNull``1(``0)">
+            <summary>
+             Throw an exception if the argument is null.
+            </summary>
+        </member>
+        <member name="T:Neotys.DataExchangeAPI.Utils.Escaper">
+            <summary>
+            Util class to escape invalid characters.
+            
+            @author srichert
+            
+            </summary>
+        </member>
+        <member name="M:Neotys.DataExchangeAPI.Utils.Escaper.Escape(System.String)">
+            <summary>
+            Replace special characters in a string. </summary>
+            <param name="name">
+            @return </param>
+        </member>
+        <member name="T:Neotys.DataExchangeAPI.Rest.Util.Contexts">
+            <summary>
+            Util class to handle <seealso cref="T:Neotys.DataExchangeAPI.Model.Context"/>.
+            
+            @author srichert
+            
+            </summary>
+        </member>
+        <member name="T:Neotys.DataExchangeAPI.Rest.Util.Entries">
+            <summary>
+            Util class to handle <seealso cref="T:Neotys.DataExchangeAPI.Model.Entry"/>.
+            
+            @author srichert
+            
+            </summary>
+        </member>
+        <member name="M:Neotys.DataExchangeAPI.Rest.Util.Entries.Shift(Neotys.DataExchangeAPI.Model.Entry,System.Int64)">
+            <summary>
+            Create a new entry based on the old entry and adjust the timestamp value by the difference amount. </summary>
+            <param name="difference"> </param>
+            <param name="entry">
+            @return </param>
+        </member>
+        <member name="T:Neotys.DataExchangeAPI.Rest.Util.SessionIds">
+            <summary>
+            Util class to handle <seealso cref="!:Session"/>.
+            
+            @author srichert
+            
+            </summary>
+        </member>
+        <member name="T:Neotys.DataExchangeAPI.Rest.Util.Statuses">
+            <summary>
+            Util class to handle <seealso cref="T:Neotys.DataExchangeAPI.Model.Status"/>.
+            
+            @author srichert
+            
+            </summary>
+        </member>
+        <member name="M:Neotys.DataExchangeAPI.Rest.Util.Statuses.NewStatus(System.String,System.Exception)">
+            <summary>
+            The status is set to {@code Status.State.FAIL} if {@code exception} is not null. The message is set to the message
+            from the exception if there is one. </summary>
+            <param name="code"> </param>
+            <param name="exception">
+            @return </param>
+        </member>
+        <member name="M:Neotys.DataExchangeAPI.Rest.Util.XMLEntries.FromXML(System.String,System.Collections.Generic.IList{System.String},System.Int64,System.String)">
+            <summary>
+            Parse an XML content to create a list of <seealso cref="T:Neotys.DataExchangeAPI.Model.Entry"/>. </summary>
+            <param name="contentAsXML"> : the xml string containing the XML to parse </param>
+            <param name="parentPath"> : initial path to add at the begining of all entries </param>
+            <param name="timestamp"> : the timestamp when the XML file has been computed
+            @return </param>
+            <exception cref="!:ParserConfigurationException"> </exception>
+            <exception cref="!:IOException"> </exception>
+            <exception cref="!:SAXException"> </exception>
+            <exception cref="!:NullPointerException"> if contentAsXML or parentPath is null. </exception>
+        </member>
+    </members>
+</doc>
