@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using Neotys.DataExchangeAPI.UtilsFromJava;
+using Neotys.DataExchangeAPI.Utils;
 
 /*
  * Copyright (c) 2015, Neotys

@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using Neotys.DataExchangeAPI.UtilsFromJava;
+using Neotys.DataExchangeAPI.Utils;
 
 /*
  * Copyright (c) 2015, Neotys
@@ -41,9 +41,15 @@ namespace Neotys.DataExchangeAPI.Monitoring
         private readonly TimeSpan VITALS_MONITORING_DELAY = TimeSpan.FromSeconds(30);
         private readonly TimeSpan VITALS_MONITORING_TERMINATION_TIMEOUT = TimeSpan.FromSeconds(60);
 
+        /// <summary> Wait for the current execution to finish before stopping. </summary>
+        private static readonly object _lock = new object();
+
         public static bool Debug { get; set; } = false;
 
-        // Executes a thread for monitoring every X seconds.
+        /// <summary> Executes a thread for monitoring every X seconds. </summary>
+        /// <param name="pathArgument"> </param>
+        /// <param name="timestamp"> </param>
+        /// <exception cref="NullPointerException"> if the path is null. </exception>
         private System.Timers.Timer timer;
 
 		internal MonitoringHelper(MonitoringSupplier monitoringSupplier, IDataExchangeAPIClient client, IList<string> parentPath, string charset)
@@ -56,15 +62,11 @@ namespace Neotys.DataExchangeAPI.Monitoring
 
 		/// <summary>
 		/// Start the monitoring with a scheduled rate and return true.
-		/// There is a 30 seconds delay between the termination of one monitoring execution and the commencement of the next.
 		/// If monitoring is already in progress, ignore and return false. </summary>
 		/// <returns> true if the monitoring has been started. </returns>
 		public virtual bool StartMonitoring()
 		{
-			lock (this)
-			{
-				return StartMonitoring(VITALS_MONITORING_DELAY);
-			}
+    		return StartMonitoring(VITALS_MONITORING_DELAY);
 		}
 
         /// <summary>
@@ -72,10 +74,10 @@ namespace Neotys.DataExchangeAPI.Monitoring
         /// If monitoring is already in progress, ignore and return false. </summary>
         /// <param name="timeSpan"> : the delay between the termination of one monitoring execution and the commencement of the next. </param>
         /// <returns> true if the monitoring has been started. </returns>
-        /// <exception cref="NullPointerException"> if unit is null. </exception>
+        /// <exception cref="NullPointerException"> if the timeSpan is null. </exception>
         public virtual bool StartMonitoring(TimeSpan timeSpan)
 		{
-			lock (this)
+			lock (_lock)
 			{
                 if (timer != null)
 				{
@@ -99,49 +101,50 @@ namespace Neotys.DataExchangeAPI.Monitoring
         }
 
         /// <summary>
-        /// Stop the monitoring until the current monitoring task has completed execution after a timeout of 60 seconds, and return
+        /// Stop monitoring after the current monitoring task has completed execution (or after a timeout of 60 seconds), and return
         /// true once stopped.
-        /// If monitoring is not running, ignore and return false.
-        /// If error occurs while stopping monitoring, ignore and return false. </summary>
-        /// <param name="delay"> : the delay between the termination of one monitoring execution and the commencement of the next. </param>
-        /// <param name="unit"> : the time unit of the delay parameter. </param>
+        /// If monitoring is not running, ignore and return false. </summary>
         /// <returns> true if the monitoring has been stopped. </returns>
         public virtual bool StopMonitoring()
 		{
-			lock (this)
-			{
-				return StopMonitoring(VITALS_MONITORING_TERMINATION_TIMEOUT);
-			}
-		}
+			return StopMonitoring(VITALS_MONITORING_TERMINATION_TIMEOUT);
+        }
 
         /// <summary>
-        /// Stop the monitoring until the current monitoring task has completed execution after a timeout, and return
-        /// true once stopped.
-        /// If monitoring is not running, ignore and return false.
-        /// If error occurs while stopping monitoring, ignore and return false. </summary>
+        /// Stop the monitoring after the current monitoring task has completed execution (or after a timeout), and return true once stopped.
+        /// If monitoring is not running, ignore and return false. </summary>
         /// <param name="timeSpan"> : the maximum time to wait </param>
         /// <returns> true if the monitoring has been stopped. </returns>
         /// <exception cref="NullPointerException"> if unit is null. </exception>
         public virtual bool StopMonitoring(TimeSpan timeSpan)
 		{
-			lock (this)
-			{
-				if (timer == null)
-				{
+            try
+            {
+                System.Threading.Monitor.TryEnter(_lock, timeSpan);
+
+                if (timer == null)
+                {
                     // monitoring not running. Ignore.
                     return false;
-				}
-				try
-				{
+                }
+                try
+                {
                     timer.Enabled = false;
                     timer.Dispose();
                 }
                 finally
-				{
-					timer = null;
+                {
+                    timer = null;
                 }
-				return true;
-			}
+                return true;
+
+            }
+            finally
+            {
+                if (System.Threading.Monitor.IsEntered(_lock)) {
+                    System.Threading.Monitor.Exit(_lock);
+                }
+            }
 		}
 
 		private sealed class MonitoringExecutor
@@ -155,23 +158,26 @@ namespace Neotys.DataExchangeAPI.Monitoring
 
 			public void run()
 			{
-				try
-				{
-					long timestamp = EntryBuilder.CurrentTimeMilliseconds;
-					IList<string> xmls = outerInstance.monitoringSupplier.get();
-					foreach (String xml in xmls)
-					{
-						outerInstance.client.AddXMLEntries(xml, outerInstance.parentPath, timestamp, outerInstance.charset);
-					}
-				}
-				catch (Exception e)
-				{
-                    if (Debug)
+                lock (_lock)
+                {
+                    try
                     {
-                        Console.WriteLine("Issue while monitoring for the DataExchangeAPI. " +
-                            "Please verify the configuration and data coming from the monitoring supplier. : " +
-                            e);
-                    }                    
+                        long timestamp = EntryBuilder.CurrentTimeMilliseconds;
+                        IList<string> xmls = outerInstance.monitoringSupplier.get();
+                        foreach (String xml in xmls)
+                        {
+                            outerInstance.client.AddXMLEntries(xml, outerInstance.parentPath, timestamp, outerInstance.charset);
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        if (Debug)
+                        {
+                            Console.WriteLine("Issue while monitoring for the DataExchangeAPI. " +
+                                "Please verify the configuration and data coming from the monitoring supplier. : " +
+                                e);
+                        }
+                    }
                 }
             }
 		}

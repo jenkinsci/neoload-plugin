@@ -6,13 +6,16 @@ using System.Threading.Tasks;
 using Neotys.DataExchangeAPI.Model;
 using IDataExchangeAPIClient = Neotys.DataExchangeAPI.Client.IDataExchangeAPIClient;
 using DataExchangeAPIClientFactory = Neotys.DataExchangeAPI.Client.DataExchangeAPIClientFactory;
-using Preconditions = Neotys.DataExchangeAPI.UtilsFromJava.Preconditions;
+using Preconditions = Neotys.DataExchangeAPI.Utils.Preconditions;
 using MonitoringHelperBuilder = Neotys.DataExchangeAPI.Monitoring.MonitoringHelperBuilder;
 using MonitoringSupplier = Neotys.DataExchangeAPI.Monitoring.MonitoringSupplier;
 using MonitoringHelper = Neotys.DataExchangeAPI.Monitoring.MonitoringHelper;
+using Escaper = Neotys.DataExchangeAPI.Utils.Escaper;
 
-/** This class uses the DataExchangeAPI in various ways for testing purposes. */
-namespace ConsoleApplication3
+/// <summary>
+///  This class uses the DataExchangeAPI in various ways for testing purposes. */
+/// </summary>
+namespace Neotys.DataExchangeAPI.BasicTests
 {
     class BasicTests
     {
@@ -37,18 +40,17 @@ namespace ConsoleApplication3
                     client.AddXMLEntries. TestAddXmlEntries();
                     monitoringHelper. TestMonitoringHelper();
                 * Command line: Test expected error messages: 
-                	public static readonly ErrorType NL_API_ERROR = new ErrorType("NL_API_ERROR", InnerEnum.NL_API_ERROR);
-			        ok - public static readonly ErrorType NL_API_KEY_NOT_ALLOWED = new ErrorType("NL_API_KEY_NOT_ALLOWED", InnerEnum.NL_API_KEY_NOT_ALLOWED);
-			        public static readonly ErrorType NL_API_ILLEGAL_SESSION = new ErrorType("NL_API_ILLEGAL_SESSION", InnerEnum.NL_API_ILLEGAL_SESSION);
-			        public static readonly ErrorType NL_API_INVALID_ARGUMENT = new ErrorType("NL_API_INVALID_ARGUMENT", InnerEnum.NL_API_INVALID_ARGUMENT);
+                	NL_API_ERROR
+			        ok - NL_API_KEY_NOT_ALLOWED
+			        NL_API_ILLEGAL_SESSION
+			        NL_API_INVALID_ARGUMENT
 
 			        // DATAEXCHANGE
-			        public static readonly ErrorType NL_DATAEXCHANGE_NOT_LICENSED = new ErrorType("NL_DATAEXCHANGE_NOT_LICENSED", InnerEnum.NL_DATAEXCHANGE_NOT_LICENSED);
-			        ok - public static readonly ErrorType NL_DATAEXCHANGE_NO_TEST_RUNNING = new ErrorType("NL_DATAEXCHANGE_NO_TEST_RUNNING", InnerEnum.NL_DATAEXCHANGE_NO_TEST_RUNNING);
+			        NL_DATAEXCHANGE_NOT_LICENSED
+			        ok - NL_DATAEXCHANGE_NO_TEST_RUNNING
 
                     (Code:) invalid value for Status.STATE. TestInvalidState();
-                * Code: Test sending invalid characters in a path {'£', '€', '$', '\"', '[', ']', '<', '>', '|', '*', '¤', '?', '§',
-		            'µ', '#', '`', '@', '^', '²', '°', '¨' };
+                * Code: Test sending invalid characters in a path {'£', '€', '$', '\"', '[', ']', '<', '>', '|', '*', '¤', '?', '§', 'µ', '#', '`', '@', '^', '²', '°', '¨' };
                     TestInvalidCharacters();
 	            * Code: test sending xml. TestAddXmlEntries(); and TestMonitoringHelper();
 	            * Visual Studio: test using a proxy.
@@ -64,6 +66,10 @@ namespace ConsoleApplication3
             Console.WriteLine("\nPress any key to exit. " + EntryBuilder.CurrentTimeMilliseconds);
             Console.ReadKey();
         }
+
+        /// <summary>
+        ///  To verify that this method functions, run the code (an exception will be thrown if something goes wrong).
+        /// </summary>
         private static void TestInvalidState()
         {
             bool exceptionCaught = false;
@@ -81,14 +87,17 @@ namespace ConsoleApplication3
                 Console.WriteLine("Invalid state exception test. => PASS");
             } else
             {
-                Console.WriteLine("Invalid state exception test. => FAIL");
+                throw new System.ArgumentOutOfRangeException("Invalid state exception test. => FAIL");
             }
         }
 
+        /// <summary>
+        ///  To verify that this method functions, verify in NeoLoad that entries are created. It is OK that the euro symbol (€) is not escaped.
+        /// </summary>
         private static void TestInvalidCharacters()
         {
             string invalidChars = " => '£', '€', '$', '\"', '[', ']', '<', '>', '|', '*', '¤', '?', '§', 'µ', '#', '`', '@', '^', '²', '°', '¨' ";
-            string validChars = Neotys.DataExchangeAPI.Rest.Util.Escaper.Escape(invalidChars);
+            string validChars = Escaper.Escape(invalidChars);
 
             Console.WriteLine("TestInvalidCharacters. " + " => " + validChars);
 
@@ -122,6 +131,9 @@ namespace ConsoleApplication3
             }
         }
 
+        /// <summary>
+        ///  To verify that this method functions, verify in NeoLoad that entries are created.
+        /// </summary>
         private static void TestMonitoringHelper()
         {
             ContextBuilder cb = new ContextBuilder();
@@ -163,6 +175,9 @@ namespace ConsoleApplication3
             }
         }
 
+        /// <summary>
+        ///  To verify that this method functions, verify that some error messages are printed on the screen.
+        /// </summary>
         private static void TestMonitoringHelperBadXML()
         {
             ContextBuilder cb = new ContextBuilder();
@@ -210,6 +225,9 @@ namespace ConsoleApplication3
             }
         }
 
+        /// <summary>
+        ///  To verify that this method functions, verify in NeoLoad that entries are created.
+        /// </summary>
         private static void TestAddXmlEntries()
         {
             Console.WriteLine("TestAddXmlEntries");
@@ -229,6 +247,9 @@ namespace ConsoleApplication3
             client.AddXMLEntries(xml, parentPath, EntryBuilder.CurrentTimeMilliseconds, null);
         }
 
+        /// <summary>
+        ///  To verify that this method functions, verify in NeoLoad that all fields of an external data entry are filled.
+        /// </summary>
         private static void TestVerifyAllFieldsFilled()
         {
             IList<Entry> entries = new List<Entry>();

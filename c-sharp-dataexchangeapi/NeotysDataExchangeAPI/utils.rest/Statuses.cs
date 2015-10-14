@@ -10,14 +10,15 @@ namespace Neotys.DataExchangeAPI.Rest.Util
 	using Status = Neotys.DataExchangeAPI.Model.Status;
 	//using State = Neotys.DataExchangeAPI.Model.Status.State;
 	using StatusBuilder = Neotys.DataExchangeAPI.Model.StatusBuilder;
+    using Escaper = Neotys.DataExchangeAPI.Utils.Escaper;
 
-	/// <summary>
-	/// Util class to handle <seealso cref="Status"/>.
-	/// 
-	/// @author srichert
-	/// 
-	/// </summary>
-	public sealed class Statuses
+    /// <summary>
+    /// Util class to handle <seealso cref="Status"/>.
+    /// 
+    /// @author srichert
+    /// 
+    /// </summary>
+    public sealed class Statuses
 	{
 		public const string ElementName = "Status";
 		public const string Code = "Code";

@@ -7,15 +7,16 @@
 namespace Neotys.DataExchangeAPI.Rest.Util
 {
 	using Context = Neotys.DataExchangeAPI.Model.Context;
-	using ContextBuilder = Neotys.DataExchangeAPI.Model.ContextBuilder;
+    using ContextBuilder = Neotys.DataExchangeAPI.Model.ContextBuilder;
+    using Escaper = Neotys.DataExchangeAPI.Utils.Escaper;
 
-	/// <summary>
-	/// Util class to handle <seealso cref="Context"/>.
-	/// 
-	/// @author srichert
-	/// 
-	/// </summary>
-	public sealed class Contexts
+    /// <summary>
+    /// Util class to handle <seealso cref="Context"/>.
+    /// 
+    /// @author srichert
+    /// 
+    /// </summary>
+    public sealed class Contexts
 	{
 		public const string ElementName = "Context";
 		public const string Hardware = "Hardware";

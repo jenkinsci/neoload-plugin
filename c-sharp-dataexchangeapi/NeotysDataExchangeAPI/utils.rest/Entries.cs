@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using Preconditions = Neotys.DataExchangeAPI.UtilsFromJava.Preconditions;
+using Preconditions = Neotys.DataExchangeAPI.Utils.Preconditions;
 /*
  * Copyright (c) 2015, Neotys
  * All rights reserved.
@@ -12,6 +12,7 @@ namespace Neotys.DataExchangeAPI.Rest.Util
 	using EntryBuilder = Neotys.DataExchangeAPI.Model.EntryBuilder;
 	using Status = Neotys.DataExchangeAPI.Model.Status;
 	using NeotysAPIException = Neotys.DataExchangeAPI.Error.NeotysAPIException;
+    using Escaper = Neotys.DataExchangeAPI.Utils.Escaper;
 
     /// <summary>
     /// Util class to handle <seealso cref="Model.Entry"/>.

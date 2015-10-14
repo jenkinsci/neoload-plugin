@@ -2,7 +2,7 @@
  * Copyright (c) 2015, Neotys
  * All rights reserved.
  */
-namespace Neotys.DataExchangeAPI.Rest.Util
+namespace Neotys.DataExchangeAPI.Utils
 {
 
 	/// <summary>

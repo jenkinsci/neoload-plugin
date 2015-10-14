@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Linq.Expressions;
 
-namespace Neotys.DataExchangeAPI.UtilsFromJava
+namespace Neotys.DataExchangeAPI.Utils
 {
 
     public class EqualsBuilder<T>

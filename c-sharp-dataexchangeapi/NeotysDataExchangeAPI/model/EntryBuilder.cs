@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using Neotys.DataExchangeAPI.UtilsFromJava;
+using Neotys.DataExchangeAPI.Utils;
 
 /*
  * Copyright (c) 2015, Neotys
@@ -25,10 +25,12 @@ namespace Neotys.DataExchangeAPI.Model
 		public string Unit { get; set; }
         public Status Status { get; set; }
 
-        // Used for the CurrentTimeMilliseconds method.
+        /// <summary>
+        /// Used for the CurrentTimeMilliseconds method. </summary>
         private static readonly System.DateTime java1970 = new System.DateTime(1970, 1, 1, 0, 0, 0, System.DateTimeKind.Utc);
 
-        /** Return the current time in the same way java does System.CurrentTimeMilliseconds;. */
+        /// <summary>
+        /// Return the current time in the same way java does System.CurrentTimeMilliseconds;. </summary>
         public static long CurrentTimeMilliseconds { get { return (long)System.DateTime.Now.ToUniversalTime().Subtract(java1970).TotalMilliseconds; } }
 
         /// 

@@ -112,7 +112,7 @@
     <Compile Include="utils\HashCodeBuilder.cs" />
     <Compile Include="utils\Preconditions.cs" />
     <Compile Include="utils\ToStringBuilder.cs" />
-    <Compile Include="utils.rest\Escaper.cs" />
+    <Compile Include="utils\Escaper.cs" />
     <Compile Include="utils.rest\Contexts.cs" />
     <Compile Include="utils.rest\Entries.cs" />
     <Compile Include="utils.rest\SessionIds.cs" />

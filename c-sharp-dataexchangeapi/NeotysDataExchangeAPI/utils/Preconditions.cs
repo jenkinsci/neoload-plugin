@@ -4,11 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Neotys.DataExchangeAPI.UtilsFromJava
+namespace Neotys.DataExchangeAPI.Utils
 {
     public class Preconditions
     {
-        // Throw an exception if the argument is null.
+        /// <summary>
+        ///  Throw an exception if the argument is null.
+        /// </summary>
         public static T CheckNotNull<T>(T value)
         {
             if (value == null)
