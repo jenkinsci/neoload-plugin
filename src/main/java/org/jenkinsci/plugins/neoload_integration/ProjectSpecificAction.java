@@ -76,6 +76,8 @@ public class ProjectSpecificAction implements ProminentProjectAction, Serializab
 
 	public ProjectSpecificAction(final AbstractProject<?, ?> project) {
 		this.project = project;
+		
+		refreshGraphData();
 	}
 
 	/** This corresponds to the url of the image files displayed on the job page.
