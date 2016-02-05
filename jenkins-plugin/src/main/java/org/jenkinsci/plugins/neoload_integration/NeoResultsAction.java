@@ -40,9 +40,11 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.codehaus.plexus.util.FileUtils;
 import org.jenkinsci.plugins.neoload_integration.supporting.PluginUtils;
@@ -72,6 +74,10 @@ public class NeoResultsAction implements Action, Serializable {
 	/** This is added to a file to mark the date and time the file was processed. */
 	static final String COMMENT_APPLIED_FOR_BUILD_PART2 = " -->";
 
+	/** This is added by NeoLoad to help us identify when a file is associated with a particular build. */
+	static final Pattern BUILD_NUMBER_PATTERN = Pattern.compile(Pattern.quote("#Build number: ") + "(\\d+)" + 
+			Pattern.quote("#"));
+
 	/** This is added to a file to mark whether the styles have been applied or not. */
 	private static final String COMMENT_CSS_APPLIED_STYLE = "/* NeoLoad Jenkins plugin applied style */";
 
@@ -81,7 +87,9 @@ public class NeoResultsAction implements Action, Serializable {
 	/** True if the report file is found without any issues. This allows us to only show the link when the report file is found. */
 	private Boolean foundReportFile = null;
 
-	/** If true then this instance was created immediately after a build. If false the build existed already.
+	/** This helps us associate an html file with a build based on the creation date/time.
+	 * 
+	 * If true then this instance was created immediately after a build. If false the build existed already.
 	 * This covers when the plugin is uninstalled and reinstalled. */
 	private boolean processingForTheFirstTime;
 
@@ -102,9 +110,15 @@ public class NeoResultsAction implements Action, Serializable {
 	 */
 	public static void addActionIfNotExists(final AbstractBuild<?, ?> build, final boolean processingForTheFirstTime) {
 		boolean alreadyAdded = false;
-		for (final Action a: build.getActions()) {
+		final List<Action> buildActions = build.getActions();
+		for (int actionIndex = 0; actionIndex < buildActions.size(); actionIndex++) {
+			final Action a = build.getActions().get(actionIndex);
 			if (a instanceof NeoResultsAction) {
 				alreadyAdded = true;
+				
+				// even though the action already exists we replace it, because sometimes old builds lose their
+				// data for no apparent reason.
+				buildActions.set(actionIndex, new NeoResultsAction(build, false));
 				break;
 			}
 		}
@@ -150,6 +164,13 @@ public class NeoResultsAction implements Action, Serializable {
 	 */
 	@SuppressWarnings("rawtypes")
 	private FileAndContent findHtmlReportArtifact() {
+		if (build == null) {
+			// This can happen when the plugin is reinstalled or simply after time passes. When the plugin is 
+			// initialized you need to get the "project" instance, iterate over every build, and reinitialize every
+			// instance of this action (NeoResultsAction) so that the build instance won't be null. 
+			LOGGER.log(Level.SEVERE, "NeoResultsAction.findHtmlReportArtifact() build is null.");
+		}
+		
 		final Iterator<?> it = build.getArtifacts().iterator();
 		FileAndContent ac = null;
 
@@ -286,6 +307,19 @@ public class NeoResultsAction implements Action, Serializable {
 				buildNumberString = buildNumberString.substring(0, buildNumberString.indexOf(COMMENT_APPLIED_FOR_BUILD_PART2)).trim();
 
 				buildNumberFromFile = Integer.valueOf(buildNumberString);
+				return buildNumberFromFile;
+			}
+			
+			final Matcher matcher = BUILD_NUMBER_PATTERN.matcher(fileContent);
+			if (matcher.find()) {
+				final String extractedBuildNumber = matcher.group(1);
+				try {
+					buildNumberFromFile = Integer.valueOf(extractedBuildNumber);
+					return buildNumberFromFile;
+				} catch (final Exception e) {
+					LOGGER.log(Level.FINE, "There was an issue extracting the build number from a file. Found: \"" +  
+						extractedBuildNumber + "\" as a build number.");
+				}
 			}
 		} catch (final Exception e) {
 			LOGGER.log(Level.FINE, "Build " + build.number + ", Issue reading associated build number. ", e);

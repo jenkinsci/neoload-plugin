@@ -353,4 +353,17 @@ public class NeoResultsActionTest extends HudsonTestCase {
 				nra.getAssociatedBuildNumberFromFile(".... " + NeoResultsAction.COMMENT_APPLIED_FOR_BUILD_PART1 + "27" +
 						NeoResultsAction.COMMENT_APPLIED_FOR_BUILD_PART2));
 	}
+
+	@Test
+	public void testGetAssociatedBuildFromFile2() {
+		final AbstractBuild<?, ?> abstractBuild = mo.getAbstractBuild();
+		final NeoResultsAction nra = new NeoResultsAction(abstractBuild, true);
+		assertEquals("No data is provided so the default value should be used.", -1, nra.getAssociatedBuildNumberFromFile("bob"));
+
+		assertEquals("Invalid data is provided so the default value should be used.", -1,
+				nra.getAssociatedBuildNumberFromFile(".... #Build number: "));
+
+		assertEquals("The correct number should have been extracted.", 28,
+				nra.getAssociatedBuildNumberFromFile(".... #Build number: 28#"));
+	}
 }
