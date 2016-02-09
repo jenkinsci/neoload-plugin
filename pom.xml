@@ -27,7 +27,7 @@
 
 	<scm>
 		<connection>scm:git:https://github.com/jenkinsci/neoload-plugin.git</connection>
-		<developerConnection>scm:git:https://git@github.com/jenkinsci/neoload-plugin.git</developerConnection>
+		<developerConnection>scm:git:https://NeotysPluginSupport@github.com/jenkinsci/neoload-plugin.git</developerConnection>
 	    <url>https://github.com/jenkinsci/neoload-plugin</url>
 	    <tag>neoload-jenkins-plugin-1.0.2</tag>
 	</scm>
