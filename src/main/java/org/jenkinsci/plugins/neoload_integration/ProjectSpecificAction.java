@@ -76,6 +76,8 @@ public class ProjectSpecificAction implements ProminentProjectAction, Serializab
 
 	public ProjectSpecificAction(final AbstractProject<?, ?> project) {
 		this.project = project;
+		
+		refreshGraphData();
 	}
 
 	/** This corresponds to the url of the image files displayed on the job page.
@@ -86,7 +88,7 @@ public class ProjectSpecificAction implements ProminentProjectAction, Serializab
 	}
 
 	/** Function to convert a NeoLoadReportDoc to an average response time. */
-	transient final Function<NeoLoadReportDoc, Float> averageResponseTimeFunction = new Function<NeoLoadReportDoc, Float>() {
+	private transient final Function<NeoLoadReportDoc, Float> averageResponseTimeFunction = new Function<NeoLoadReportDoc, Float>() {
 		public Float apply(final NeoLoadReportDoc nlrd) {
 			try {
 				return nlrd.getAverageResponseTime();
@@ -98,7 +100,7 @@ public class ProjectSpecificAction implements ProminentProjectAction, Serializab
 	};
 
 	/** Function to convert a NeoLoadReportDoc to an average response time. */
-	transient final Function<NeoLoadReportDoc, Float> errorRateFunction = new Function<NeoLoadReportDoc, Float>() {
+	private transient final Function<NeoLoadReportDoc, Float> errorRateFunction = new Function<NeoLoadReportDoc, Float>() {
 		public Float apply(final NeoLoadReportDoc nlrd) {
 			try {
 				return nlrd.getErrorRatePercentage();

@@ -181,41 +181,6 @@ public class NeoResultsActionTest extends HudsonTestCase {
 		assertTrue(nra.getIconFileName() == null);
 	}
 
-	/** Test that the report file is found when it does not include the correct tag.
-	 * @throws IOException */
-	@Test
-	public void testGetHtmlReportFilePath_DoFindReportFileWithoutTag() throws IOException {
-		final AbstractBuild<?, ?> ab = mo.getAbstractBuild();
-		final NeoResultsAction nra = new NeoResultsAction(ab, true);
-
-		final Calendar cal = Calendar.getInstance();
-		cal.add(Calendar.YEAR, -1);
-		when(ab.getTimestamp()).thenReturn(cal);
-		// set the duration to 60 minutes
-		when(ab.getDuration()).thenReturn(TimeUnit.SECONDS.toMillis(1) * 60 * 60);
-
-		// remove the neoload tag for all html artifacts
-		final List<?> artifacts = ab.getArtifacts();
-		for (final Object o: artifacts) {
-			final Run<?, ?>.Artifact a = (Run<?, ?>.Artifact) o;
-
-			final String absolutePath = a.getFile().getAbsolutePath();
-			if ("html".equalsIgnoreCase(FilenameUtils.getExtension(absolutePath))) {
-				// remove the NeoLoad tag
-				String contents = FileUtils.readFileToString(a.getFile());
-				contents = contents.replaceAll(Pattern.quote(NeoResultsAction.TAG_HTML_GENERATED_BY_NEOLOAD),
-						"");
-				a.getFile().delete();
-				FileUtils.writeStringToFile(a.getFile(), contents);
-				setArtifactFileTimetoAfterBuildTime(ab, a);
-			}
-		}
-
-		assertTrue(nra.getDisplayName() != null);
-		assertTrue(nra.getUrlName() != null);
-		assertTrue(nra.getIconFileName() != null);
-	}
-
 	/** Test that if the plugin is uninstalled and reinstalled that the file date alone is not sufficient to add the report link.
 	 * This looks exactly like {@link #testGetHtmlReportFilePath_DoFindReportFileWithoutTag()} except for one setting.
 	 * @throws IOException */
@@ -352,5 +317,18 @@ public class NeoResultsActionTest extends HudsonTestCase {
 		assertEquals("The correct number should have been extracted.", 27,
 				nra.getAssociatedBuildNumberFromFile(".... " + NeoResultsAction.COMMENT_APPLIED_FOR_BUILD_PART1 + "27" +
 						NeoResultsAction.COMMENT_APPLIED_FOR_BUILD_PART2));
+	}
+
+	@Test
+	public void testGetAssociatedBuildFromFile2() {
+		final AbstractBuild<?, ?> abstractBuild = mo.getAbstractBuild();
+		final NeoResultsAction nra = new NeoResultsAction(abstractBuild, true);
+		assertEquals("No data is provided so the default value should be used.", -1, nra.getAssociatedBuildNumberFromFile("bob"));
+
+		assertEquals("Invalid data is provided so the default value should be used.", -1,
+				nra.getAssociatedBuildNumberFromFile(".... #Build number: "));
+
+		assertEquals("The correct number should have been extracted.", 28,
+				nra.getAssociatedBuildNumberFromFile(".... #Build number: 28#"));
 	}
 }
