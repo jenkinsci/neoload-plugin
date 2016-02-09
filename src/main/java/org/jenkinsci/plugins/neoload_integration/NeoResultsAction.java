@@ -348,19 +348,6 @@ public class NeoResultsAction implements Action, Serializable {
 			return true;
 		}
 
-		// we could be dealing with an old version of NeoLoad, so we look for a likely NeoLoad file.
-		if (content.contains("<title>Rapport de test de performance</title>") ||
-				content.contains("<title>Performance Testing Report</title>")) {
-
-			if (content.startsWith("<html") &&
-					content.contains("<frameset") &&
-					content.contains("/menu.html") &&
-					content.contains("/summary.html")) {
-
-				return true;
-			}
-		}
-
 		return false;
 	}
 
