@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, Neotys
+ * Copyright (c) 2016, Neotys
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -26,8 +26,6 @@
  */
 package com.neotys.nl.controller.report.transform;
 
-import hudson.model.AbstractBuild;
-
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -46,13 +44,15 @@ import javax.xml.xpath.XPathExpressionException;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateFormatUtils;
-import org.jenkinsci.plugins.neoload_integration.supporting.PluginUtils;
-import org.jenkinsci.plugins.neoload_integration.supporting.XMLUtilities;
+import org.jenkinsci.plugins.neoload.integration.supporting.PluginUtils;
+import org.jenkinsci.plugins.neoload.integration.supporting.XMLUtilities;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 import com.google.common.base.Objects;
+
+import hudson.model.AbstractBuild;
 
 /** A wrapper for an xml document.
  * @author ajohnson

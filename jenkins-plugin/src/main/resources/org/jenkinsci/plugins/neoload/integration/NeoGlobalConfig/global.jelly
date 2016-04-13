@@ -1,0 +1,75 @@
+<j:jelly xmlns:j="jelly:core"
+         xmlns:f="/lib/form"
+         xmlns:st="jelly:stapler">
+    <f:section title="NeoLoad Servers">
+
+        <f:entry title="NeoLoad Team Servers" >
+            <f:repeatable name="ntsInfoName" var="ntsInfoVar" items="${descriptor.ntsInfo}" header="NTS Server" add="Add NTS Server">
+
+                <table width="100%">
+                    <f:invisibleEntry title="UniqueID" >
+                        <f:textbox field="uniqueID" value="${ntsInfoVar.uniqueID}" />
+                    </f:invisibleEntry>
+                    <f:entry title="URL" field="url" >
+                        <f:textbox value="${ntsInfoVar.url}" placeholder="http://&lt;host&gt;:&lt;port&gt;" />
+                    </f:entry>
+                    <f:entry title="Login User" field="loginUser" >
+                        <f:textbox value="${ntsInfoVar.loginUser}" placeholder="&lt;login user&gt;" 
+                        	clazz="required" />
+                    </f:entry>
+                    <f:entry title="Login Password" field="loginPassword" >
+                        <f:password value="${ntsInfoVar.loginPassword}" placeholder="&lt;password&gt;" />
+                    </f:entry>
+                    <f:entry title="Collaboration Path" field="collabPath" >
+                        <f:textbox value="${ntsInfoVar.collabPath}" placeholder="/repository" />
+                    </f:entry>
+                    <f:entry title="licenseID" field="licenseID" >
+                        <f:textbox value="${ntsInfoVar.licenseID}" 
+                        	placeholder="MCwCFC54ZB4sNH1q9RnNrlKi7MM0q+20AhRNmr10XW3c3qIdrzSpyQbAIBCwqQ==" />
+                    </f:entry>
+
+                    <f:entry title="">
+                        <div align="right">
+                            <f:repeatableDeleteButton value="Delete NTS Server Config" />
+                        </div>
+                    </f:entry>
+                </table>
+            </f:repeatable>
+        </f:entry>
+
+			
+        <f:entry title="Third Party Collaboration Servers" >
+            <f:repeatable name="collabInfoName" var="collabInfoVar" items="${descriptor.collabInfo}" header="Collaboration Server"
+            	add="Add Collaboration Server">
+
+                <table width="100%">
+                    <f:invisibleEntry title="UniqueID" >
+                        <f:textbox field="uniqueID" value="${collabInfoVar.uniqueID}" />
+                    </f:invisibleEntry>
+                    <f:entry title="URL" field="url" >
+                        <f:textbox value="${collabInfoVar.url}" placeholder="svn://&lt;svnServerAddress&gt;:3690/neoload/" />
+                    </f:entry>
+                    <f:entry title="Login User" field="loginUser" >
+                        <f:textbox value="${collabInfoVar.loginUser}" placeholder="&lt;user&gt;" />
+                    </f:entry>
+                    <f:entry title="Login Password" field="loginPassword" >
+                        <f:password value="${collabInfoVar.loginPassword}" placeholder="&lt;password&gt;" />
+                    </f:entry>
+                    <f:entry title="Private Key" field="privateKey" >
+                        <f:textbox value="${collabInfoVar.privateKey}" placeholder="c:\files\private.key (optional)" />
+                    </f:entry>
+                    <f:entry title="Hashed Passphrase" field="passphrase" >
+                        <f:textbox value="${collabInfoVar.passphrase}"  />
+                    </f:entry>
+
+                    <f:entry title="">
+                        <div align="right">
+                            <f:repeatableDeleteButton value="Delete Collaboration Server Config" />
+                        </div>
+                    </f:entry>
+                </table>
+            </f:repeatable>
+
+        </f:entry>
+    </f:section>
+</j:jelly>

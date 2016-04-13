@@ -1,0 +1,808 @@
+/*
+ * Copyright (c) 2016, Neotys
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *     * Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above copyright
+ *       notice, this list of conditions and the following disclaimer in the
+ *       documentation and/or other materials provided with the distribution.
+ *     * Neither the name of Neotys nor the
+ *       names of its contributors may be used to endorse or promote products
+ *       derived from this software without specific prior written permission.
+ * 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL NEOTYS BE LIABLE FOR ANY
+ * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+package org.jenkinsci.plugins.neoload.integration;
+
+import java.io.ByteArrayOutputStream;
+import java.io.Serializable;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.exec.CommandLine;
+import org.apache.commons.exec.DefaultExecuteResultHandler;
+import org.apache.commons.exec.DefaultExecutor;
+import org.apache.commons.exec.PumpStreamHandler;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.SystemUtils;
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.jenkinsci.plugins.neoload.integration.supporting.CollabServerInfo;
+import org.jenkinsci.plugins.neoload.integration.supporting.NTSServerInfo;
+import org.jenkinsci.plugins.neoload.integration.supporting.NeoLoadPluginOptions;
+import org.jenkinsci.plugins.neoload.integration.supporting.PluginUtils;
+import org.jenkinsci.plugins.neoload.integration.supporting.ServerInfo;
+import org.jenkinsci.plugins.neoload.integration.supporting.XMLUtilities;
+import org.kohsuke.stapler.AncestorInPath;
+import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.QueryParameter;
+import org.kohsuke.stapler.StaplerRequest;
+
+import com.google.common.base.Joiner;
+
+import hudson.Extension;
+import hudson.FilePath;
+import hudson.Launcher;
+import hudson.model.AbstractBuild;
+import hudson.model.AbstractProject;
+import hudson.model.BuildListener;
+import hudson.model.Descriptor;
+import hudson.model.Item;
+import hudson.remoting.Callable;
+import hudson.tasks.BatchFile;
+import hudson.tasks.BuildStepDescriptor;
+import hudson.tasks.BuildStepMonitor;
+import hudson.tasks.Builder;
+import hudson.tasks.CommandInterpreter;
+import hudson.tasks.Shell;
+import hudson.util.FormValidation;
+import hudson.util.ListBoxModel;
+import hudson.util.ListBoxModel.Option;
+import jenkins.model.Jenkins;
+import net.sf.json.JSONObject;
+
+/**
+ * This class adds the link to the html report to a build after the build has
+ * completed. Extend Recorder instead of Notifier for Hudson compatability.
+ * 
+ * This class also holds the settings chosen by the user for the plugin.
+ */
+public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginOptions, Serializable {
+
+	/** Generated. */
+	private static final long serialVersionUID = 4651315889891892765L;
+
+	// settings
+	private final String executable;
+	private final String projectType;
+	private final String localProjectFile;
+	private final String sharedProjectName;
+	private final String scenarioName;
+	private final String htmlReport;
+	private final String xmlReport;
+	private final String pdfReport;
+	private final String junitReport;
+	private final boolean customReportPaths;
+	private final boolean displayTheGUI;
+	private final String testResultName;
+	private final String testDescription;
+	private final String licenseType;
+	private final String licenseVUCount;
+	private final String licenseDuration;
+	private final String customCommandLineOptions;
+
+	private final boolean publishTestResults;
+	private NTSServerInfo licenseServer;
+	private ServerInfo sharedProjectServer;
+
+	/** User option presented in the GUI. Show the average response time. */
+	private final boolean showTrendAverageResponse;
+	/** User option presented in the GUI. Show the average response time. */
+	private final boolean showTrendErrorRate;
+	
+	/** This executes NeoLoad. It's an instance of a jenkins object for Windows or Linux. */
+	private CommandInterpreter commandInterpreter = null;
+
+	/** Log various messages. */
+	private static final Logger LOGGER = Logger.getLogger(NeoBuildAction.class.getName());
+
+	/** This method and the annotation @DataBoundConstructor are required for jenkins 1.393 even if no params are passed in. */
+	@DataBoundConstructor
+	public NeoBuildAction(final String executable, final String projectType, final String localProjectFile, 
+			final String sharedProjectName, final String scenarioName,
+			final String htmlReport, final String xmlReport, final String pdfReport, final String junitReport, 
+			final boolean customReportPaths, final boolean displayTheGUI, final String testResultName,
+			final String testDescription, final String licenseType,  
+			final String licenseVUCount, final String licenseDuration, final String customCommandLineOptions, 
+			final boolean publishTestResults, final ServerInfo sharedProjectServer, final NTSServerInfo licenseServer,
+			final boolean showTrendAverageResponse, final boolean showTrendErrorRate) {
+		super(NeoBuildAction.class.getName() + " (command)");
+
+		this.executable = executable;
+		this.projectType = StringUtils.trimToEmpty(projectType);
+		this.localProjectFile = localProjectFile;
+		this.sharedProjectName = sharedProjectName;
+		this.scenarioName = scenarioName;
+
+
+		this.htmlReport = htmlReport;
+		this.xmlReport = xmlReport;
+		this.pdfReport = pdfReport;
+		this.junitReport = junitReport;
+
+		this.customReportPaths = customReportPaths;
+		this.displayTheGUI = displayTheGUI;
+		this.testResultName = testResultName;
+		this.testDescription = testDescription;
+		this.licenseType = StringUtils.trimToEmpty(licenseType);
+		this.licenseVUCount = licenseVUCount;
+		this.licenseDuration = licenseDuration;
+		this.customCommandLineOptions = customCommandLineOptions;
+		this.sharedProjectServer = updateUsingUniqueID(sharedProjectServer);
+		this.publishTestResults = publishTestResults;
+		this.licenseServer = updateUsingUniqueID(licenseServer);
+		
+		this.showTrendAverageResponse = showTrendAverageResponse;
+		this.showTrendErrorRate = showTrendErrorRate;
+	}
+
+	/** Here we search the global config for settings that have the same uniqueID. If the same uniqueID is found then we use those
+	 * settings instead of our own because they are more up to date. This is because all server info is stored and duplicated here.
+	 * We don't ONLY store the uniqueID because we don't want the project to break if someone deletes the global config.
+	 * @param serverInfo
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	<T extends ServerInfo> T updateUsingUniqueID(final T serverInfo) {
+		if (serverInfo == null || StringUtils.trimToNull(serverInfo.getUniqueID()) == null) {
+			return serverInfo;
+		}
+
+		if (Jenkins.getInstance() == null) {
+			return serverInfo;
+		}
+		final NeoGlobalConfig.DescriptorImpl globalConfigDescriptor = 
+				(NeoGlobalConfig.DescriptorImpl) Jenkins.getInstance().getDescriptor(NeoGlobalConfig.class);
+
+		if (globalConfigDescriptor == null) {
+			// no change necessary.
+			return serverInfo;
+		}
+
+		// search for the same uniqueID
+		final Collection<ServerInfo> allServerInfo = 
+				CollectionUtils.union(globalConfigDescriptor.getNtsInfo(), globalConfigDescriptor.getCollabInfo());
+		for (final ServerInfo si: allServerInfo) {
+			if (si.getUniqueID().equals(serverInfo.getUniqueID())) {
+				// we found the same uniqueID so we return the copy from the global config.
+				return (T)si;
+			}
+		}
+
+		return serverInfo;
+	}
+
+	@Override
+	public BuildStepMonitor getRequiredMonitorService() {
+		return BuildStepMonitor.NONE;
+	}
+
+	@Override
+	public boolean perform(final AbstractBuild<?, ?> build, final Launcher launcher, final BuildListener listener) throws InterruptedException {
+		final StringBuilder sb = prepareCommandLine(launcher);
+
+		return runTheCommand(sb.toString(), build, launcher, listener);
+	}
+
+	/**
+	 * @param launcher runs code on the slave machine.
+	 * @return
+	 */
+	protected StringBuilder prepareCommandLine(final Launcher launcher) {
+		// update server settings from the main config.
+		sharedProjectServer = updateUsingUniqueID(sharedProjectServer);
+		licenseServer = updateUsingUniqueID(licenseServer);
+
+		final Map<String, String> hashedPasswords = getHashedPasswords(launcher);
+
+
+		// verify that the executable exists
+		if (!Files.exists(Paths.get(executable))) {
+			LOGGER.log(Level.WARNING, "Can't find NeoLoad executable: " + executable);
+		}
+		// build the command line.
+		final List<String> commands = new ArrayList<String>();
+
+		// get the project
+		setupProjectType(commands, hashedPasswords);
+
+		setupTestInfo(commands);
+
+		setupLicenseInfo(commands, hashedPasswords);
+
+		setupReports(commands);
+
+		if (!displayTheGUI) {
+			commands.add("-noGUI");
+		} else {
+			commands.add("-exit");
+		}
+
+		// additional user options
+		commands.add(customCommandLineOptions);
+
+		// remove duplicate commands. this is for the -NTS argument to make sure it doesn't appear twice when checking out 
+		// a project and leasing a license.
+		final ArrayList<String> cleanedCommands = new ArrayList<String>(new LinkedHashSet<String>(commands));
+
+		// build the command on one line.
+		final StringBuilder sb = new StringBuilder();
+		sb.append("\"" + executable + "\"");
+		for (final String command: cleanedCommands) {
+			sb.append(" " + command.replaceAll("\\r||\\n", ""));
+		}
+		return sb;
+	}
+
+	/** Find the password scrambler and use it to hash the passwords.
+	 * @param launcher runs code on the slave machine.
+	 * @return key is the plain text version, value is the hashed version.
+	 */
+	Map<String, String> getHashedPasswords(final Launcher launcher) {
+		final HashMap<String, String> map = new HashMap<String, String>();
+
+		if (sharedProjectServer != null && StringUtils.trimToNull(sharedProjectServer.getLoginPassword()) != null) {
+			map.put(sharedProjectServer.getLoginPassword(), "PASSWORD");
+		}
+		if (licenseServer != null && StringUtils.trimToNull(licenseServer.getLoginPassword()) != null) {
+			map.put(licenseServer.getLoginPassword(), "PASSWORD");
+		}
+
+		// if there are no passwords or the executable doesn't exist then give up.
+		if (map.size() == 0 || !Files.exists(Paths.get(executable))) {
+			return map;
+		}
+
+		// look for the password scrambler. it should be next to the executable or one directory higher.
+		Path parent = Paths.get(executable).getParent();
+		Path possibleFile = null;
+		for (int i = 0; i < 2; i++) {
+			if (SystemUtils.IS_OS_WINDOWS) {
+				possibleFile = parent.resolve("password-scrambler.bat");
+			} else {
+				possibleFile = parent.resolve("password-scrambler");
+				if (Files.exists(possibleFile)) {
+					break;
+				} else {
+					possibleFile = parent.resolve("password-scrambler.sh");
+				}
+			}
+
+			if (Files.exists(possibleFile)) {
+				break;
+			}
+			parent = parent.getParent();
+		}
+		if (!Files.exists(possibleFile)) {
+			return map;
+		}
+
+		final Map<String, String> newMap = new HashMap<String, String>();
+		try {
+			for (final String plainPassword: map.keySet()) {
+				
+				// this executes on the slave, not on the master.
+				final CallableForPasswordScrambler callableForPasswordScrambler = 
+						new CallableForPasswordScrambler(possibleFile, plainPassword);
+				final String hashedPassword = launcher.getChannel().call(callableForPasswordScrambler);
+				
+				newMap.put(plainPassword, hashedPassword);
+			}
+
+		} catch (final Exception e) {
+			LOGGER.log(Level.FINEST, "Issue executing " + possibleFile, e);
+			// oh well. this isn't important enough to care about. 
+		}
+		map.putAll(newMap);
+
+		return map;
+	}
+	
+	/** Runs the password scrambler on the slave machine. */
+	static class CallableForPasswordScrambler implements Callable<String, Exception>, Serializable {
+
+		/** Generated. */
+		private static final long serialVersionUID = 4462660760602753013L;
+		
+		final Path executable;
+		final String plainPassword;
+		
+		public CallableForPasswordScrambler(final Path executable, final String plainPassword) {
+			this.executable = executable;
+			this.plainPassword = plainPassword;
+		}
+		
+		public String call() throws Exception {
+			// prepare the line to execute.
+			final String line = "\"" + executable.toString() + "\" -a \"" + plainPassword + "\"";
+			
+			// execute it and get the result.
+			final DefaultExecuteResultHandler resultHandler = new DefaultExecuteResultHandler();
+			final CommandLine cmdLine = CommandLine.parse(line);
+			final DefaultExecutor executor = new DefaultExecutor();
+			final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+			final PumpStreamHandler streamHandler = new PumpStreamHandler(outputStream);
+			executor.setStreamHandler(streamHandler);
+			executor.execute(cmdLine, resultHandler);
+			resultHandler.waitFor(5000);
+			final String result = outputStream.toString();
+
+			// parse the result.
+			// example: AES128 ciphering result of nluser: 6RGXo/iJAai0tGuxtAih2Q== \n Copyright (c) 2016 Neotys, PasswordScrambler v-
+			final String[] split = result.split(":|\\r|\\n", 3);
+			final String hashedPassword = split[1].trim();
+			
+			return hashedPassword;
+		}
+	}
+
+	private void setupReports(final List<String> commands) {
+		if (customReportPaths) {
+			final List<String> reportPaths = PluginUtils.removeAllEmpties(htmlReport, xmlReport, pdfReport);
+			final String reportFileNames = Joiner.on(",").skipNulls().join(reportPaths);
+			if (StringUtils.trimToEmpty(reportFileNames).length() > 0) {
+				commands.add("-report \"" + reportFileNames + "\"");
+			}
+
+			if (StringUtils.trimToEmpty(junitReport).length() > 0) {
+				commands.add("-SLAJUnitResults \"" + junitReport + "\"");
+			}
+
+		} else {
+			commands.add("-report \"${WORKSPACE}/neoload-report/report.html,${WORKSPACE}/neoload-report/report.xml\"");
+			commands.add("-SLAJUnitResults \"${WORKSPACE}/neoload-report/junit-sla-results.xml\"");
+		}
+	}
+
+	private void setupLicenseInfo(final List<String> commands, final Map<String, String> hashedPasswords) {
+		if (licenseType.toLowerCase().contains("local")) {
+			// nothing to do
+		} else if (licenseType.toLowerCase().contains("shared")) {
+			// -NTS "http://10.0.5.11:18080" -NTSLogin "noure:QuM36humHJWA5uAvgKinWw=="
+			addNTSArguments(commands, licenseServer, hashedPasswords);
+
+			// -leaseLicense "<license id>:<virtual user count>:<duration in hours>"
+			commands.add("-leaseLicense \"" + licenseServer.getLicenseID() + ":" + licenseVUCount + ":" + licenseDuration + "\"");
+
+		} else {
+			throw new RuntimeException("Unrecognized license type \"" + licenseType + "\" (expected local or shared).");
+		}
+	}
+
+	private void setupTestInfo(final List<String> commands) {
+		commands.add("-launch \"" + scenarioName + "\"");
+
+		// the $Date{.*} value in testResultName must be escaped if we're on linux so that NeoLoad is passed the $.
+		final String escapedTestResultName;
+		if (SystemUtils.IS_OS_WINDOWS) {
+			escapedTestResultName = testResultName;
+		} else {
+			escapedTestResultName = testResultName.replaceAll(
+					Pattern.quote("$Date{") + "(.*?)" + Pattern.quote("}"), 
+					Matcher.quoteReplacement("\\$Date{") + "$1" + Matcher.quoteReplacement("}"));
+		}
+		commands.add("-testResultName \"" + escapedTestResultName + "\"");
+		commands.add("-description \"" + testDescription + "\"");
+	}
+
+	private void setupProjectType(final List<String> commands, final Map<String, String> hashedPasswords) {
+		if (projectType.toLowerCase().contains("local")) {
+			commands.add("-project \"" + localProjectFile + "\"");
+
+		} else if (projectType.toLowerCase().contains("shared")) {
+			commands.add("-checkoutProject \"" + sharedProjectName + "\"");
+			if (sharedProjectServer instanceof NTSServerInfo) {
+				// -NTS "http://10.0.5.11:18080" -NTSLogin "noure:QuM36humHJWA5uAvgKinWw=="
+				addNTSArguments(commands, (NTSServerInfo) sharedProjectServer, hashedPasswords);
+				commands.add("-NTSCollabPath \"" + ((NTSServerInfo) sharedProjectServer).getCollabPath() + "\"");
+
+			} else if (sharedProjectServer instanceof CollabServerInfo) {
+				final CollabServerInfo c = (CollabServerInfo) sharedProjectServer;
+				commands.add("-Collab \"" + c.getUrl() + "\"");
+				
+				final StringBuilder sb = new StringBuilder();
+				// -CollabLogin "<login>:<hashed password>", or
+				// -CollabLogin "<login>:<private key>:<hashed passphrase>", or
+				// -CollabLogin "<login>:<hashed password>:<private key>:<hashed passphrase>"
+				sb.append("-CollabLogin " + c.getLoginUser());
+				if (StringUtils.trimToNull(hashedPasswords.get(c.getLoginPassword())) != null) {
+					sb.append(":" + hashedPasswords.get(c.getLoginPassword()));
+				}
+				if (StringUtils.trimToNull(c.getPrivateKey()) != null) {
+					sb.append(":" + c.getPrivateKey());
+				}
+				if (StringUtils.trimToNull(c.getPassphrase()) != null) {
+					sb.append(":" + c.getPassphrase());
+				}
+				
+				commands.add(sb.toString());
+
+			} else {
+				throw new RuntimeException("Unrecognized ServerInfo type: " + sharedProjectServer.getClass().getName());
+			}
+		} else {
+			throw new RuntimeException("Unrecognized project type \"" + projectType + "\" (expected local or shared).");
+		}
+
+		if (publishTestResults) {
+			commands.add("-publishTestResult");
+		}
+	}
+
+	private boolean runTheCommand(final String command, final AbstractBuild<?, ?> build, final Launcher launcher, final BuildListener listener) 
+			throws InterruptedException {
+
+		if (SystemUtils.IS_OS_WINDOWS) {
+			commandInterpreter = new BatchFile(command);
+		} else {
+			commandInterpreter = new Shell(command);
+		}
+
+		LOGGER.log(Level.FINEST, "Executing command: " + command);
+
+		return commandInterpreter.perform(build, launcher, listener);
+	}
+
+	private void addNTSArguments(final List<String> commands, final NTSServerInfo n, final Map<String, String> hashedPasswords) {
+		commands.add("-NTS \"" + n.getUrl() + "\"");
+		commands.add("-NTSLogin \"" + n.getLoginUser() + ":" + 
+				hashedPasswords.get(n.getLoginPassword()) + "\"");
+	}
+
+	public String isProjectType(final String type) {
+		if (StringUtils.trimToNull(projectType) == null) {
+			return "projectTypeLocal".equals(type) == true ? "true" : "";
+		}
+
+		return projectType.equalsIgnoreCase(type) ? "true" : "";
+	}
+
+	public String isLicenseType(final String type) {
+		if (StringUtils.trimToNull(licenseType) == null) {
+			return "licenseTypeLocal".equals(type) == true ? "true" : "";
+		}
+
+		return licenseType.equalsIgnoreCase(type) ? "true" : "";
+	}
+
+	@Override
+	public Descriptor<Builder> getDescriptor() {
+		final DescriptorImpl descriptor = (DescriptorImpl) super.getDescriptor();
+
+		// setting this as an instance allows us to re-select the currently selected dropdown options.
+		descriptor.setNeoBuildAction(this);
+
+		return descriptor;
+	}
+
+	@Extension(optional = true)
+	public static final class DescriptorImpl extends BuildStepDescriptor<Builder> {
+		private NeoBuildAction neoBuildAction = null;
+
+		public DescriptorImpl() {
+			super(NeoBuildAction.class);
+			load();
+		}
+
+		public void setNeoBuildAction(final NeoBuildAction action) {
+			this.neoBuildAction = action;
+		}
+
+		@Override
+		public String getDisplayName() {
+			return "Execute a NeoLoad Scenario";
+		}
+		
+		@Override
+		public boolean configure(StaplerRequest req, JSONObject json) throws hudson.model.Descriptor.FormException {
+			System.out.println("NeoBuildAction.DescriptorImpl.configure() json: " + json);
+			save();
+			return super.configure(req, json);
+		}
+
+		public ListBoxModel doFillSharedProjectServerItems(@AncestorInPath final Item project) {
+			ServerInfo preselected = null;
+			if (neoBuildAction != null && neoBuildAction.sharedProjectServer != null) {
+				preselected = neoBuildAction.sharedProjectServer;
+			}
+
+			return getProjectServerOptions(preselected);
+		}
+
+
+		public ListBoxModel doFillLicenseServerItems(@AncestorInPath final Item project) {
+			ServerInfo preselected = null;
+			if (neoBuildAction != null && neoBuildAction.licenseServer != null) {
+				preselected = neoBuildAction.licenseServer;
+			}
+
+			return getLicenseServerOptions(preselected);
+		}
+
+		/** @param preselected 
+		 * @return the servers for sharing projects */
+		private ListBoxModel getLicenseServerOptions(final ServerInfo preselected) {
+			final NeoGlobalConfig.DescriptorImpl globalConfigDescriptor = 
+					(NeoGlobalConfig.DescriptorImpl) Jenkins.getInstance().getDescriptor(NeoGlobalConfig.class);
+
+			final ListBoxModel listBoxModel = new ListBoxModel();
+
+			if (globalConfigDescriptor == null) {
+				LOGGER.log(Level.FINEST, "No NeoLoad server settings found. Please add servers before configuring jobs. (getLicenseServerOptions)");
+				
+			} else {
+				for (final NTSServerInfo server: globalConfigDescriptor.getNtsInfo()) {
+					final String displayName = buildNTSDisplayNameString(server);
+					final String optionValue = server.getUniqueID();
+					final Option option = new Option(displayName, optionValue);
+	
+					if (server.equals(preselected)) {
+						option.selected = true;
+					}
+	
+					listBoxModel.add(option);
+				}
+			}
+
+			if (listBoxModel.isEmpty()) {
+				listBoxModel.add(new Option("Please configure Jenkins System Settings for NeoLoad to add an NTS server.", 
+						"-1"));
+			}
+			return listBoxModel;
+		}
+		/** @param preselected 
+		 * @return the servers for sharing projects */
+		private ListBoxModel getProjectServerOptions(final ServerInfo preselected) {
+			final NeoGlobalConfig.DescriptorImpl globalConfigDescriptor = 
+					(org.jenkinsci.plugins.neoload.integration.NeoGlobalConfig.DescriptorImpl) Jenkins.getInstance().getDescriptor(NeoGlobalConfig.class);
+
+			final ListBoxModel listBoxModel = new ListBoxModel();
+
+			if (globalConfigDescriptor == null) {
+				LOGGER.log(Level.FINEST, "No NeoLoad server settings found. Please add servers before configuring jobs. (getProjectServerOptions)");
+				
+			} else {
+				for (final NTSServerInfo server: globalConfigDescriptor.getNtsInfo()) {
+					final String displayName = buildNTSDisplayNameString(server);
+					final String optionValue = server.getUniqueID();
+					final Option option = new Option(displayName, optionValue);
+	
+					if (server.equals(preselected)) {
+						option.selected = true;
+					}
+	
+					listBoxModel.add(option);
+				}
+			}
+			
+			for (final CollabServerInfo server: globalConfigDescriptor.getCollabInfo()) {
+				final String displayName = server.getUrl() + ", User: " + server.getLoginUser();
+				final String optionValue = server.getUniqueID();
+				final Option option = new Option(displayName, optionValue);
+
+				if (server.equals(preselected)) {
+					option.selected = true;
+				}
+
+				listBoxModel.add(option);
+			}
+
+			if (listBoxModel.isEmpty()) {
+				listBoxModel.add(new Option("Please configure Jenkins System Settings for NeoLoad to add a server.", 
+						XMLUtilities.toXMLEscaped(null)));
+			}
+			return listBoxModel;
+		}
+
+		private String buildNTSDisplayNameString(final NTSServerInfo server) {
+			final StringBuilder displayName = new StringBuilder(server.getUrl() + ", Repository: " + server.getCollabPath() + ", " + 
+					" User: " + server.getLoginUser());
+			if (StringUtils.trimToNull(server.getLicenseID()) != null) {
+				displayName.append(", LicenseID: " + StringUtils.left(server.getLicenseID(), 4) + "..." + 
+						StringUtils.right(server.getLicenseID(), 4));
+				displayName.append(" (NTS)");
+			}
+			return displayName.toString();
+		}
+
+		@Override
+		public boolean isApplicable(
+				@SuppressWarnings("rawtypes") final Class<? extends AbstractProject> jobType) {
+			return true;
+		}
+		public FormValidation doCheckLocalProjectFile(@QueryParameter("localProjectFile") final String localProjectFile) {
+			final FormValidation requiredWarning = PluginUtils.formValidationErrorToWarning(FormValidation.validateRequired(localProjectFile));
+			if (!FormValidation.Kind.OK.equals(requiredWarning.kind)) {
+				return requiredWarning;
+			}
+
+			return PluginUtils.validateFileExists(localProjectFile);
+		}
+		public FormValidation doCheckExecutable(@QueryParameter final String executable) {
+			// we force a missing file to be a warning instead of an error (because it might be on a remote machine? to be tested.)
+			final FormValidation requiredWarning = PluginUtils.formValidationErrorToWarning(FormValidation.validateRequired(executable));
+			if (!FormValidation.Kind.OK.equals(requiredWarning.kind)) {
+				return requiredWarning;
+			}
+
+			return PluginUtils.formValidationErrorToWarning(FormValidation.validateExecutable(executable));
+		}
+		public FormValidation doCheckLicenseVUCount(@QueryParameter final String licenseVUCount) {
+			return PluginUtils.formValidationErrorToWarning(FormValidation.validatePositiveInteger(licenseVUCount));
+		}
+		public FormValidation doCheckLicenseDuration(@QueryParameter final String licenseDuration) {
+			return PluginUtils.formValidationErrorToWarning(FormValidation.validatePositiveInteger(licenseDuration));
+		}
+		public FormValidation doCheckLicenseID(@QueryParameter final String licenseID) {
+			return PluginUtils.formValidationErrorToWarning(FormValidation.validateRequired(licenseID));
+		}
+		public FormValidation doCheckSharedProjectName(@QueryParameter final String sharedProjectName) {
+			return PluginUtils.formValidationErrorToWarning(FormValidation.validateRequired(sharedProjectName));
+		}
+		public FormValidation doCheckScenarioName(@QueryParameter final String scenarioName) {
+			return PluginUtils.formValidationErrorToWarning(FormValidation.validateRequired(scenarioName));
+		}
+	}
+
+	@Override
+	public String[] buildCommandLine(final FilePath script) {
+		return commandInterpreter.buildCommandLine(script);
+	}
+
+	@Override
+	protected String getContents() {
+		if (SystemUtils.IS_OS_WINDOWS) {
+			new BatchFileMine().getContents();
+		}
+
+		return new ShellMine().getContents();
+	}
+
+	@Override
+	protected String getFileExtension() {
+		if (SystemUtils.IS_OS_WINDOWS) {
+			new BatchFileMine().getFileExtension();
+		}
+
+		return new ShellMine().getFileExtension();
+	}
+
+	private class BatchFileMine extends BatchFile {
+		public BatchFileMine() {
+			super("command");
+		}
+		@Override
+		public String getContents() {
+			return super.getContents();
+		}
+		@Override
+		public String getFileExtension() {
+			return super.getFileExtension();
+		}
+	}
+	private class ShellMine extends Shell {
+		public ShellMine() {
+			super("command");
+		}
+		@Override
+		public String getContents() {
+			return super.getContents();
+		}
+		@Override
+		public String getFileExtension() {
+			return super.getFileExtension();
+		}
+	}
+
+	public String getExecutable() {
+		return executable;
+	}
+	public String getSharedProjectName() {
+		return sharedProjectName;
+	}
+	public String getScenarioName() {
+		return scenarioName;
+	}
+	public String getHtmlReport() {
+		return htmlReport;
+	}
+	public String getXmlReport() {
+		return xmlReport;
+	}
+	public String getJunitReport() {
+		return junitReport;
+	}
+	public boolean isCustomReportPaths() {
+		return customReportPaths;
+	}
+	public boolean isDisplayTheGUI() {
+		return displayTheGUI;
+	}
+	public String getTestResultName() {
+		return testResultName;
+	}
+	public String getTestDescription() {
+		return testDescription;
+	}
+	public String getLicenseType() {
+		return licenseType;
+	}
+	public String getLicenseVUCount() {
+		return licenseVUCount;
+	}
+	public String getLicenseDuration() {
+		return licenseDuration;
+	}
+	public String getCustomCommandLineOptions() {
+		return customCommandLineOptions;
+	}
+	public String getLocalProjectFile() {
+		return localProjectFile;
+	}
+	public String getProjectType() {
+		return projectType;
+	}
+	public boolean getPublishTestResults() {
+		return publishTestResults;
+	}
+
+	public ServerInfo getLicenseServer() {
+		return licenseServer;
+	}
+	public void setLicenseServer(final NTSServerInfo licenseServer) {
+		this.licenseServer = licenseServer;
+	}
+	public ServerInfo getSharedProjectServer() {
+		return sharedProjectServer;
+	}
+	public void setSharedProjectServer(final ServerInfo sharedProjectServer) {
+		this.sharedProjectServer = sharedProjectServer;
+	}
+
+	@Override
+	public String toString() {
+		return ToStringBuilder.reflectionToString(this);
+	}
+
+	/** @return the showTrendAverageResponse */
+	public boolean isShowTrendAverageResponse() {
+		return showTrendAverageResponse;
+	}
+	/** @return the showTrendErrorRate */
+	public boolean isShowTrendErrorRate() {
+		return showTrendErrorRate;
+	}
+}
