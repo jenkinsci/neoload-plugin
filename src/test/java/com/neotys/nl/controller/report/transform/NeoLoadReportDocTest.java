@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, Neotys
+ * Copyright (c) 2016, Neotys
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -26,8 +26,6 @@
  */
 package com.neotys.nl.controller.report.transform;
 
-import hudson.model.AbstractBuild;
-
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -40,17 +38,18 @@ import java.util.regex.Pattern;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
-import junit.framework.TestCase;
-
 import org.apache.commons.io.FileUtils;
-import org.jenkinsci.plugins.neoload_integration.supporting.MockObjects;
-import org.jenkinsci.plugins.neoload_integration.supporting.PluginUtils;
-import org.jenkinsci.plugins.neoload_integration.supporting.XMLUtilities;
-import org.jenkinsci.plugins.neoload_integration.supporting.ZipUtils;
+import org.jenkinsci.plugins.neoload.integration.supporting.MockObjects;
+import org.jenkinsci.plugins.neoload.integration.supporting.PluginUtils;
+import org.jenkinsci.plugins.neoload.integration.supporting.XMLUtilities;
+import org.jenkinsci.plugins.neoload.integration.supporting.ZipUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
+
+import hudson.model.AbstractBuild;
+import junit.framework.TestCase;
 
 /**
  * @author ajohnson

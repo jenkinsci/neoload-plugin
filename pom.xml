@@ -6,16 +6,16 @@
         <groupId>org.jenkins-ci.plugins</groupId>
         <artifactId>plugin</artifactId>
         <!-- which version of Hudson is this plugin built against? -->
-        <version>1.406</version>
+        <version>1.427</version>
     </parent>
 
-    <name>NeoLoad Plugin</name>
-    <url>https://wiki.jenkins-ci.org/display/JENKINS/NeoLoad+Plugin</url>
     <artifactId>neoload-jenkins-plugin</artifactId>
-	<version>1.0.2-SNAPSHOT</version>
-
+	<version>2.0.0-SNAPSHOT</version>
     <packaging>hpi</packaging>
+    <name>NeoLoad Plugin</name>
     <description>Integrates NeoLoad results, generates trend graphs, and links to NeoLoad reports.</description>
+    <url>https://wiki.jenkins-ci.org/display/JENKINS/NeoLoad+Plugin</url>
+
 
     <developers>
         <developer>
@@ -30,191 +30,6 @@
 		<developerConnection>scm:git:https://git@github.com/jenkinsci/neoload-plugin.git</developerConnection>
 	    <url>https://github.com/jenkinsci/neoload-plugin</url>
 	</scm>
-
-    <build>
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-compiler-plugin</artifactId>
-                    <version>2.5.1</version>
-                    <configuration>
-                        <compilerId>eclipse</compilerId>
-                        <!-- http://maven.apache.org/plugins/maven-compiler-plugin/ -->
-                        <source>1.6</source>
-                        <target>1.6</target>
-                    </configuration>
-                    <dependencies>
-                        <dependency>
-                            <groupId>org.eclipse.jdt.core.compiler</groupId>
-                            <artifactId>ecj</artifactId>
-                            <version>3.7.2</version>
-                        </dependency>
-                        <dependency>
-                            <groupId>org.codehaus.plexus</groupId>
-                            <artifactId>plexus-compiler-eclipse</artifactId>
-                            <version>1.9.1</version>
-                        </dependency>
-                    </dependencies>
-                </plugin>
-                <plugin>
-
-                    <groupId>org.eclipse.hudson.tools</groupId>
-                    <artifactId>maven-hpi-plugin</artifactId>
-                    <version>${maven-hpi-plugin.version}</version>
-                    <dependencies>
-                        <!-- to solve packaging issue when build on linux platform with jdk7 -->
-                        <dependency>
-                            <groupId>org.codehaus.plexus</groupId>
-                            <artifactId>plexus-archiver</artifactId>
-                            <version>2.0.1</version>
-                        </dependency>
-                    </dependencies>
-                </plugin>
-
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-gpg-plugin</artifactId>
-                    <configuration>
-                        <skip>true</skip>
-                    </configuration>
-                </plugin>
-
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-release-plugin</artifactId>
-                    <version>2.4.2</version>
-                    <dependencies>
-                        <!-- to correct "Unable to checkout from SCM" (http://stackoverflow.com/questions/13648894/maven-release-fails-due-to-git-failure) -->
-                        <dependency>
-                            <groupId>org.apache.maven.plugins</groupId>
-                            <artifactId>maven-scm-plugin</artifactId>
-                            <version>1.8.1</version>
-                        </dependency>
-                    </dependencies>
-                </plugin>
-                <!--This plugin's configuration is used to store Eclipse m2e settings 
-                    only. It has no influence on the Maven build itself. -->
-                <plugin>
-                    <groupId>org.eclipse.m2e</groupId>
-                    <artifactId>lifecycle-mapping</artifactId>
-                    <version>1.0.0</version>
-                    <configuration>
-                        <lifecycleMappingMetadata>
-                            <pluginExecutions>
-                                <pluginExecution>
-                                    <pluginExecutionFilter>
-                                        <groupId>
-                                            org.eclipse.hudson.tools
-                                        </groupId>
-                                        <artifactId>
-                                            maven-hpi-plugin
-                                        </artifactId>
-                                        <versionRange>
-                                            [3.0.0,)
-                                        </versionRange>
-                                        <goals>
-                                            <goal>
-                                                resolve-test-dependencies
-                                            </goal>
-                                            <goal>test-hpl</goal>
-                                        </goals>
-                                    </pluginExecutionFilter>
-                                    <action>
-                                        <ignore />
-                                    </action>
-                                </pluginExecution>
-                                <pluginExecution>
-                                    <pluginExecutionFilter>
-                                        <groupId>
-                                            org.codehaus.groovy.maven
-                                        </groupId>
-                                        <artifactId>
-                                            gmaven-plugin
-                                        </artifactId>
-                                        <versionRange>
-                                            [1.0-rc-5,)
-                                        </versionRange>
-                                        <goals>
-                                            <goal>
-                                                generateTestStubs
-                                            </goal>
-                                            <goal>testCompile</goal>
-                                        </goals>
-                                    </pluginExecutionFilter>
-                                    <action>
-                                        <ignore />
-                                    </action>
-                                </pluginExecution>
-                                <pluginExecution>
-                                    <pluginExecutionFilter>
-                                        <groupId>
-                                            org.apache.maven.plugins
-                                        </groupId>
-                                        <artifactId>
-                                            maven-enforcer-plugin
-                                        </artifactId>
-                                        <versionRange>
-                                            [1.0,)
-                                        </versionRange>
-                                        <goals>
-                                            <goal>display-info</goal>
-                                        </goals>
-                                    </pluginExecutionFilter>
-                                    <action>
-                                        <ignore />
-                                    </action>
-                                </pluginExecution>
-                                <pluginExecution>
-                                    <pluginExecutionFilter>
-                                        <groupId>
-                                            org.jenkins-ci.tools
-                                        </groupId>
-                                        <artifactId>
-                                            maven-hpi-plugin
-                                        </artifactId>
-                                        <versionRange>
-                                            [1.67,)
-                                        </versionRange>
-                                        <goals>
-                                            <goal>apt-compile</goal>
-                                            <goal>insert-test</goal>
-                                            <goal>
-                                                resolve-test-dependencies
-                                            </goal>
-                                            <goal>test-hpl</goal>
-                                        </goals>
-                                    </pluginExecutionFilter>
-                                    <action>
-                                        <ignore />
-                                    </action>
-                                </pluginExecution>
-                                <pluginExecution>
-                                    <pluginExecutionFilter>
-                                        <groupId>
-                                            org.jvnet.localizer
-                                        </groupId>
-                                        <artifactId>
-                                            maven-localizer-plugin
-                                        </artifactId>
-                                        <versionRange>
-                                            [1.12,)
-                                        </versionRange>
-                                        <goals>
-                                            <goal>generate</goal>
-                                        </goals>
-                                    </pluginExecutionFilter>
-                                    <action>
-                                        <ignore />
-                                    </action>
-                                </pluginExecution>
-                            </pluginExecutions>
-                        </lifecycleMappingMetadata>
-                    </configuration>
-                </plugin>
-            </plugins>
-        </pluginManagement>
-    </build>
 
     <dependencies>
         <dependency>
@@ -240,5 +55,15 @@
             <artifactId>commons-io</artifactId>
             <version>2.4</version>
         </dependency>
+		<dependency>
+			<groupId>com.google.code.gson</groupId>
+			<artifactId>gson</artifactId>
+			<version>2.6.2</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-exec</artifactId>
+			<version>1.3</version>
+		</dependency>
     </dependencies>
 </project>
