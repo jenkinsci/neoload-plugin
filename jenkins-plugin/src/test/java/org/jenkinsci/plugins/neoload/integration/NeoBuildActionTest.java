@@ -1,19 +1,184 @@
 package org.jenkinsci.plugins.neoload.integration;
 
-import static org.junit.Assert.*;
+import java.util.ArrayList;
+import java.util.List;
 
+import org.jenkinsci.plugins.neoload.integration.supporting.CollabServerInfo;
+import org.jenkinsci.plugins.neoload.integration.supporting.MockObjects;
+import org.jenkinsci.plugins.neoload.integration.supporting.NTSServerInfo;
+import org.junit.Before;
 import org.junit.Test;
+import org.jvnet.hudson.test.HudsonTestCase;
+import org.mockito.Mockito;
 
-public class NeoBuildActionTest {
+import hudson.Launcher;
+import jenkins.model.Jenkins;
 
+public class NeoBuildActionTest extends HudsonTestCase {
+
+	/** Mock project for testing. */
+	private MockObjects mo = null;
+
+	/**
+	 * @throws java.lang.Exception
+	 */
+	@Override
+	@Before
+	public void setUp() throws Exception {
+		super.setUp();
+		mo = new MockObjects();
+	}
+	
 	@Test
 	public void testUpdateUsingUniqueID() {
-		fail("Not yet implemented");
+		final NeoBuildAction neoBuildAction = mo.getNeoBuildAction();
+		final CollabServerInfo si_existingInfo = new CollabServerInfo("uniqueID", "url", "loginUser", "loginPassword", "privateKey", "passphrase");
+		final CollabServerInfo si_HasNewInfo = new CollabServerInfo("uniqueID", "url_UPDATED", "loginUser_UPDATED", "loginPassword_UPDATED", "privateKey_UPDATED", "passphrase_UPDATED");
+		final List<CollabServerInfo> infos = new ArrayList<CollabServerInfo>();
+		infos.add(si_HasNewInfo);
+
+		// place the new info on the global config.
+		final NeoGlobalConfig.DescriptorImpl globalConfigDescriptor = 
+				(NeoGlobalConfig.DescriptorImpl) Jenkins.getInstance().getDescriptor(NeoGlobalConfig.class);
+		globalConfigDescriptor.setCollabInfo(infos);
+		
+		// update the original existing info with the new info using the uniqueID.
+		final CollabServerInfo si_updated = neoBuildAction.updateUsingUniqueID(si_existingInfo);
+		
+		assertTrue("data should have been updated", si_HasNewInfo.equals(si_updated));
 	}
 
 	@Test
-	public void testPrepareCommandLine() {
-		fail("Not yet implemented");
+	public void testPrepareCommandLineBasic() {
+		final NTSServerInfo ntssi = new NTSServerInfo("uniqueID", "http://url.com:8080", "loginUser", "loginPassword", "collabPath", "licenseID");
+		final NeoBuildAction neoBuildAction = 
+				new NeoBuildAction("c:/NeoLoad/executable", 
+				"shared-project-type", // project type - local or shared. 
+				"c:/local_Project_File.prj", 
+				"Shared_Project_Name", "Scenario_Name",
+				"c:/htmlReport.html", "c:/xmlReport.xml", "c:/pdfReport.pdf", "c:/junitReport.xml", 
+				true, // custom report paths
+				false, // display the GUI
+				"test result name", "test description", 
+				"shared-license-type", // license type - local or shared. 
+				"50", // VU count for license
+				"1", // license hours
+				"", // custom command line options
+				true, // publish test results
+				ntssi, ntssi, // shared project server, license server.
+				true, // show trend average response
+				true); // show trend error rate
+
+		Launcher launcher = Mockito.mock(Launcher.class);
+		final String cl = neoBuildAction.prepareCommandLine(launcher).toString();
+		
+		// "executable" -checkoutProject "SharedProjectName" -NTS "http://url.com:8080" -NTSLogin "loginUser:PASSWORD" 
+		// -NTSCollabPath "collabPath" -publishTestResult -launch "ScenarioName" -testResultName "test result name" 
+		// -description "test description" -leaseLicense "licenseID:50:1" 
+		// -report "c:/htmlReport.html,c:/xmlReport.xml,c:/pdfReport.pdf" -SLAJUnitResults "c:/junitReport.xml" -noGUI
+		assertTrue("the command line should contain the neoload executable", cl.contains(neoBuildAction.getExecutable()));
+
+		assertTrue("shared project name should be there", cl.contains(neoBuildAction.getSharedProjectName()));
+		assertTrue("local project file should not be there", !cl.contains(neoBuildAction.getLocalProjectFile()));
+
+		assertTrue("we said yes to publish", cl.contains("publishTestResult"));
+		
+		assertTrue("when leasing a license the license ID should be there", cl.contains(ntssi.getLicenseID()));
 	}
 
+	@Test
+	public void testPrepareCommandLineNTSAndThirdPartySVNServer() {
+		final CollabServerInfo csi = new CollabServerInfo("COLLAB_uniqueID", "COLLAB_url", "COLLAB_loginUser", 
+				"COLLAB_loginPassword", "COLLAB_privateKey", "COLLAB_passphrase");
+		final NTSServerInfo ntssi = new NTSServerInfo("NTS_uniqueID", "http://NTS.com:8080", "NTS_loginUser", 
+				"NTS_loginPassword", "NTS_collabPath", "NTS_licenseID");
+		final NeoBuildAction neoBuildAction = 
+				new NeoBuildAction("c:/NeoLoad/executable", 
+				"shared-project-type", // project type - local or shared. 
+				"c:/local_Project_File.prj", 
+				"Shared_Project_Name", "Scenario_Name",
+				"c:/htmlReport.html", "c:/xmlReport.xml", "c:/pdfReport.pdf", "c:/junitReport.xml", 
+				true, // custom report paths
+				false, // display the GUI
+				"test result name", "test description", 
+				"shared-license-type", // license type - local or shared. 
+				"50", // VU count for license
+				"1", // license hours
+				"", // custom command line options
+				true, // publish test results
+				csi, ntssi, // shared project server, license server.
+				true, // show trend average response
+				true); // show trend error rate
+
+		Launcher launcher = Mockito.mock(Launcher.class);
+		final String cl = neoBuildAction.prepareCommandLine(launcher).toString();
+
+		assertTrue("The third party server should be used for checking out the project, not NTS.", 
+				cl.contains(csi.getUrl()));
+
+		assertTrue("The third party server should be used for checking out the project, not NTS.", 
+				!cl.contains(ntssi.getCollabPath()));
+	}
+
+	@Test
+	public void testPrepareCommandLineExistingLicense() {
+		final CollabServerInfo csi = new CollabServerInfo("COLLAB_uniqueID", "COLLAB_url", "COLLAB_loginUser", 
+				"COLLAB_loginPassword", "COLLAB_privateKey", "COLLAB_passphrase");
+		final NTSServerInfo ntssi = new NTSServerInfo("NTS_uniqueID", "http://NTS.com:8080", "NTS_loginUser", 
+				"NTS_loginPassword", "NTS_collabPath", "NTS_licenseID");
+		final NeoBuildAction neoBuildAction = 
+				new NeoBuildAction("c:/NeoLoad/executable", 
+				"shared-project-type", // project type - local or shared. 
+				"c:/local_Project_File.prj", 
+				"Shared_Project_Name", "Scenario_Name",
+				"c:/htmlReport.html", "c:/xmlReport.xml", "c:/pdfReport.pdf", "c:/junitReport.xml", 
+				true, // custom report paths
+				false, // display the GUI
+				"test result name", "test description", 
+				"local-license-type", // license type - local or shared. 
+				"50", // VU count for license
+				"1", // license hours
+				"", // custom command line options
+				true, // publish test results
+				csi, ntssi, // shared project server, license server.
+				true, // show trend average response
+				true); // show trend error rate
+
+		Launcher launcher = Mockito.mock(Launcher.class);
+		final String cl = neoBuildAction.prepareCommandLine(launcher).toString();
+
+		assertTrue("we used a LOCAL license type so this shouldn't be there.", !cl.contains(ntssi.getLicenseID()));
+	}
+
+	@Test
+	public void testPrepareCommandLineLocalProject() {
+		final CollabServerInfo csi = new CollabServerInfo("COLLAB_uniqueID", "COLLAB_url", "COLLAB_loginUser", 
+				"COLLAB_loginPassword", "COLLAB_privateKey", "COLLAB_passphrase");
+		final NTSServerInfo ntssi = new NTSServerInfo("NTS_uniqueID", "http://NTS.com:8080", "NTS_loginUser", 
+				"NTS_loginPassword", "NTS_collabPath", "NTS_licenseID");
+		final NeoBuildAction neoBuildAction = 
+				new NeoBuildAction("c:/NeoLoad/executable", 
+				"local-project-type", // project type - local or shared. 
+				"c:/local_Project_File.prj", 
+				"Shared_Project_Name", "Scenario_Name",
+				"c:/htmlReport.html", "c:/xmlReport.xml", "c:/pdfReport.pdf", "c:/junitReport.xml", 
+				true, // custom report paths
+				false, // display the GUI
+				"test result name", "test description", 
+				"local-license-type", // license type - local or shared. 
+				"50", // VU count for license
+				"1", // license hours
+				"", // custom command line options
+				true, // publish test results
+				csi, ntssi, // shared project server, license server.
+				true, // show trend average response
+				true); // show trend error rate
+
+		Launcher launcher = Mockito.mock(Launcher.class);
+		final String cl = neoBuildAction.prepareCommandLine(launcher).toString();
+
+		assertTrue("there must be a reference to the local project file", cl.contains(neoBuildAction.getLocalProjectFile()));
+		assertTrue("the shared project name must not be there for a local project", 
+				!cl.contains(neoBuildAction.getSharedProjectName()));
+	}
 }
