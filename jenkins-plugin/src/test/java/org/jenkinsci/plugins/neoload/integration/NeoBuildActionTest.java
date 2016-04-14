@@ -1,7 +1,9 @@
 package org.jenkinsci.plugins.neoload.integration;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.jenkinsci.plugins.neoload.integration.supporting.CollabServerInfo;
 import org.jenkinsci.plugins.neoload.integration.supporting.MockObjects;
@@ -180,5 +182,73 @@ public class NeoBuildActionTest extends HudsonTestCase {
 		assertTrue("there must be a reference to the local project file", cl.contains(neoBuildAction.getLocalProjectFile()));
 		assertTrue("the shared project name must not be there for a local project", 
 				!cl.contains(neoBuildAction.getSharedProjectName()));
+	}
+
+	@Test
+	public void testSetupCollabLogin() {
+		CollabServerInfo csi = new CollabServerInfo("COLLAB_uniqueID", "COLLAB_url", "COLLAB_loginUser", 
+				"COLLAB_loginPassword", "COLLAB_privateKey", "COLLAB_passphrase");
+		final NTSServerInfo ntssi = new NTSServerInfo("NTS_uniqueID", "http://NTS.com:8080", "NTS_loginUser", 
+				"NTS_loginPassword", "NTS_collabPath", "NTS_licenseID");
+		final NeoBuildAction neoBuildAction = 
+				new NeoBuildAction("c:/NeoLoad/executable", 
+				"shared-project-type", // project type - local or shared. 
+				"c:/local_Project_File.prj", 
+				"Shared_Project_Name", "Scenario_Name",
+				"c:/htmlReport.html", "c:/xmlReport.xml", "c:/pdfReport.pdf", "c:/junitReport.xml", 
+				true, // custom report paths
+				false, // display the GUI
+				"test result name", "test description", 
+				"local-license-type", // license type - local or shared. 
+				"50", // VU count for license
+				"1", // license hours
+				"", // custom command line options
+				true, // publish test results
+				csi, ntssi, // shared project server, license server.
+				true, // show trend average response
+				true); // show trend error rate
+
+		final Map<String, String> hashedPasswords = new HashMap<String, String>();
+		hashedPasswords.put(csi.getLoginPassword(), csi.getLoginPassword());
+
+		
+		// -CollabLogin "<login>:<hashed password>:<private key>:<hashed passphrase>"
+		csi = new CollabServerInfo("COLLAB_uniqueID", "COLLAB_url", "COLLAB_loginUser", 
+				"COLLAB_loginPassword", "COLLAB_privateKey", "COLLAB_passphrase");
+		String result = neoBuildAction.setupCollabLogin(hashedPasswords, csi).toString();
+		assertTrue("all fields should be present",
+				result.contains(csi.getLoginUser() + ":" + csi.getLoginPassword() + ":" + csi.getPrivateKey() + ":" + 
+						csi.getPassphrase()));
+				
+		// -CollabLogin "<login>:<hashed password>:<private key>"
+		csi = new CollabServerInfo("COLLAB_uniqueID", "COLLAB_url", "COLLAB_loginUser", 
+				"COLLAB_loginPassword", "COLLAB_privateKey", null);
+		result = neoBuildAction.setupCollabLogin(hashedPasswords, csi).toString();
+		assertTrue("too many fields",
+				!result.contains(csi.getLoginUser() + ":" + csi.getLoginPassword() + ":" + csi.getPrivateKey() + ":" + 
+						csi.getPassphrase()));
+		assertTrue(result.contains(csi.getLoginUser() + ":" + csi.getLoginPassword() + ":" + csi.getPrivateKey()));
+
+		// -CollabLogin "<login>:<hashed password>"
+		csi = new CollabServerInfo("COLLAB_uniqueID", "COLLAB_url", "COLLAB_loginUser", 
+				"COLLAB_loginPassword", null, "");
+		result = neoBuildAction.setupCollabLogin(hashedPasswords, csi).toString();
+		assertTrue("too many fields",
+				!result.contains(csi.getLoginUser() + ":" + csi.getLoginPassword() + ":" + csi.getPrivateKey() + ":" + 
+						csi.getPassphrase()));
+		assertTrue("too many fields", 
+				!result.contains(csi.getLoginUser() + ":" + csi.getLoginPassword() + ":" + csi.getPrivateKey()));
+		assertTrue(result.contains(csi.getLoginUser() + ":" + csi.getLoginPassword()));
+
+		// -CollabLogin "<private key>:<hashed passphrase>"
+		csi = new CollabServerInfo("COLLAB_uniqueID", "COLLAB_url", "", 
+				"", "COLLAB_privateKey", "COLLAB_passphrase");
+		result = neoBuildAction.setupCollabLogin(hashedPasswords, csi).toString();
+		assertTrue("too many fields",
+				!result.contains(csi.getLoginUser() + ":" + csi.getLoginPassword() + ":" + csi.getPrivateKey() + ":" + 
+						csi.getPassphrase()));
+		assertTrue("too many fields",
+				!result.contains(csi.getLoginPassword() + ":" + csi.getPrivateKey() + ":" + csi.getPassphrase()));
+		assertTrue(result.contains(csi.getPrivateKey() + ":" + csi.getPassphrase()));
 	}
 }

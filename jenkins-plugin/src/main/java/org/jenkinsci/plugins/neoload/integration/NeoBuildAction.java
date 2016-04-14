@@ -430,23 +430,10 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 				commands.add("-NTSCollabPath \"" + ((NTSServerInfo) sharedProjectServer).getCollabPath() + "\"");
 
 			} else if (sharedProjectServer instanceof CollabServerInfo) {
-				final CollabServerInfo c = (CollabServerInfo) sharedProjectServer;
-				commands.add("-Collab \"" + c.getUrl() + "\"");
+				final CollabServerInfo csi = (CollabServerInfo) sharedProjectServer;
+				commands.add("-Collab \"" + csi.getUrl() + "\"");
 				
-				final StringBuilder sb = new StringBuilder();
-				// -CollabLogin "<login>:<hashed password>", or
-				// -CollabLogin "<login>:<private key>:<hashed passphrase>", or
-				// -CollabLogin "<login>:<hashed password>:<private key>:<hashed passphrase>"
-				sb.append("-CollabLogin " + c.getLoginUser());
-				if (StringUtils.trimToNull(hashedPasswords.get(c.getLoginPassword())) != null) {
-					sb.append(":" + hashedPasswords.get(c.getLoginPassword()));
-				}
-				if (StringUtils.trimToNull(c.getPrivateKey()) != null) {
-					sb.append(":" + c.getPrivateKey());
-				}
-				if (StringUtils.trimToNull(c.getPassphrase()) != null) {
-					sb.append(":" + c.getPassphrase());
-				}
+				final StringBuilder sb = setupCollabLogin(hashedPasswords, csi);
 				
 				commands.add(sb.toString());
 
@@ -460,6 +447,37 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 		if (publishTestResults) {
 			commands.add("-publishTestResult");
 		}
+	}
+
+	StringBuilder setupCollabLogin(final Map<String, String> hashedPasswords, final CollabServerInfo csi) {
+		final StringBuilder sb = new StringBuilder();
+		// -CollabLogin "<login>:<hashed password>", or
+		// -CollabLogin "<login>:<private key>:<hashed passphrase>", or
+		// -CollabLogin "<login>:<hashed password>:<private key>:<hashed passphrase>"
+		if (StringUtils.trimToNull(csi.getLoginUser()) != null) {
+			sb.append(csi.getLoginUser());
+		}
+		if (StringUtils.trimToNull(hashedPasswords.get(csi.getLoginPassword())) != null) {
+			if (sb.length() > 0) {
+				sb.append(":");
+			}
+			sb.append(hashedPasswords.get(csi.getLoginPassword()));
+		}
+		if (StringUtils.trimToNull(csi.getPrivateKey()) != null) {
+			if (sb.length() > 0) {
+				sb.append(":");
+			}
+			sb.append(csi.getPrivateKey());
+		}
+		if (StringUtils.trimToNull(csi.getPassphrase()) != null) {
+			if (sb.length() > 0) {
+				sb.append(":");
+			}
+			sb.append(csi.getPassphrase());
+		}
+		sb.insert(0, "-CollabLogin ");
+		
+		return sb;
 	}
 
 	private boolean runTheCommand(final String command, final AbstractBuild<?, ?> build, final Launcher launcher, final BuildListener listener) 
