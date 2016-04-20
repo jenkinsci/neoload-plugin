@@ -3,7 +3,7 @@
 
 	<!-- note that the "field" attribute must be in the outer-most tags for the help file to be associated with it. -->
 	<f:entry title="NeoLoad Executable" field="executable" >
-		<f:textbox value="${executable}" placeholder="C:\Program Files\NeoLoad 5.2\bin\NeoLoadCmd.exe"/>
+		<f:textbox value="${executable}" placeholder="C:\Program Files\NeoLoad 5.2\bin\NeoLoadCmd.exe (required)"/>
 	</f:entry>
 
 	<!-- choose a local or remote (shared) project - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  -->
@@ -13,9 +13,8 @@
 			default="projectTypeLocal" 
 			checked="${instance.isProjectType('projectTypeLocal')}" inline="true">
 			<f:nested>
-				<f:entry title="Project File" field="localProjectFile" 
-					description="Local project file path. /Users/ajohnson/neoload_projects/JenkinsExample/JenkinsExample.nlp">
-					<f:textbox/>
+				<f:entry title="Project File" field="localProjectFile" >
+					<f:textbox placeholder="/Users/userName/neoload_projects/JenkinsExample/JenkinsExample.nlp (required)"  />
 				</f:entry>
 			</f:nested>
 		</f:radioBlock>
@@ -27,9 +26,8 @@
 				<f:entry field="sharedProjectServer" title="Shared Project Server">
    					<f:select />
 				</f:entry>
-				<f:entry title="Project Name" field="sharedProjectName" 
-					description="Project name. Project51">
-					<f:textbox/>
+				<f:entry title="Project Name" field="sharedProjectName" >
+					<f:textbox placeholder="(required)" />
 				</f:entry>
 				
 			    <f:entry field="publishTestResults" title="Publish">
@@ -50,7 +48,7 @@
 
 
 	<f:entry title="Scenario Name" field="scenarioName" >
-		<f:textbox name="scenarioName" value="${scenarioName}" placeholder="ScenarioName" />
+		<f:textbox name="scenarioName" value="${scenarioName}" placeholder="ScenarioName (required)" />
 	</f:entry>
   
 	
@@ -58,19 +56,20 @@
 		value="${customReportPaths}" inline="true" field="customReportPaths">
 		<f:entry title="HTML Report" field="htmlReport" >
 			<f:textbox name="htmlReport" value="${htmlReport}" default="$${WORKSPACE}/neoload-report/report.html" 
-				placeholder="$${WORKSPACE}/neoload-report/report.html" />
+				placeholder="$${WORKSPACE}/neoload-report/report.html (optional)" />
 		</f:entry>
 		<f:entry title="XML Report" field="xmlReport" >
 			<f:textbox name="xmlReport" value="${xmlReport}" default="$${WORKSPACE}/neoload-report/report.xml" 
-				placeholder="$${WORKSPACE}/neoload-report/report.xml" />
+				placeholder="$${WORKSPACE}/neoload-report/report.xml (optional)" />
 		</f:entry>
 		<f:entry title="PDF Report" field="pdfReport" >
-			<f:textbox name="pdfReport" value="${pdfReport}" />
+			<f:textbox name="pdfReport" value="${pdfReport}" 
+			placeholder="$${WORKSPACE}/neoload-report/report.pdf (optional)" />
 		</f:entry>
 		<f:entry title="JUnit Report" field="junitReport" >
 			<f:textbox name="junitReport" value="${junitReport}"  
 				default="$${WORKSPACE}/neoload-report/junit-sla-results.xml"
-				placeholder="$${WORKSPACE}/neoload-report/junit-sla-results.xml" />
+				placeholder="$${WORKSPACE}/neoload-report/junit-sla-results.xml (optional)" />
 		</f:entry>
     </f:optionalBlock>
     
@@ -81,12 +80,13 @@
 	
 	<f:entry title="Test Result Name" field="testResultName" >
 		<f:textbox name="testResultName" value="${testResultName}"  
-			placeholder="$$Date{hh:mm - dd MMM yyyy} (build $${BUILD_NUMBER}"
+			placeholder="$$Date{hh:mm - dd MMM yyyy} (build $${BUILD_NUMBER} (optional)"
 			default="$$Date{hh:mm - dd MMM yyyy} (build $${BUILD_NUMBER}" />
 	</f:entry>
 
 	<f:entry title="Test Description" field="testDescription" >
-		<f:textbox value="${testDescription}" />
+		<f:textbox value="${testDescription}" 
+		placeholder="(optional)" />
 	</f:entry>
 	
 	<!-- choose a file or remote license - - - - - - - - - - - - - - - - - - - - - - - - - - - -  -->
@@ -107,10 +107,10 @@
    					<f:select />
 				</f:entry>
 				<f:entry title="User Path Count (Virtual User Count)" field="licenseVUCount" >
-					<f:textbox value="${licenseVUCount}" default="50" placeholder="50" />
+					<f:textbox value="${licenseVUCount}" default="50" placeholder="50 (required)" />
 				</f:entry>
 				<f:entry title="Duration (in hours)" field="licenseDuration" >
-					<f:textbox value="${licenseDuration}" default="2" placeholder="2" />
+					<f:textbox value="${licenseDuration}" default="2" placeholder="2 (required)" />
 				</f:entry>
 			</f:nested>
 		</f:radioBlock>
@@ -121,7 +121,7 @@
 	</f:section>
 	
 	<f:entry field="customCommandLineOptions" title="Custom Command Line Options">
-		<f:expandableTextbox value="${customCommandLineOptions}" />
+		<f:expandableTextbox value="${customCommandLineOptions}" placeholder="(optional)" />
 	</f:entry>
 	
 	<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  -->

@@ -11,21 +11,22 @@
                         <f:textbox field="uniqueID" value="${ntsInfoVar.uniqueID}" />
                     </f:invisibleEntry>
                     <f:entry title="URL" field="url" >
-                        <f:textbox value="${ntsInfoVar.url}" placeholder="http://&lt;host&gt;:&lt;port&gt;" />
+                        <f:textbox value="${ntsInfoVar.url}" placeholder="http://&lt;host&gt;:&lt;port&gt; (required)" 
+                        help="/descriptor/org.jenkinsci.plugins.neoload.integration.NeoGlobalConfig/help/urlNTS" />
                     </f:entry>
                     <f:entry title="Login User" field="loginUser" >
-                        <f:textbox value="${ntsInfoVar.loginUser}" placeholder="&lt;login user&gt;" 
+                        <f:textbox value="${ntsInfoVar.loginUser}" placeholder="&lt;login user&gt; (required)" 
                         	clazz="required" />
                     </f:entry>
                     <f:entry title="Login Password" field="loginPassword" >
-                        <f:password value="${ntsInfoVar.loginPassword}" placeholder="&lt;password&gt;" />
+                        <f:password value="${ntsInfoVar.loginPassword}" placeholder="&lt;password&gt; (required)" />
                     </f:entry>
                     <f:entry title="Collaboration Path" field="collabPath" >
-                        <f:textbox value="${ntsInfoVar.collabPath}" placeholder="/repository" />
+                        <f:textbox value="${ntsInfoVar.collabPath}" placeholder="/repository (optional)" />
                     </f:entry>
-                    <f:entry title="licenseID" field="licenseID" >
+                    <f:entry title="License ID" field="licenseID" >
                         <f:textbox value="${ntsInfoVar.licenseID}" 
-                        	placeholder="MCwCFC54ZB4sNH1q9RnNrlKi7MM0q+20AhRNmr10XW3c3qIdrzSpyQbAIBCwqQ==" />
+                        	placeholder="MCwCFC54ZB4sNH1q9RnNrlKi7MM0q+20AhRNmr10XW3c3qIdrzSpyQbAIBCwqQ== (optional)" />
                     </f:entry>
 
                     <f:entry title="">
@@ -47,19 +48,20 @@
                         <f:textbox field="uniqueID" value="${collabInfoVar.uniqueID}" />
                     </f:invisibleEntry>
                     <f:entry title="URL" field="url" >
-                        <f:textbox value="${collabInfoVar.url}" placeholder="svn://&lt;svnServerAddress&gt;:3690/neoload/" />
+                        <f:textbox value="${collabInfoVar.url}" placeholder="svn://&lt;svnServerAddress&gt;:3690/neoload/ (required)" 
+                        help="/descriptor/org.jenkinsci.plugins.neoload.integration.NeoGlobalConfig/help/urlSVN" />
                     </f:entry>
                     <f:entry title="Login User" field="loginUser" >
-                        <f:textbox value="${collabInfoVar.loginUser}" placeholder="&lt;user&gt;" />
+                        <f:textbox value="${collabInfoVar.loginUser}" placeholder="&lt;user&gt; (required)" />
                     </f:entry>
                     <f:entry title="Login Password" field="loginPassword" >
-                        <f:password value="${collabInfoVar.loginPassword}" placeholder="&lt;password&gt;" />
+                        <f:password value="${collabInfoVar.loginPassword}" placeholder="&lt;password&gt; (optional)" />
                     </f:entry>
                     <f:entry title="Private Key" field="privateKey" >
                         <f:textbox value="${collabInfoVar.privateKey}" placeholder="c:\files\private.key (optional)" />
                     </f:entry>
                     <f:entry title="Hashed Passphrase" field="passphrase" >
-                        <f:textbox value="${collabInfoVar.passphrase}"  />
+                        <f:textbox value="${collabInfoVar.passphrase}" placeholder="(optional)"  />
                     </f:entry>
 
                     <f:entry title="">
