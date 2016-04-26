@@ -3,7 +3,7 @@
          xmlns:st="jelly:stapler">
     <f:section title="NeoLoad Servers">
 
-        <f:entry title="NeoLoad Team Servers" >
+        <f:entry title="Neotys Team Servers" >
             <f:repeatable name="ntsInfoName" var="ntsInfoVar" items="${descriptor.ntsInfo}" header="NTS Server" add="Add NTS Server">
 
                 <table width="100%">
@@ -21,7 +21,7 @@
                     <f:entry title="Login Password" field="loginPassword" >
                         <f:password value="${ntsInfoVar.loginPassword}" placeholder="&lt;password&gt; (required)" />
                     </f:entry>
-                    <f:entry title="Collaboration Path" field="collabPath" >
+                    <f:entry title="Context Path" field="collabPath" >
                         <f:textbox value="${ntsInfoVar.collabPath}" placeholder="/repository (optional)" />
                     </f:entry>
                     <f:entry title="License ID" field="licenseID" >

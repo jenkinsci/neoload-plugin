@@ -51,6 +51,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.SystemUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.jenkinsci.plugins.neoload.integration.supporting.CollabServerInfo;
+import org.jenkinsci.plugins.neoload.integration.supporting.GraphOptionsInfo;
 import org.jenkinsci.plugins.neoload.integration.supporting.NTSServerInfo;
 import org.jenkinsci.plugins.neoload.integration.supporting.NeoLoadPluginOptions;
 import org.jenkinsci.plugins.neoload.integration.supporting.PluginUtils;
@@ -97,7 +98,12 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 
 	// settings
 	private final String executable;
+	
+	/** a local project or a shared/remote project. */
 	private final String projectType;
+	
+	/** Default report file names or custom report file names. */
+	private final String reportType;
 	private final String localProjectFile;
 	private final String sharedProjectName;
 	private final String scenarioName;
@@ -105,7 +111,6 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 	private final String xmlReport;
 	private final String pdfReport;
 	private final String junitReport;
-	private final boolean customReportPaths;
 	private final boolean displayTheGUI;
 	private final String testResultName;
 	private final String testDescription;
@@ -123,6 +128,8 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 	/** User option presented in the GUI. Show the average response time. */
 	private final boolean showTrendErrorRate;
 	
+ 	private final List<GraphOptionsInfo> graphOptionsInfo;
+	
 	/** This executes NeoLoad. It's an instance of a jenkins object for Windows or Linux. */
 	private CommandInterpreter commandInterpreter = null;
 
@@ -131,18 +138,20 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 
 	/** This method and the annotation @DataBoundConstructor are required for jenkins 1.393 even if no params are passed in. */
 	@DataBoundConstructor
-	public NeoBuildAction(final String executable, final String projectType, final String localProjectFile, 
+	public NeoBuildAction(final String executable, final String projectType, final String reportType, final String localProjectFile, 
 			final String sharedProjectName, final String scenarioName,
 			final String htmlReport, final String xmlReport, final String pdfReport, final String junitReport, 
-			final boolean customReportPaths, final boolean displayTheGUI, final String testResultName,
+			final boolean displayTheGUI, final String testResultName,
 			final String testDescription, final String licenseType,  
 			final String licenseVUCount, final String licenseDuration, final String customCommandLineOptions, 
 			final boolean publishTestResults, final ServerInfo sharedProjectServer, final NTSServerInfo licenseServer,
-			final boolean showTrendAverageResponse, final boolean showTrendErrorRate) {
+			final boolean showTrendAverageResponse, final boolean showTrendErrorRate, 
+			final List<GraphOptionsInfo> graphOptionsInfo) {
 		super(NeoBuildAction.class.getName() + " (command)");
 
 		this.executable = executable;
 		this.projectType = StringUtils.trimToEmpty(projectType);
+		this.reportType = StringUtils.trimToEmpty(reportType);
 		this.localProjectFile = localProjectFile;
 		this.sharedProjectName = sharedProjectName;
 		this.scenarioName = scenarioName;
@@ -153,7 +162,6 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 		this.pdfReport = pdfReport;
 		this.junitReport = junitReport;
 
-		this.customReportPaths = customReportPaths;
 		this.displayTheGUI = displayTheGUI;
 		this.testResultName = testResultName;
 		this.testDescription = testDescription;
@@ -167,6 +175,8 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 		
 		this.showTrendAverageResponse = showTrendAverageResponse;
 		this.showTrendErrorRate = showTrendErrorRate;
+		
+		this.graphOptionsInfo = graphOptionsInfo;
 	}
 
 	/** Here we search the global config for settings that have the same uniqueID. If the same uniqueID is found then we use those
@@ -228,7 +238,6 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 
 		final Map<String, String> hashedPasswords = getHashedPasswords(launcher);
 
-
 		// verify that the executable exists
 		if (!Files.exists(Paths.get(executable))) {
 			LOGGER.log(Level.WARNING, "Can't find NeoLoad executable: " + executable);
@@ -275,14 +284,15 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 		final HashMap<String, String> map = new HashMap<String, String>();
 
 		if (sharedProjectServer != null && StringUtils.trimToNull(sharedProjectServer.getLoginPassword()) != null) {
-			map.put(sharedProjectServer.getLoginPassword(), "PASSWORD");
+			map.put(sharedProjectServer.getLoginPassword(), "## use the password-scrambler to resolve this issue ##");
 		}
 		if (licenseServer != null && StringUtils.trimToNull(licenseServer.getLoginPassword()) != null) {
-			map.put(licenseServer.getLoginPassword(), "PASSWORD");
+			map.put(licenseServer.getLoginPassword(), "## use the password-scrambler to resolve this issue ##");
 		}
 
 		// if there are no passwords or the executable doesn't exist then give up.
-		if (map.size() == 0 || !Files.exists(Paths.get(executable))) {
+		if (map.size() == 0) {
+			LOGGER.finest("No passwords to scramble.");
 			return map;
 		}
 
@@ -290,6 +300,10 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 		Path parent = Paths.get(executable).getParent();
 		Path possibleFile = null;
 		for (int i = 0; i < 2; i++) {
+			if (parent == null) {
+				break;
+			}
+			
 			if (SystemUtils.IS_OS_WINDOWS) {
 				possibleFile = parent.resolve("password-scrambler.bat");
 			} else {
@@ -302,11 +316,13 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 			}
 
 			if (Files.exists(possibleFile)) {
+				LOGGER.log(Level.FINEST, "Found password-scrambler path at: " + possibleFile);
 				break;
 			}
 			parent = parent.getParent();
 		}
 		if (!Files.exists(possibleFile)) {
+			LOGGER.severe("Password scrambler not found.");
 			return map;
 		}
 
@@ -323,7 +339,7 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 			}
 
 		} catch (final Exception e) {
-			LOGGER.log(Level.FINEST, "Issue executing " + possibleFile, e);
+			LOGGER.log(Level.SEVERE, "Issue executing " + possibleFile, e);
 			// oh well. this isn't important enough to care about. 
 		}
 		map.putAll(newMap);
@@ -370,7 +386,7 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 	}
 
 	private void setupReports(final List<String> commands) {
-		if (customReportPaths) {
+		if (Boolean.valueOf(isReportType("custom"))) {
 			final List<String> reportPaths = PluginUtils.removeAllEmpties(htmlReport, xmlReport, pdfReport);
 			final String reportFileNames = Joiner.on(",").skipNulls().join(reportPaths);
 			if (StringUtils.trimToEmpty(reportFileNames).length() > 0) {
@@ -506,6 +522,14 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 		}
 
 		return projectType.equalsIgnoreCase(type) ? "true" : "";
+	}
+
+	public String isReportType(final String type) {
+		if (StringUtils.trimToNull(reportType) == null) {
+			return "reportTypeDefault".equals(type) == true ? "true" : "";
+		}
+
+		return reportType.toLowerCase().contains(type) ? "true" : "";
 	}
 
 	public String isLicenseType(final String type) {
@@ -693,6 +717,15 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 		public FormValidation doCheckScenarioName(@QueryParameter final String scenarioName) {
 			return PluginUtils.formValidationErrorToWarning(FormValidation.validateRequired(scenarioName));
 		}
+		public FormValidation doCheckDisplayTheGUI(@QueryParameter final String displayTheGUI) {
+			if (Boolean.valueOf(displayTheGUI)) {
+				return FormValidation.warning("The user launching the process must be able to display a user interface "
+						+ "(which is not always the case for the Jenkins user). Some errors or warning messages may prevent NeoLoad "
+						+ "from closing automatically at the end of a test run. Thus this should only be used for testing purposes.");
+			}
+			
+			return FormValidation.ok();
+		}
 	}
 
 	@Override
@@ -763,9 +796,6 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 	public String getJunitReport() {
 		return junitReport;
 	}
-	public boolean isCustomReportPaths() {
-		return customReportPaths;
-	}
 	public boolean isDisplayTheGUI() {
 		return displayTheGUI;
 	}
@@ -792,6 +822,9 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 	}
 	public String getProjectType() {
 		return projectType;
+	}
+	public String getReportType() {
+		return reportType;
 	}
 	public boolean getPublishTestResults() {
 		return publishTestResults;
@@ -822,5 +855,9 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 	/** @return the showTrendErrorRate */
 	public boolean isShowTrendErrorRate() {
 		return showTrendErrorRate;
+	}
+
+	public List<GraphOptionsInfo> getGraphOptionsInfo() {
+		return graphOptionsInfo;
 	}
 }

@@ -42,7 +42,6 @@
 	
 	<!--  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  -->
 
-
 	<f:section title="Project Details" name="projectDetails" >
 	</f:section>
 
@@ -51,33 +50,6 @@
 		<f:textbox name="scenarioName" value="${scenarioName}" placeholder="ScenarioName (required)" />
 	</f:entry>
   
-	
-	<f:optionalBlock name="customReportPaths" title="Customize Report File Path Settings (Advanced)" 
-		value="${customReportPaths}" inline="true" field="customReportPaths">
-		<f:entry title="HTML Report" field="htmlReport" >
-			<f:textbox name="htmlReport" value="${htmlReport}" default="$${WORKSPACE}/neoload-report/report.html" 
-				placeholder="$${WORKSPACE}/neoload-report/report.html (optional)" />
-		</f:entry>
-		<f:entry title="XML Report" field="xmlReport" >
-			<f:textbox name="xmlReport" value="${xmlReport}" default="$${WORKSPACE}/neoload-report/report.xml" 
-				placeholder="$${WORKSPACE}/neoload-report/report.xml (optional)" />
-		</f:entry>
-		<f:entry title="PDF Report" field="pdfReport" >
-			<f:textbox name="pdfReport" value="${pdfReport}" 
-			placeholder="$${WORKSPACE}/neoload-report/report.pdf (optional)" />
-		</f:entry>
-		<f:entry title="JUnit Report" field="junitReport" >
-			<f:textbox name="junitReport" value="${junitReport}"  
-				default="$${WORKSPACE}/neoload-report/junit-sla-results.xml"
-				placeholder="$${WORKSPACE}/neoload-report/junit-sla-results.xml (optional)" />
-		</f:entry>
-    </f:optionalBlock>
-    
-    <f:entry field="displayTheGUI" title="GUI" >
-		<f:checkbox name="displayTheGUI" checked="${displayTheGUI}" 
-			 title="Display the GUI" />
-	</f:entry>
-	
 	<f:entry title="Test Result Name" field="testResultName" >
 		<f:textbox name="testResultName" value="${testResultName}"  
 			placeholder="$$Date{hh:mm - dd MMM yyyy} (build $${BUILD_NUMBER} (optional)"
@@ -88,6 +60,50 @@
 		<f:textbox value="${testDescription}" 
 		placeholder="(optional)" />
 	</f:entry>
+
+    <f:entry field="displayTheGUI" title="GUI" >
+		<f:checkbox name="displayTheGUI" checked="${displayTheGUI}" 
+			 title="Display the GUI" />
+	</f:entry>
+	
+	
+	<!-- report type - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  -->
+	
+	<f:section title="Report File Details" >
+		<f:radioBlock name="reportType" value="reportTypeDefault" title="Default Report File Names" 
+			help="/descriptor/org.jenkinsci.plugins.neoload.integration.NeoBuildAction/help/reportTypeDefault" 
+			default="reportTypeDefault" 
+			checked="${instance.isReportType('reportTypeDefault')}" inline="true">
+		</f:radioBlock>
+		
+		<f:radioBlock name="reportType" value="reportTypeCustom" title="Custom Report File Names" 
+			checked="${instance.isReportType('reportTypeCustom')}" 
+			help="/descriptor/org.jenkinsci.plugins.neoload.integration.NeoBuildAction/help/reportTypeCustom" 
+		inline="true">
+			<f:nested>
+			
+				<f:entry title="HTML Report" field="htmlReport" >
+					<f:textbox name="htmlReport" value="${htmlReport}" default="$${WORKSPACE}/neoload-report/report.html" 
+						placeholder="$${WORKSPACE}/neoload-report/report.html (optional)" />
+				</f:entry>
+				<f:entry title="XML Report" field="xmlReport" >
+					<f:textbox name="xmlReport" value="${xmlReport}" default="$${WORKSPACE}/neoload-report/report.xml" 
+						placeholder="$${WORKSPACE}/neoload-report/report.xml (optional)" />
+				</f:entry>
+				<f:entry title="PDF Report" field="pdfReport" >
+					<f:textbox name="pdfReport" value="${pdfReport}" 
+					placeholder="$${WORKSPACE}/neoload-report/report.pdf (optional)" />
+				</f:entry>
+				<f:entry title="JUnit Report" field="junitReport" >
+					<f:textbox name="junitReport" value="${junitReport}"  
+						default="$${WORKSPACE}/neoload-report/junit-sla-results.xml"
+						placeholder="$${WORKSPACE}/neoload-report/junit-sla-results.xml (optional)" />
+				</f:entry>				
+				
+			</f:nested>
+		</f:radioBlock>
+	</f:section>
+		
 	
 	<!-- choose a file or remote license - - - - - - - - - - - - - - - - - - - - - - - - - - - -  -->
 	<f:section title="License Type" >
@@ -106,7 +122,7 @@
 				<f:entry field="licenseServer" title="NTS Server">
    					<f:select />
 				</f:entry>
-				<f:entry title="User Path Count (Virtual User Count)" field="licenseVUCount" >
+				<f:entry title="Virtual User Count (User Path Count)" field="licenseVUCount" >
 					<f:textbox value="${licenseVUCount}" default="50" placeholder="50 (required)" />
 				</f:entry>
 				<f:entry title="Duration (in hours)" field="licenseDuration" >
@@ -139,5 +155,45 @@
 			default="true"  
 			title="Display Trend Graph: Error Rate %" />
 	</f:entry>
+	
+	<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+	<f:section title="Define NeoLoad Trend Graphs" name="graphs" >
+	</f:section>
+
+    <f:entry title="Graphs" >
+    	<f:repeatable field="graphOptionsInfo" minimum="0" add="Add Graph">
+    		<table width="100%">
+    			<f:entry title="Name" field="name">
+    				<f:textbox />
+    			</f:entry>
+
+
+				<f:entry title="Curve(s)" >
+				
+            <f:repeatable name="curveName" var="curveVar" items="${curve}" header="Curve" add="Add a Curve" minimum="1">
+
+                <table width="100%">
+                    <f:entry title="Cuuuuurrrvvvvveeeeeeee" field="path" >
+                        <f:textbox value="${curveVar.path}" placeholder="(required)" 
+                         />
+                    </f:entry>
+				
+                    <f:entry title="">
+                        <div align="right">
+                            <f:repeatableDeleteButton value="Delete NTS Server Config" />
+                        </div>
+                    </f:entry>
+                </table>
+				
+    			<f:entry title="Statistic" field="statistic">
+   					<f:select />
+    			</f:entry>
+
+    		</table>
+    		<div align="right">
+    			<f:repeatableDeleteButton value="Delete Graph" />
+    		</div>
+    	</f:repeatable>
+    </f:entry>
 	
 </j:jelly>
