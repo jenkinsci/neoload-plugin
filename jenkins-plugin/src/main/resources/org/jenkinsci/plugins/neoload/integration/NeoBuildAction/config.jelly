@@ -160,40 +160,44 @@
 	<f:section title="Define NeoLoad Trend Graphs" name="graphs" >
 	</f:section>
 
-    <f:entry title="Graphs" >
-    	<f:repeatable field="graphOptionsInfo" minimum="0" add="Add Graph">
-    		<table width="100%">
-    			<f:entry title="Name" field="name">
-    				<f:textbox />
-    			</f:entry>
+	<f:entry title="Graphs" >
+		<f:repeatable field="graphOptionsInfo" minimum="0" add="Add Graph">
+			<table width="100%">
+				<f:entry title="Name" field="name">
+					<f:textbox />
+				</f:entry>
 
 
 				<f:entry title="Curve(s)" >
-				
-            <f:repeatable name="curveName" var="curveVar" items="${curve}" header="Curve" add="Add a Curve" minimum="1">
 
-                <table width="100%">
-                    <f:entry title="Cuuuuurrrvvvvveeeeeeee" field="path" >
-                        <f:textbox value="${curveVar.path}" placeholder="(required)" 
-                         />
-                    </f:entry>
-				
-                    <f:entry title="">
-                        <div align="right">
-                            <f:repeatableDeleteButton value="Delete NTS Server Config" />
-                        </div>
-                    </f:entry>
-                </table>
-				
-    			<f:entry title="Statistic" field="statistic">
-   					<f:select />
-    			</f:entry>
+					<f:repeatable name="curveName" field="curve" add="Add a Curve" minimum="1">
 
-    		</table>
-    		<div align="right">
-    			<f:repeatableDeleteButton value="Delete Graph" />
-    		</div>
-    	</f:repeatable>
-    </f:entry>
+						<table width="100%">
+							<f:entry title="Curve" field="path" >
+								<f:textbox value="${curveVar.path}" placeholder="(required)" />
+							</f:entry>
+
+							<f:entry title="">
+								<div align="right">
+									<f:repeatableDeleteButton value="Delete Curve" />
+								</div>
+							</f:entry>
+						</table>
+
+					</f:repeatable>
+				</f:entry>
+
+
+				<f:entry title="Statistic" field="statistic">
+					<f:select />
+				</f:entry>
+
+				<div align="right">
+					<f:repeatableDeleteButton value="Delete Graph" />
+				</div>
+
+			</table>
+		</f:repeatable>
+	</f:entry>
 	
 </j:jelly>

@@ -8,10 +8,12 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.StaplerRequest;
 
 import hudson.Extension;
 import hudson.model.AbstractDescribableImpl;
 import hudson.model.Descriptor;
+import net.sf.json.JSONObject;
 
 public class GraphOptionsCurveInfo extends AbstractDescribableImpl<GraphOptionsCurveInfo> 
 implements Serializable, Comparable<GraphOptionsCurveInfo>, Comparator<GraphOptionsCurveInfo> {
@@ -25,8 +27,8 @@ implements Serializable, Comparable<GraphOptionsCurveInfo>, Comparator<GraphOpti
 	}
 
 	@DataBoundConstructor
-	public GraphOptionsCurveInfo(final String curve) {
-		this.path = curve;
+	public GraphOptionsCurveInfo(final String path) {
+		this.path = path;
 	}
 	
 	/** @return the path */
@@ -35,6 +37,7 @@ implements Serializable, Comparable<GraphOptionsCurveInfo>, Comparator<GraphOpti
 	}
 
 	/** @param path the path to set */
+	@DataBoundSetter
 	public void setPath(String path) {
 		this.path = path;
 	}
