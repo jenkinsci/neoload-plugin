@@ -10,6 +10,7 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.kohsuke.stapler.AncestorInPath;
 import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.StaplerRequest;
 
 import hudson.Extension;
 import hudson.model.AbstractDescribableImpl;
@@ -17,6 +18,7 @@ import hudson.model.Descriptor;
 import hudson.model.Item;
 import hudson.util.ListBoxModel;
 import hudson.util.ListBoxModel.Option;
+import net.sf.json.JSONObject;
 
 public class GraphOptionsInfo extends AbstractDescribableImpl<GraphOptionsInfo> 
 implements Serializable, Comparable<GraphOptionsInfo>, Comparator<GraphOptionsInfo> {
@@ -96,10 +98,8 @@ implements Serializable, Comparable<GraphOptionsInfo>, Comparator<GraphOptionsIn
 		public String getDisplayName() {
 			return "This display name serves no purpose.";
 		}
-
+		
 		public ListBoxModel doFillStatisticItems(@AncestorInPath final Item project) {
-			System.out.println("NeoBuildAction.DescriptorImpl.doFillStatisticItems() TODO: prefil selection! " + project);
-
 			final ListBoxModel listBoxModel = new ListBoxModel();
 
 			listBoxModel.add(new Option("Error %", "error"));
