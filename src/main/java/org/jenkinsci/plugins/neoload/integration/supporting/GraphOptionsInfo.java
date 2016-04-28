@@ -10,7 +10,6 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.kohsuke.stapler.AncestorInPath;
 import org.kohsuke.stapler.DataBoundConstructor;
-import org.kohsuke.stapler.StaplerRequest;
 
 import hudson.Extension;
 import hudson.model.AbstractDescribableImpl;
@@ -18,7 +17,6 @@ import hudson.model.Descriptor;
 import hudson.model.Item;
 import hudson.util.ListBoxModel;
 import hudson.util.ListBoxModel.Option;
-import net.sf.json.JSONObject;
 
 public class GraphOptionsInfo extends AbstractDescribableImpl<GraphOptionsInfo> 
 implements Serializable, Comparable<GraphOptionsInfo>, Comparator<GraphOptionsInfo> {
