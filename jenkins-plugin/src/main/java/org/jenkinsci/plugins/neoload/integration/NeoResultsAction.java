@@ -424,7 +424,7 @@ public class NeoResultsAction implements Action, Serializable {
 		if (!foundReportFile) {
 			return null;
 		}
-		return "/plugin/neoload-jenkins-plugin/images/neoload-cropped.png";
+		return "/plugin/neoload-jenkins-plugin/images/logo48.png";
 	}
 
 	public String getUrlName() {

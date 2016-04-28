@@ -56,7 +56,6 @@ import org.jenkinsci.plugins.neoload.integration.supporting.NTSServerInfo;
 import org.jenkinsci.plugins.neoload.integration.supporting.NeoLoadPluginOptions;
 import org.jenkinsci.plugins.neoload.integration.supporting.PluginUtils;
 import org.jenkinsci.plugins.neoload.integration.supporting.ServerInfo;
-import org.jenkinsci.plugins.neoload.integration.supporting.XMLUtilities;
 import org.kohsuke.stapler.AncestorInPath;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
@@ -239,7 +238,7 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 		final Map<String, String> hashedPasswords = getHashedPasswords(launcher);
 
 		// verify that the executable exists
-		if (!Files.exists(Paths.get(executable))) {
+		if (Files.isDirectory(Paths.get(executable)) || !Files.exists(Paths.get(executable))) {
 			LOGGER.log(Level.WARNING, "Can't find NeoLoad executable: " + executable);
 		}
 		// build the command line.
@@ -289,99 +288,104 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 		if (licenseServer != null && StringUtils.trimToNull(licenseServer.getLoginPassword()) != null) {
 			map.put(licenseServer.getLoginPassword(), "## use the password-scrambler to resolve this issue ##");
 		}
-
+		
 		// if there are no passwords or the executable doesn't exist then give up.
 		if (map.size() == 0) {
 			LOGGER.finest("No passwords to scramble.");
 			return map;
 		}
 
-		// look for the password scrambler. it should be next to the executable or one directory higher.
-		Path parent = Paths.get(executable).getParent();
-		Path possibleFile = null;
-		for (int i = 0; i < 2; i++) {
-			if (parent == null) {
-				break;
-			}
-			
-			if (SystemUtils.IS_OS_WINDOWS) {
-				possibleFile = parent.resolve("password-scrambler.bat");
-			} else {
-				possibleFile = parent.resolve("password-scrambler");
-				if (Files.exists(possibleFile)) {
-					break;
-				} else {
-					possibleFile = parent.resolve("password-scrambler.sh");
-				}
-			}
-
-			if (Files.exists(possibleFile)) {
-				LOGGER.log(Level.FINEST, "Found password-scrambler path at: " + possibleFile);
-				break;
-			}
-			parent = parent.getParent();
-		}
-		if (!Files.exists(possibleFile)) {
-			LOGGER.severe("Password scrambler not found.");
-			return map;
-		}
-
-		final Map<String, String> newMap = new HashMap<String, String>();
+		// this executes on the slave, not on the master.
+		final CallableForPasswordScrambler callableForPasswordScrambler = new CallableForPasswordScrambler(map, executable);
+		Map<String, String> newMap;
 		try {
-			for (final String plainPassword: map.keySet()) {
-				
-				// this executes on the slave, not on the master.
-				final CallableForPasswordScrambler callableForPasswordScrambler = 
-						new CallableForPasswordScrambler(possibleFile, plainPassword);
-				final String hashedPassword = launcher.getChannel().call(callableForPasswordScrambler);
-				
-				newMap.put(plainPassword, hashedPassword);
-			}
-
+			newMap = launcher.getChannel().call(callableForPasswordScrambler);
+			map.putAll(newMap);
 		} catch (final Exception e) {
-			LOGGER.log(Level.SEVERE, "Issue executing " + possibleFile, e);
-			// oh well. this isn't important enough to care about. 
+			LOGGER.finest("Issue executing password scrambler. " + e.getMessage());
 		}
-		map.putAll(newMap);
 
 		return map;
 	}
 	
 	/** Runs the password scrambler on the slave machine. */
-	static class CallableForPasswordScrambler implements Callable<String, Exception>, Serializable {
+	static class CallableForPasswordScrambler implements Callable<Map<String, String>, Exception>, Serializable {
 
 		/** Generated. */
 		private static final long serialVersionUID = 4462660760602753013L;
+
+		final Map<String, String> map;
+		final String executable;
 		
-		final Path executable;
-		final String plainPassword;
-		
-		public CallableForPasswordScrambler(final Path executable, final String plainPassword) {
+		public CallableForPasswordScrambler(final HashMap<String, String> map, final String executable) {
+			this.map = map;
 			this.executable = executable;
-			this.plainPassword = plainPassword;
 		}
 		
-		public String call() throws Exception {
-			// prepare the line to execute.
-			final String line = "\"" + executable.toString() + "\" -a \"" + plainPassword + "\"";
-			
-			// execute it and get the result.
-			final DefaultExecuteResultHandler resultHandler = new DefaultExecuteResultHandler();
-			final CommandLine cmdLine = CommandLine.parse(line);
-			final DefaultExecutor executor = new DefaultExecutor();
-			final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-			final PumpStreamHandler streamHandler = new PumpStreamHandler(outputStream);
-			executor.setStreamHandler(streamHandler);
-			executor.execute(cmdLine, resultHandler);
-			resultHandler.waitFor(5000);
-			final String result = outputStream.toString();
+		public Map<String, String> call() throws Exception {
+			// look for the password scrambler. it should be next to the executable or one directory higher.
+			final Path possibleFile = findThePasswordScrambler();
+			if (!Files.exists(possibleFile)) {
+				LOGGER.severe("Password scrambler not found.");
+				return map;
+			}
 
-			// parse the result.
-			// example: AES128 ciphering result of nluser: 6RGXo/iJAai0tGuxtAih2Q== \n Copyright (c) 2016 Neotys, PasswordScrambler v-
-			final String[] split = result.split(":|\\r|\\n", 3);
-			final String hashedPassword = split[1].trim();
+			for (final String plainPassword: map.keySet()) {
+				// prepare the line to execute.
+				final String line = "\"" + possibleFile.toString() + "\" -a \"" + plainPassword + "\"";
+				
+				// execute it and get the result.
+				final DefaultExecuteResultHandler resultHandler = new DefaultExecuteResultHandler();
+				final CommandLine cmdLine = CommandLine.parse(line);
+				final DefaultExecutor executor = new DefaultExecutor();
+				final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+				final PumpStreamHandler streamHandler = new PumpStreamHandler(outputStream);
+				executor.setStreamHandler(streamHandler);
+				executor.setWorkingDirectory(possibleFile.getParent().toFile());
+				executor.execute(cmdLine, resultHandler);
+				resultHandler.waitFor(5000);
+				final String result = outputStream.toString();
+				
+				// parse the result.
+				// example: AES128 ciphering result of nluser: 6RGXo/iJAai0tGuxtAih2Q== \n Copyright (c) 2016 Neotys, PasswordScrambler v-
+				final String firstPart = result.substring(result.indexOf(plainPassword + ":"));
+				final String secondPart = firstPart.substring(firstPart.indexOf(":") + 1, firstPart.indexOf("\r\n"));
+				final String hashedPassword = secondPart;
+				
+				LOGGER.finest("hashedPassword : " + hashedPassword);
+				
+				map.put(plainPassword, hashedPassword);
+			}
 			
-			return hashedPassword;
+			return map;
+		}
+
+		private Path findThePasswordScrambler() {
+			Path parent = Paths.get(executable).getParent();
+			Path possibleFile = null;
+			for (int i = 0; i < 2; i++) {
+				if (parent == null) {
+					break;
+				}
+				
+				if (SystemUtils.IS_OS_WINDOWS) {
+					possibleFile = parent.resolve("password-scrambler.bat");
+				} else {
+					possibleFile = parent.resolve("password-scrambler");
+					if (Files.exists(possibleFile)) {
+						break;
+					} else {
+						possibleFile = parent.resolve("password-scrambler.sh");
+					}
+				}
+
+				if (Files.exists(possibleFile)) {
+					LOGGER.log(Level.FINEST, "Found password-scrambler path at: " + possibleFile);
+					break;
+				}
+				parent = parent.getParent();
+			}
+			return possibleFile;
 		}
 	}
 
@@ -430,8 +434,12 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 					Pattern.quote("$Date{") + "(.*?)" + Pattern.quote("}"), 
 					Matcher.quoteReplacement("\\$Date{") + "$1" + Matcher.quoteReplacement("}"));
 		}
-		commands.add("-testResultName \"" + escapedTestResultName + "\"");
-		commands.add("-description \"" + testDescription + "\"");
+		if (StringUtils.trimToNull(escapedTestResultName) != null) {
+			commands.add("-testResultName \"" + escapedTestResultName + "\"");
+		}
+		if (StringUtils.trimToNull(testDescription) != null) {
+			commands.add("-description \"" + testDescription + "\"");
+		}
 	}
 
 	private void setupProjectType(final List<String> commands, final Map<String, String> hashedPasswords) {
@@ -570,7 +578,6 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 		
 		@Override
 		public boolean configure(StaplerRequest req, JSONObject json) throws hudson.model.Descriptor.FormException {
-			System.out.println("NeoBuildAction.DescriptorImpl.configure() json: " + json);
 			save();
 			return super.configure(req, json);
 		}
@@ -621,7 +628,7 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 
 			if (listBoxModel.isEmpty()) {
 				listBoxModel.add(new Option("Please configure Jenkins System Settings for NeoLoad to add an NTS server.", 
-						"-1"));
+						null));
 			}
 			return listBoxModel;
 		}
@@ -664,7 +671,7 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 
 			if (listBoxModel.isEmpty()) {
 				listBoxModel.add(new Option("Please configure Jenkins System Settings for NeoLoad to add a server.", 
-						XMLUtilities.toXMLEscaped(null)));
+						null));
 			}
 			return listBoxModel;
 		}
@@ -689,6 +696,10 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 			final FormValidation requiredWarning = PluginUtils.formValidationErrorToWarning(FormValidation.validateRequired(localProjectFile));
 			if (!FormValidation.Kind.OK.equals(requiredWarning.kind)) {
 				return requiredWarning;
+			}
+			
+			if (localProjectFile == null || !localProjectFile.toLowerCase().endsWith(".nlp")) {
+				return FormValidation.error("Please specify an NLP file");
 			}
 
 			return PluginUtils.validateFileExists(localProjectFile);

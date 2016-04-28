@@ -51,7 +51,6 @@ public class NeoGlobalConfig extends GlobalConfiguration implements Serializable
 
 		@Override
 		public boolean configure(final StaplerRequest req, final JSONObject json) throws FormException {
-			System.out.println("NeoGlobalConfig.DescriptorImpl.configure() json: " + json);
 			// this could be a JSONObject or a JSONArray.
 			final Object ntsInfoJson = json.get("ntsInfoName");
 			final List<NTSServerInfo> tempNTSInfo = req.bindJSONToList(NTSServerInfo.class, ntsInfoJson);
@@ -87,7 +86,6 @@ public class NeoGlobalConfig extends GlobalConfiguration implements Serializable
 		}
 
 		public void setNtsInfo(final List<NTSServerInfo> ntsInfo) {
-			System.out.println("NeoGlobalConfig.DescriptorImpl.setNtsInfo()");
 			this.ntsInfo = ntsInfo;
 		}
 

@@ -163,6 +163,7 @@ public final class PluginUtils implements Serializable, Converter {
 
 		if (globalConfigDescriptor == null) {
 			LOGGER.log(Level.FINEST, "No NeoLoad server settings found. Please add servers before configuring jobs. (getLicenseServerOptions)");
+			return null;
 		}
 
 		// find the serverInfo based on the unique ID.
