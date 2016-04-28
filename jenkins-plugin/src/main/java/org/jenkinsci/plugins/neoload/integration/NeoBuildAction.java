@@ -349,9 +349,9 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 				// parse the result.
 				// example: AES128 ciphering result of nluser: 6RGXo/iJAai0tGuxtAih2Q== \n Copyright (c) 2016 Neotys, PasswordScrambler v-
 				final String firstPart = result.substring(result.indexOf(plainPassword + ":"));
-				final String secondPart = firstPart.substring(firstPart.indexOf(":") + 1, firstPart.indexOf("\r\n"));
-				final String hashedPassword = secondPart;
-				
+				final String secondPart = firstPart.substring(firstPart.indexOf(":") + 2);
+				final String[] split = secondPart.split("\r|\n");
+				final String hashedPassword = split[0];
 				LOGGER.finest("hashedPassword : " + hashedPassword);
 				
 				map.put(plainPassword, hashedPassword);
