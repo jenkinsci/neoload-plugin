@@ -56,10 +56,10 @@ public class NeoBuildActionTest extends HudsonTestCase {
 		final NeoBuildAction neoBuildAction = 
 				new NeoBuildAction("c:/NeoLoad/executable", 
 				"shared-project-type", // project type - local or shared. 
+				"reportTypeDefault", // report type
 				"c:/local_Project_File.prj", 
 				"Shared_Project_Name", "Scenario_Name",
 				"c:/htmlReport.html", "c:/xmlReport.xml", "c:/pdfReport.pdf", "c:/junitReport.xml", 
-				true, // custom report paths
 				false, // display the GUI
 				"test result name", "test description", 
 				"shared-license-type", // license type - local or shared. 
@@ -69,7 +69,8 @@ public class NeoBuildActionTest extends HudsonTestCase {
 				true, // publish test results
 				ntssi, ntssi, // shared project server, license server.
 				true, // show trend average response
-				true); // show trend error rate
+				true, // show trend error rate
+				null); // graph info
 
 		Launcher launcher = Mockito.mock(Launcher.class);
 		final String cl = neoBuildAction.prepareCommandLine(launcher).toString();
@@ -97,10 +98,10 @@ public class NeoBuildActionTest extends HudsonTestCase {
 		final NeoBuildAction neoBuildAction = 
 				new NeoBuildAction("c:/NeoLoad/executable", 
 				"shared-project-type", // project type - local or shared. 
+				"reportTypeDefault", // report type
 				"c:/local_Project_File.prj", 
 				"Shared_Project_Name", "Scenario_Name",
 				"c:/htmlReport.html", "c:/xmlReport.xml", "c:/pdfReport.pdf", "c:/junitReport.xml", 
-				true, // custom report paths
 				false, // display the GUI
 				"test result name", "test description", 
 				"shared-license-type", // license type - local or shared. 
@@ -108,9 +109,10 @@ public class NeoBuildActionTest extends HudsonTestCase {
 				"1", // license hours
 				"", // custom command line options
 				true, // publish test results
-				csi, ntssi, // shared project server, license server.
+				ntssi, ntssi, // shared project server, license server.
 				true, // show trend average response
-				true); // show trend error rate
+				true, // show trend error rate
+				null); // graph info
 
 		Launcher launcher = Mockito.mock(Launcher.class);
 		final String cl = neoBuildAction.prepareCommandLine(launcher).toString();
@@ -131,20 +133,21 @@ public class NeoBuildActionTest extends HudsonTestCase {
 		final NeoBuildAction neoBuildAction = 
 				new NeoBuildAction("c:/NeoLoad/executable", 
 				"shared-project-type", // project type - local or shared. 
+				"reportTypeDefault", // report type
 				"c:/local_Project_File.prj", 
 				"Shared_Project_Name", "Scenario_Name",
 				"c:/htmlReport.html", "c:/xmlReport.xml", "c:/pdfReport.pdf", "c:/junitReport.xml", 
-				true, // custom report paths
 				false, // display the GUI
 				"test result name", "test description", 
-				"local-license-type", // license type - local or shared. 
+				"shared-license-type", // license type - local or shared. 
 				"50", // VU count for license
 				"1", // license hours
 				"", // custom command line options
 				true, // publish test results
-				csi, ntssi, // shared project server, license server.
+				ntssi, ntssi, // shared project server, license server.
 				true, // show trend average response
-				true); // show trend error rate
+				true, // show trend error rate
+				null); // graph info
 
 		Launcher launcher = Mockito.mock(Launcher.class);
 		final String cl = neoBuildAction.prepareCommandLine(launcher).toString();
@@ -160,21 +163,22 @@ public class NeoBuildActionTest extends HudsonTestCase {
 				"NTS_loginPassword", "NTS_collabPath", "NTS_licenseID");
 		final NeoBuildAction neoBuildAction = 
 				new NeoBuildAction("c:/NeoLoad/executable", 
-				"local-project-type", // project type - local or shared. 
+				"shared-project-type", // project type - local or shared. 
+				"reportTypeDefault", // report type
 				"c:/local_Project_File.prj", 
 				"Shared_Project_Name", "Scenario_Name",
 				"c:/htmlReport.html", "c:/xmlReport.xml", "c:/pdfReport.pdf", "c:/junitReport.xml", 
-				true, // custom report paths
 				false, // display the GUI
 				"test result name", "test description", 
-				"local-license-type", // license type - local or shared. 
+				"shared-license-type", // license type - local or shared. 
 				"50", // VU count for license
 				"1", // license hours
 				"", // custom command line options
 				true, // publish test results
-				csi, ntssi, // shared project server, license server.
+				ntssi, ntssi, // shared project server, license server.
 				true, // show trend average response
-				true); // show trend error rate
+				true, // show trend error rate
+				null); // graph info
 
 		Launcher launcher = Mockito.mock(Launcher.class);
 		final String cl = neoBuildAction.prepareCommandLine(launcher).toString();
@@ -193,20 +197,21 @@ public class NeoBuildActionTest extends HudsonTestCase {
 		final NeoBuildAction neoBuildAction = 
 				new NeoBuildAction("c:/NeoLoad/executable", 
 				"shared-project-type", // project type - local or shared. 
+				"reportTypeDefault", // report type
 				"c:/local_Project_File.prj", 
 				"Shared_Project_Name", "Scenario_Name",
 				"c:/htmlReport.html", "c:/xmlReport.xml", "c:/pdfReport.pdf", "c:/junitReport.xml", 
-				true, // custom report paths
 				false, // display the GUI
 				"test result name", "test description", 
-				"local-license-type", // license type - local or shared. 
+				"shared-license-type", // license type - local or shared. 
 				"50", // VU count for license
 				"1", // license hours
 				"", // custom command line options
 				true, // publish test results
-				csi, ntssi, // shared project server, license server.
+				ntssi, ntssi, // shared project server, license server.
 				true, // show trend average response
-				true); // show trend error rate
+				true, // show trend error rate
+				null); // graph info
 
 		final Map<String, String> hashedPasswords = new HashMap<String, String>();
 		hashedPasswords.put(csi.getLoginPassword(), csi.getLoginPassword());
