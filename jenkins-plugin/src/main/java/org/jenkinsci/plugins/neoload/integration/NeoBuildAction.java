@@ -326,7 +326,7 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 			// look for the password scrambler. it should be next to the executable or one directory higher.
 			final Path possibleFile = findThePasswordScrambler();
 			if (!Files.exists(possibleFile)) {
-				LOGGER.severe("Password scrambler not found.");
+				LOGGER.severe("Password scrambler not found : \"" + possibleFile + "\"");
 				return map;
 			}
 
@@ -370,6 +370,11 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 				
 				if (SystemUtils.IS_OS_WINDOWS) {
 					possibleFile = parent.resolve("password-scrambler.bat");
+					if (Files.exists(possibleFile)) {
+						break;
+					} else {
+						possibleFile = parent.resolve("password-scrambler.exe");
+					}
 				} else {
 					possibleFile = parent.resolve("password-scrambler");
 					if (Files.exists(possibleFile)) {
@@ -627,6 +632,7 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 			}
 
 			if (listBoxModel.isEmpty()) {
+				LOGGER.finest("There is no NTS Server configured !");
 				listBoxModel.add(new Option("Please configure Jenkins System Settings for NeoLoad to add an NTS server.", 
 						null));
 			}
@@ -670,6 +676,7 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 			}
 
 			if (listBoxModel.isEmpty()) {
+				LOGGER.finest("There is no Server configured !");
 				listBoxModel.add(new Option("Please configure Jenkins System Settings for NeoLoad to add a server.", 
 						null));
 			}
@@ -803,6 +810,9 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 	}
 	public String getXmlReport() {
 		return xmlReport;
+	}
+	public String getPdfReport() {
+		return pdfReport;
 	}
 	public String getJunitReport() {
 		return junitReport;

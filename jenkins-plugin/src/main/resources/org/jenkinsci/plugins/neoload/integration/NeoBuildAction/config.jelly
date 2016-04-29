@@ -52,8 +52,8 @@
   
 	<f:entry title="Test Result Name" field="testResultName" >
 		<f:textbox name="testResultName" value="${testResultName}"  
-			placeholder="$$Date{hh:mm - dd MMM yyyy} (build $${BUILD_NUMBER} (optional)"
-			default="$$Date{hh:mm - dd MMM yyyy} (build $${BUILD_NUMBER}" />
+			placeholder="$$Date{hh:mm - dd MMM yyyy} (build $${BUILD_NUMBER}) (optional)"
+			default="$$Date{hh:mm - dd MMM yyyy} (build $${BUILD_NUMBER})" />
 	</f:entry>
 
 	<f:entry title="Test Description" field="testDescription" >
