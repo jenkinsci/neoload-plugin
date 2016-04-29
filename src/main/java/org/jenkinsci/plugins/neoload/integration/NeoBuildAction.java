@@ -150,6 +150,7 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 
 		this.executable = executable;
 		this.projectType = StringUtils.trimToEmpty(projectType);
+		LOGGER.finest(">>>>>>>>>>>>> reportType = " + reportType);
 		this.reportType = StringUtils.trimToEmpty(reportType);
 		this.localProjectFile = localProjectFile;
 		this.sharedProjectName = sharedProjectName;
@@ -168,6 +169,7 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 		this.licenseVUCount = licenseVUCount;
 		this.licenseDuration = licenseDuration;
 		this.customCommandLineOptions = customCommandLineOptions;
+		LOGGER.finest(">>>>>>>>>>>>>>>>>>> sharedProjectServer = " + sharedProjectServer);
 		this.sharedProjectServer = updateUsingUniqueID(sharedProjectServer);
 		this.publishTestResults = publishTestResults;
 		this.licenseServer = updateUsingUniqueID(licenseServer);
