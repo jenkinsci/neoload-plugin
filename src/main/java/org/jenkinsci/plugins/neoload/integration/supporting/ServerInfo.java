@@ -22,16 +22,18 @@ public class ServerInfo implements Serializable {
 	private String url;
 	private String loginUser;
 	private String loginPassword;
+	private String label;
 
 	public ServerInfo() {
 	}
 
 	@DataBoundConstructor
-	public ServerInfo(final String uniqueID, final String url, final String loginUser, final String loginPassword) {
+	public ServerInfo(final String uniqueID, final String url, final String loginUser, final String loginPassword, final String label) {
 		this.uniqueID = uniqueID;
 		this.url = url;
 		this.loginUser = loginUser;
 		this.loginPassword = loginPassword;
+		this.label = label;
 
 		// we assign a new unique ID only if necessary. we don't want to overwrite an existing unique ID.
 		if (StringUtils.trimToNull(this.uniqueID) == null) {
@@ -89,5 +91,13 @@ public class ServerInfo implements Serializable {
 
 	public String getUniqueIDDoNotGenerate() {
 		return uniqueID;
+	}
+
+	public String getLabel() {
+		return label;
+	}
+
+	public void setLabel(final String label) {
+		this.label = label;
 	}
 }

@@ -21,9 +21,9 @@ public class NTSServerInfo extends ServerInfo implements Serializable, Comparabl
 	}
 
 	@DataBoundConstructor
-	public NTSServerInfo(final String uniqueID, final String url, final String loginUser, final String loginPassword, 
+	public NTSServerInfo(final String uniqueID, final String url, final String loginUser, final String loginPassword, final String label, 
 			final String collabPath, final String licenseID) {
-		super(uniqueID, url, loginUser, loginPassword);
+		super(uniqueID, url, loginUser, loginPassword, label);
 		this.collabPath = collabPath;
 		this.licenseID = licenseID;
 	}

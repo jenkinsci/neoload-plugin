@@ -26,6 +26,8 @@
  */
 package org.jenkinsci.plugins.neoload.integration.supporting;
 
+import static org.kohsuke.stapler.Stapler.CONVERT_UTILS;
+
 import java.io.Serializable;
 import java.net.URI;
 import java.nio.file.Files;
@@ -43,7 +45,6 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.beanutils.ConvertUtils;
 import org.apache.commons.beanutils.Converter;
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.EncoderException;
@@ -76,9 +77,9 @@ public final class PluginUtils implements Serializable, Converter {
 	private static final BCodec BCODEC = new BCodec();
 
 	static {
-		ConvertUtils.register(new PluginUtils(), ServerInfo.class);
-		ConvertUtils.register(new PluginUtils(), CollabServerInfo.class);
-		ConvertUtils.register(new PluginUtils(), NTSServerInfo.class);
+		CONVERT_UTILS.register(new PluginUtils(), ServerInfo.class);
+		CONVERT_UTILS.register(new PluginUtils(), CollabServerInfo.class);
+		CONVERT_UTILS.register(new PluginUtils(), NTSServerInfo.class);
 	}
 
 	/** Log various messages. */

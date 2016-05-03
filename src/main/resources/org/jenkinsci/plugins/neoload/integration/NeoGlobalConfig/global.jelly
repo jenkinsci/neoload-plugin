@@ -28,6 +28,10 @@
                         <f:textbox value="${ntsInfoVar.licenseID}" 
                         	placeholder="MCwCFC54ZB4sNH1q9RnNrlKi7MM0q+20AhRNmr10XW3c3qIdrzSpyQbAIBCwqQ== (optional)" />
                     </f:entry>
+                    <f:entry title="Label" field="label" >
+                        <f:textbox value="${ntsInfoVar.label}" 
+                        	placeholder="Neoload 5.x (XX VU) (optional)" />
+                    </f:entry>
 
                     <f:entry title="">
                         <div align="right">
@@ -62,6 +66,10 @@
                     </f:entry>
                     <f:entry title="Hashed Passphrase" field="passphrase" >
                         <f:textbox value="${collabInfoVar.passphrase}" placeholder="(optional)"  />
+                    </f:entry>
+                    <f:entry title="Label" field="label" >
+                        <f:textbox value="${collabInfoVar.label}" 
+                        	placeholder="Neoload 5.x (XX VU) (optional)" />
                     </f:entry>
 
                     <f:entry title="">

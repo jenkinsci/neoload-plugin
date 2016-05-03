@@ -26,7 +26,7 @@
 				<f:entry field="sharedProjectServer" title="Shared Project Server">
    					<f:select />
 				</f:entry>
-				<f:entry title="Project Name" field="sharedProjectName" >
+				<f:entry field="sharedProjectName" title="Project Name">
 					<f:textbox placeholder="(required)" />
 				</f:entry>
 				
@@ -70,6 +70,12 @@
 	<!-- report type - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  -->
 	
 	<f:section title="Report File Details" >
+		<f:radioBlock name="reportType" value="reportTypeNone" title="No Report" 
+			help="/descriptor/org.jenkinsci.plugins.neoload.integration.NeoBuildAction/help/reportTypeDefault" 
+			default="reportTypeNone" 
+			checked="true" inline="true">
+		</f:radioBlock>
+		
 		<f:radioBlock name="reportType" value="reportTypeDefault" title="Default Report File Names" 
 			help="/descriptor/org.jenkinsci.plugins.neoload.integration.NeoBuildAction/help/reportTypeDefault" 
 			default="reportTypeDefault" 
