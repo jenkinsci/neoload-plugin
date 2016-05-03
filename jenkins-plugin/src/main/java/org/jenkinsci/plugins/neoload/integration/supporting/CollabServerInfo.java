@@ -21,9 +21,9 @@ public class CollabServerInfo extends ServerInfo implements Serializable, Compar
 	}
 
 	@DataBoundConstructor
-	public CollabServerInfo(final String uniqueID, final String url, final String loginUser, final String loginPassword, 
+	public CollabServerInfo(final String uniqueID, final String url, final String loginUser, final String loginPassword, final String label, 
 			final String privateKey, final String passphrase) {
-		super(uniqueID, url, loginUser, loginPassword);
+		super(uniqueID, url, loginUser, loginPassword, label);
 		this.privateKey = privateKey;
 		this.passphrase = passphrase;
 	}

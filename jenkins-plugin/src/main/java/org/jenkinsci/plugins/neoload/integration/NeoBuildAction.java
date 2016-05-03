@@ -150,12 +150,10 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 
 		this.executable = executable;
 		this.projectType = StringUtils.trimToEmpty(projectType);
-		LOGGER.finest(">>>>>>>>>>>>> reportType = " + reportType);
 		this.reportType = StringUtils.trimToEmpty(reportType);
 		this.localProjectFile = localProjectFile;
 		this.sharedProjectName = sharedProjectName;
 		this.scenarioName = scenarioName;
-
 
 		this.htmlReport = htmlReport;
 		this.xmlReport = xmlReport;
@@ -169,14 +167,13 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 		this.licenseVUCount = licenseVUCount;
 		this.licenseDuration = licenseDuration;
 		this.customCommandLineOptions = customCommandLineOptions;
-		LOGGER.finest(">>>>>>>>>>>>>>>>>>> sharedProjectServer = " + sharedProjectServer);
 		this.sharedProjectServer = updateUsingUniqueID(sharedProjectServer);
 		this.publishTestResults = publishTestResults;
 		this.licenseServer = updateUsingUniqueID(licenseServer);
-		
+
 		this.showTrendAverageResponse = showTrendAverageResponse;
 		this.showTrendErrorRate = showTrendErrorRate;
-		
+
 		this.graphOptionsInfo = graphOptionsInfo;
 	}
 
@@ -397,7 +394,7 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 	}
 
 	private void setupReports(final List<String> commands) {
-		if (Boolean.valueOf(isReportType("custom"))) {
+		if (Boolean.valueOf(isReportType("reportTypeCustom"))) {
 			final List<String> reportPaths = PluginUtils.removeAllEmpties(htmlReport, xmlReport, pdfReport);
 			final String reportFileNames = Joiner.on(",").skipNulls().join(reportPaths);
 			if (StringUtils.trimToEmpty(reportFileNames).length() > 0) {
@@ -533,26 +530,26 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 
 	public String isProjectType(final String type) {
 		if (StringUtils.trimToNull(projectType) == null) {
-			return "projectTypeLocal".equals(type) == true ? "true" : "";
+			return "projectTypeLocal".equalsIgnoreCase(type) == true ? "true" : "false";
 		}
 
-		return projectType.equalsIgnoreCase(type) ? "true" : "";
+		return projectType.equalsIgnoreCase(type) ? "true" : "false";
 	}
 
 	public String isReportType(final String type) {
 		if (StringUtils.trimToNull(reportType) == null) {
-			return "reportTypeDefault".equals(type) == true ? "true" : "";
+			return "reportTypeDefault".equalsIgnoreCase(type) == true ? "true" : "false";
 		}
 
-		return reportType.toLowerCase().contains(type) ? "true" : "";
+		return reportType.equalsIgnoreCase(type) ? "true" : "false";
 	}
 
 	public String isLicenseType(final String type) {
 		if (StringUtils.trimToNull(licenseType) == null) {
-			return "licenseTypeLocal".equals(type) == true ? "true" : "";
+			return "licenseTypeLocal".equalsIgnoreCase(type) == true ? "true" : "false";
 		}
 
-		return licenseType.equalsIgnoreCase(type) ? "true" : "";
+		return licenseType.equalsIgnoreCase(type) ? "true" : "false";
 	}
 
 	@Override
@@ -621,7 +618,7 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 				
 			} else {
 				for (final NTSServerInfo server: globalConfigDescriptor.getNtsInfo()) {
-					final String displayName = buildNTSDisplayNameString(server);
+					final String displayName = buildNTSDisplayNameString(server, false);
 					final String optionValue = server.getUniqueID();
 					final Option option = new Option(displayName, optionValue);
 	
@@ -653,7 +650,7 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 				
 			} else {
 				for (final NTSServerInfo server: globalConfigDescriptor.getNtsInfo()) {
-					final String displayName = buildNTSDisplayNameString(server);
+					final String displayName = buildNTSDisplayNameString(server, true);
 					final String optionValue = server.getUniqueID();
 					final Option option = new Option(displayName, optionValue);
 	
@@ -666,7 +663,13 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 			}
 			
 			for (final CollabServerInfo server: globalConfigDescriptor.getCollabInfo()) {
-				final String displayName = server.getUrl() + ", User: " + server.getLoginUser();
+				final String displayName;
+				if (StringUtils.trimToEmpty(server.getLabel()).length() > 0) {
+					displayName = server.getLabel();
+				}
+				else {
+					displayName = server.getUrl() + ", User: " + server.getLoginUser();
+				}
 				final String optionValue = server.getUniqueID();
 				final Option option = new Option(displayName, optionValue);
 
@@ -685,13 +688,20 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 			return listBoxModel;
 		}
 
-		private String buildNTSDisplayNameString(final NTSServerInfo server) {
-			final StringBuilder displayName = new StringBuilder(server.getUrl() + ", Repository: " + server.getCollabPath() + ", " + 
-					" User: " + server.getLoginUser());
-			if (StringUtils.trimToNull(server.getLicenseID()) != null) {
-				displayName.append(", LicenseID: " + StringUtils.left(server.getLicenseID(), 4) + "..." + 
-						StringUtils.right(server.getLicenseID(), 4));
-				displayName.append(" (NTS)");
+		private String buildNTSDisplayNameString(final NTSServerInfo server, final boolean isSharedProjectDisplay) {
+			if (StringUtils.trimToEmpty(server.getLabel()).length() > 0) {
+				return server.getLabel();
+			}
+			final StringBuilder displayName = new StringBuilder(server.getUrl());
+			if (isSharedProjectDisplay) {
+				displayName.append(", Repository: " + server.getCollabPath());
+			}
+			else {
+				if (StringUtils.trimToNull(server.getLicenseID()) != null) {
+					displayName.append(", LicenseID: " + StringUtils.left(server.getLicenseID(), 4) + "..." + 
+							StringUtils.right(server.getLicenseID(), 4));
+					displayName.append(" (NTS)");
+				}
 			}
 			return displayName.toString();
 		}
