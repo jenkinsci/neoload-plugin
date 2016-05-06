@@ -69,7 +69,7 @@ public class XMLUtilitiesTest extends TestCase {
 
 	@Test
 	public void testToAndFromXML_A() throws ParserConfigurationException, SAXException, IOException {
-		final NTSServerInfo ntsServerInfo = new NTSServerInfo("123", "http://serveraddress:8080/", "loginUser", "<>!@#$%^&*()_+", "/repository_1", 
+		final NTSServerInfo ntsServerInfo = new NTSServerInfo("123", "http://serveraddress:8080/", "loginUser", "<>!@#$%^&*()_+", "Label 1", "/repository_1", 
 				"MCwCFBU8hLebFPEcgunM5wPU0IoUEmkEAhQF8G4snQv9YLWGl4t10nXZnaW+5w==");
 		final String xmlEscaped = XMLUtilities.toXMLEscaped(ntsServerInfo);
 
@@ -79,7 +79,7 @@ public class XMLUtilitiesTest extends TestCase {
 
 	@Test
 	public void testToAndFromXML_B() throws ParserConfigurationException, SAXException, IOException {
-		final CollabServerInfo collabServerInfo = new CollabServerInfo("123", "svn://serveraddress:3690/neoload", "><loginUser", "!@#$%^&*()_+",
+		final CollabServerInfo collabServerInfo = new CollabServerInfo("123", "svn://serveraddress:3690/neoload", "><loginUser", "!@#$%^&*()_+", "Label 2",
 				null, null);
 		final String xmlEscaped = XMLUtilities.toXMLEscaped(collabServerInfo);
 

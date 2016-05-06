@@ -112,7 +112,7 @@ public class MockObjects {
 		final DescribableList<Publisher, Descriptor<Publisher>> describableListWithNeoOptions = mock(DescribableList.class);
 		when(describableListWithNeoOptions.iterator()).thenReturn(publishersWithNeoOptions.iterator());
 		final List<Builder> builders = new ArrayList<Builder>();
-		final NTSServerInfo ntssi = new NTSServerInfo("uniqueID", "http://url.com:8080", "loginUser", "loginPassword", "collabPath", "licenseID");
+		final NTSServerInfo ntssi = new NTSServerInfo("uniqueID", "http://url.com:8080", "loginUser", "loginPassword", "Label", "collabPath", "licenseID");
 		neoBuildAction = 
 				new NeoBuildAction("c:/NeoLoad/executable", 
 				"shared-project-type", // project type - local or shared. 
