@@ -189,7 +189,7 @@ public class MockObjects {
 	private static List<Run<? extends Job<?,?>, ? extends Run<?,?>>.Artifact> createArtifacts() throws FileNotFoundException, IOException, IllegalAccessException {
 		// create new test files
 		final URL url = MockObjects.class.getResource("neoload-report.zip");
-		final List<File> createdFiles = ZipUtils.unzip(url.getFile(), new File(url.getFile()).getParent());
+		final List<File> createdFiles = ZipUtilities.unzip(url.getFile(), new File(url.getFile()).getParent());
 		Run<? extends Job<?,?>, ? extends Run<?,?>>.Artifact a = null;
 		final List<Run<? extends Job<?,?>, ? extends Run<?,?>>.Artifact> artifacts = new ArrayList<Run<? extends Job<?,?>, ? extends Run<?,?>>.Artifact>(createdFiles.size());
 

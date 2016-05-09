@@ -37,7 +37,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 /** From http://www.mkyong.com/java/how-to-decompress-files-from-a-zip-file/ */
-public class ZipUtils {
+public class ZipUtilities {
 
 	/** Unzip the file to the specified directory.
 	 * @param zipFile
