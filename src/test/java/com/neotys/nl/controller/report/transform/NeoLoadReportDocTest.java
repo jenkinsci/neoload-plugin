@@ -42,7 +42,7 @@ import org.apache.commons.io.FileUtils;
 import org.jenkinsci.plugins.neoload.integration.supporting.MockObjects;
 import org.jenkinsci.plugins.neoload.integration.supporting.PluginUtils;
 import org.jenkinsci.plugins.neoload.integration.supporting.XMLUtilities;
-import org.jenkinsci.plugins.neoload.integration.supporting.ZipUtils;
+import org.jenkinsci.plugins.neoload.integration.supporting.ZipUtilities;
 import org.junit.Before;
 import org.junit.Test;
 import org.w3c.dom.Document;
@@ -76,7 +76,7 @@ public class NeoLoadReportDocTest extends TestCase {
 	@Before
 	public void setUp() throws Exception {
 		final URL url = NeoLoadReportDoc.class.getResource("xmlReports.zip");
-		ZipUtils.unzip(url.getFile(), new File(url.getFile()).getParent());
+		ZipUtilities.unzip(url.getFile(), new File(url.getFile()).getParent());
 
 		urlValid = NeoLoadReportDoc.class.getResource("report-valid.xml");
 		urlInvalid = NeoLoadReportDoc.class.getResource("report-invalid.xml");
