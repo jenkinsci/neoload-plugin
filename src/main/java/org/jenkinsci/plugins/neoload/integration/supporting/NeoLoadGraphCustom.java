@@ -71,6 +71,7 @@ public class NeoLoadGraphCustom implements Serializable {
 	/** yAxisLabel */
 	private final String yAxisLabel;
 
+	/** The title of the graph */
 	private final String title;
 
 	public NeoLoadGraphCustom(final Map<String, Map<String, Float>> datas, final String yAxisLabel, final String title) {
@@ -83,26 +84,31 @@ public class NeoLoadGraphCustom implements Serializable {
 		JFreeChart chart = ChartFactory.createXYLineChart(title, null, getyAxisLabel(), generateData(), 
 				PlotOrientation.VERTICAL, true, true, false);
 		chart.setBackgroundPaint(Color.WHITE);
-		
 		final TextTitle textTitle = new TextTitle(title, new Font("Helvetica", Font.BOLD, 16));
 		chart.setTitle(textTitle);
-		chart.getXYPlot().setDomainGridlinePaint(Color.WHITE);
+		chart.getXYPlot().setDomainGridlinePaint(Color.WHITE); // Remove the vertical gridline
 		chart.getLegend().setBorder(0, 0, 0, 0); // To haven't border for the legend.
 		return chart;
 	}
 
+	/**
+	 * This function generate all curves of the graph.
+	 * @return
+	 */
 	private XYSeriesCollection generateData() {
 		XYSeriesCollection data = new XYSeriesCollection();
-
-
 		for (final String curve : datas.keySet()) {
 			data.addSeries(generateSeries(curve, datas.get(curve)));
-			
 		}
-
 		return data;
 	}
 	
+	/**
+	 * This function create 1 curve of the graph.
+	 * @param name the name of the curve (displayed in the legend).
+	 * @param curve the map containing all datas for this curve.
+	 * @return
+	 */
 	private static XYSeries generateSeries(final String name, final Map<String, Float> curve) {
 		final XYSeries series = new XYSeries(name);
 		// reverse the keys so that they appear in the correct order in the graphs.
