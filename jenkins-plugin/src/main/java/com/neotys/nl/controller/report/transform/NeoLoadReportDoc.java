@@ -62,6 +62,18 @@ public class NeoLoadReportDoc {
 
 	/** A default return value when a valid date can't be found (January 1, 1970, 00:00:00 GMT). */
 	public static final Date DATE_1970 = new Date(0);
+	
+	/** String for the average type. */
+	public static final String AVG = "/@avg";
+	
+	/** String for the value type. */
+	public static final String VAL = "/@value";
+	
+	/** String for the error% type. */
+	public static final String ERROR_RATE = "/@error_rate";
+	
+	/** String for the percentile3 type. */
+	public static final String PERCENTILE3 = "/@percentile3";
 
 	/** A time format that is used for all languages in the context of this plugin. */
 	public static final String STANDARD_TIME_FORMAT = "yyyy-MM-dd kk:mm:ss";
@@ -120,12 +132,7 @@ public class NeoLoadReportDoc {
 	public Float getAverageResponseTime() throws XPathExpressionException {
 		// @type='httppage' finds a node where with an attribute named "type" with a value of "httppage".
 		// @avg finds the value of the attribute named "avg"
-		final Node errorRateNode = XMLUtilities.findFirstByExpression("/report/summary/all-summary/statistic-item[@type='httppage']/@avg", doc);
-
-		if (errorRateNode != null) {
-			return extractNeoLoadNumber(errorRateNode.getNodeValue());
-		}
-		return null;
+		return getCustom("/report/summary/all-summary/statistic-item[@type='httppage']/@avg");
 	}
 
 	/**
@@ -134,12 +141,43 @@ public class NeoLoadReportDoc {
 	 */
 	public Float getErrorRatePercentage() throws XPathExpressionException {
 		// @name='error_percentile' finds a node where with an attribute named "name" with a value of "error_percentile".
-		final Node errorRateNode = XMLUtilities.findFirstByExpression("/report/summary/statistics/statistic[@name='error_percentile']/@value", doc);
+		return getCustom("/report/summary/statistics/statistic[@name='error_percentile']/@value");
+	}
 
-		if (errorRateNode != null) {
-			return extractNeoLoadNumber(errorRateNode.getNodeValue());
+	/**
+	 * @param path the path of the request to get the information.
+	 * @return
+	 * @throws XPathExpressionException
+	 */
+	public Float getCustom(final String path) throws XPathExpressionException {
+		final Node node = XMLUtilities.findFirstByExpression(path, doc);
+
+		if (node != null) {
+			return extractNeoLoadNumber(node.getNodeValue());
 		}
+		LOGGER.warning("No custom value for XPath : " + path);
 		return null;
+	}
+
+	/**
+	 * @param litePath the path of the request to get the information.<br />
+	 * <i>Exemple : "UserPath/Actions/(Transaction or Page)/..."</i>
+	 * @param type the type of value search.
+	 * @return the xpath.
+	 */
+	public static String getXPathForCustomGraph(final String litePath, final String type) {
+		String path = "/report/virtual-users";
+		final String[] tabSplited;
+		if (litePath.startsWith("/")) {
+			tabSplited = litePath.substring(1).split(">");
+		}
+		else {
+			tabSplited = litePath.split(">");
+		}
+		for (final String str : tabSplited) {
+			path += "/statistic-item[@name='" + str + "']";
+		}
+		return path + type;
 	}
 
 	/**

@@ -28,5 +28,14 @@
 		</div>
 
 	</j:if>
+	<j:set var="cpt" value="0"/>
+	<j:while test="${from.sizeCustomGraph() > cpt}">
+		<div>
+			<!-- this links to a method which extends Graph and returns a JFreeChart -->
+			<img src="neoload/customGraph/${cpt}/png" />
+		</div>
+
+		<j:set var="cpt" value="${cpt + 1}"/>
+	</j:while>
 
 </j:jelly>

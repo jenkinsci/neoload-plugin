@@ -26,10 +26,13 @@
  */
 package org.jenkinsci.plugins.neoload.integration;
 
+import static com.neotys.nl.controller.report.transform.NeoLoadReportDoc.getXPathForCustomGraph;
+
 import java.awt.Color;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -43,7 +46,10 @@ import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.commons.lang.time.DateFormatUtils;
 import org.codehaus.plexus.util.FileUtils;
+import org.jenkinsci.plugins.neoload.integration.supporting.GraphOptionsCurveInfo;
+import org.jenkinsci.plugins.neoload.integration.supporting.GraphOptionsInfo;
 import org.jenkinsci.plugins.neoload.integration.supporting.NeoLoadGraph;
+import org.jenkinsci.plugins.neoload.integration.supporting.NeoLoadGraphCustom;
 import org.jenkinsci.plugins.neoload.integration.supporting.NeoLoadPluginOptions;
 import org.jenkinsci.plugins.neoload.integration.supporting.PluginUtils;
 import org.jenkinsci.plugins.neoload.integration.supporting.XMLUtilities;
@@ -74,16 +80,29 @@ public class ProjectSpecificAction implements ProminentProjectAction, Serializab
 	private Map<AbstractBuild<?, ?>, NeoLoadReportDoc> buildsAndDocs = new LinkedHashMap<AbstractBuild<?, ?>, NeoLoadReportDoc>();
 
 	/** User option presented in the GUI. Show the average response time. */
-	private boolean showTrendAverageResponse;
+	private final boolean showTrendAverageResponse;
 	/** User option presented in the GUI. Show the average response time. */
-	private boolean showTrendErrorRate;
+	private final boolean showTrendErrorRate;
+	
+ 	private final List<GraphOptionsInfo> graphOptionsInfo;
 
 	/** Log various messages. */
 	private static final Logger LOGGER = Logger.getLogger(ProjectSpecificAction.class.getName());
 	
 	public ProjectSpecificAction(final AbstractProject<?, ?> project) {
 		this.project = project;
-
+		final NeoLoadPluginOptions npo = PluginUtils.getPluginOptions(project);
+		if (npo == null) {
+			LOGGER.finest("Plugin options were not found for " + project.getDisplayName());
+			graphOptionsInfo = new ArrayList<GraphOptionsInfo>();
+			showTrendAverageResponse = false;
+			showTrendErrorRate = false;
+		}
+		else {
+			graphOptionsInfo = npo.getGraphOptionsInfo();
+			showTrendAverageResponse = npo.isShowTrendAverageResponse();
+			showTrendErrorRate = npo.isShowTrendErrorRate();
+		}
 		refreshGraphData();
 	}
 
@@ -117,6 +136,25 @@ public class ProjectSpecificAction implements ProminentProjectAction, Serializab
 			return null;
 		}
 	};
+	
+	private static String getTypeByStatistic(final String statistic) {
+		final String value;
+		switch (statistic) {
+		case "percentile":
+			value = NeoLoadReportDoc.PERCENTILE3;
+			break;
+		case "average":
+			value = NeoLoadReportDoc.AVG;
+			break;
+		case "error":
+			value = NeoLoadReportDoc.ERROR_RATE;
+			break;
+		default:
+			value = NeoLoadReportDoc.VAL;
+			break;
+		}
+		return value;
+	}
 
 	/** Find data to graph. */
 	public void refreshGraphData() {
@@ -164,12 +202,7 @@ public class ProjectSpecificAction implements ProminentProjectAction, Serializab
 	 * @return true if we should show the graph
 	 */
 	public boolean showAvgGraph() {
-		final NeoLoadPluginOptions npo = PluginUtils.getPluginOptions(project);
-		if (npo == null) {
-			LOGGER.finest("Plugin options were not found for " + project.getDisplayName());
-			return false;
-			
-		} else if (!npo.isShowTrendAverageResponse()) {
+		if (!isShowTrendAverageResponse()) {
 			LOGGER.finer("Plugin options say the avg graph is OFF.");
 			return false;
 		}
@@ -183,17 +216,38 @@ public class ProjectSpecificAction implements ProminentProjectAction, Serializab
 	 * @return true if we should show the graph
 	 */
 	public boolean showErrGraph() {
-		final NeoLoadPluginOptions npo = PluginUtils.getPluginOptions(project);
-		if (npo == null) {
-			LOGGER.finest("Plugin options were not found for " + project.getDisplayName());
-			return false;
-			
-		} else if (!npo.isShowTrendErrorRate()) {
+		if (!isShowTrendErrorRate()) {
 			LOGGER.finer("Plugin options say the error graph is OFF.");
 			return false;
 		}
 
 		return graphDataExists();
+	}
+
+	/**
+	 * @return the number of custom graph
+	 */
+	public int sizeCustomGraph() {
+		if (graphDataExists()) {
+			return getGraphOptionsInfo().size();
+		}
+
+		LOGGER.finer("Plugin options : no graph data.");
+		return 0;
+	}
+
+	/**
+	 * @param index the index of the graph.
+	 * @return the name of the graph.
+	 */
+	public String displayCustomGraphName(final int index) {
+		if (graphDataExists()) {
+			LOGGER.finer("Display Graph name at (" + index + ") : " + getGraphOptionsInfo().get(index).getName());
+			return getGraphOptionsInfo().get(index).getName();
+		}
+
+		LOGGER.finer("Plugin options : no graph data.");
+		return null;
 	}
 
 	/**
@@ -211,7 +265,7 @@ public class ProjectSpecificAction implements ProminentProjectAction, Serializab
 		private final String successMessage;
 		private final String yAxisLabel;
 		private final Color lineColor;
-
+		
 		/**
 		 * @param neoLoadReportDoc
 		 * @param dataConverter
@@ -238,6 +292,7 @@ public class ProjectSpecificAction implements ProminentProjectAction, Serializab
 				final String buildName = build.getDisplayName() == null ? "#" + build.number : build.getDisplayName();
 
 				value = dataConverter.apply(nlrd);
+
 				if (value != null) {
 					LOGGER.log(Level.FINEST, successMessage + buildName + ": " + value);
 				}
@@ -258,6 +313,47 @@ public class ProjectSpecificAction implements ProminentProjectAction, Serializab
 			return new NeoLoadGraph(ds, yAxisLabel, lineColor);
 		}
 	}
+	
+	private final class GraphDataGrabberCustom {
+		private final GraphOptionsInfo customGraphInfo;
+
+		/**
+		 * @param neoLoadReportDoc
+		 * @param dataConverter
+		 * @param successMessage
+		 * @param yAxisLabel
+		 * @param lineColor
+		 */
+		public GraphDataGrabberCustom(final GraphOptionsInfo customGraphInfo) {
+			this.customGraphInfo = customGraphInfo;
+		}
+
+		public NeoLoadGraphCustom go() {
+			final Map<String, Map<String, Float>> nums = new HashMap<String, Map<String, Float>>(); // linked hash maps keep the order of their keys
+			for (final GraphOptionsCurveInfo curve : customGraphInfo.getCurve()) {
+				// get the number we want from all builds that we found earlier
+				final Map<String, Float> value = new LinkedHashMap<String, Float>();
+				for (final Entry<AbstractBuild<?, ?>, NeoLoadReportDoc> entry: buildsAndDocs.entrySet()) {
+					final AbstractBuild<?, ?> build = entry.getKey();
+					final NeoLoadReportDoc nlrd = entry.getValue();
+					final String buildName = build.getDisplayName() == null ? "#" + build.number : build.getDisplayName();
+					try {
+						final Float floatVal = nlrd.getCustom(getXPathForCustomGraph(curve.getPath(), getTypeByStatistic(customGraphInfo.getStatistic())));
+						if (floatVal != null) {
+							value.put(buildName, floatVal);
+						}
+					} catch (XPathExpressionException e) {
+						LOGGER.finest("Error XPATH : " + e.getStackTrace());
+					}
+				}
+				if (value != null) {
+					// use the custom name, otherwise use the default name.
+					nums.put(curve.getPath(), value);
+				}
+			}
+			return new NeoLoadGraphCustom(nums, customGraphInfo.getStatistic(), customGraphInfo.getName());
+		}
+	}
 
 	/**
 	 * @return
@@ -272,6 +368,14 @@ public class ProjectSpecificAction implements ProminentProjectAction, Serializab
 	 */
 	public NeoLoadGraph getAvgGraph() {
 		return new GraphDataGrabber(averageResponseTimeFunction, "Average response time found for build ", "Avg Resp Time (secs)", new Color(237, 184, 0)).go();
+	}
+
+	/** Generates a graph
+	 * @param index
+	 * @throws XPathExpressionException
+	 */
+	public NeoLoadGraphCustom getCustomGraph(final int index) {
+		return new GraphDataGrabberCustom(graphOptionsInfo.get(index)).go();
 	}
 
 	/**
@@ -353,18 +457,13 @@ public class ProjectSpecificAction implements ProminentProjectAction, Serializab
 		return showTrendAverageResponse;
 	}
 
-	/** @param showTrendAverageResponse the showTrendAverageResponse to set */
-	public void setShowTrendAverageResponse(boolean showTrendAverageResponse) {
-		this.showTrendAverageResponse = showTrendAverageResponse;
-	}
-
 	/** @return the showTrendErrorRate */
 	public boolean isShowTrendErrorRate() {
 		return showTrendErrorRate;
 	}
-
-	/** @param showTrendErrorRate the showTrendErrorRate to set */
-	public void setShowTrendErrorRate(boolean showTrendErrorRate) {
-		this.showTrendErrorRate = showTrendErrorRate;
+	
+	/** @return the graphOptionsInfo */
+	public List<GraphOptionsInfo> getGraphOptionsInfo() {
+		return graphOptionsInfo;
 	}
 }
