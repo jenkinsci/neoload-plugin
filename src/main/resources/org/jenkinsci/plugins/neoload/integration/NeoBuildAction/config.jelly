@@ -180,7 +180,7 @@
 
 						<table width="100%">
 							<f:entry title="Curve" field="path" >
-								<f:textbox value="${curveVar.path}" placeholder="(required)" />
+								<f:textbox value="${curveVar.path}" placeholder="UserPath>Actions>(Transaction or Page)>...(required)" />
 							</f:entry>
 
 							<f:entry title="">

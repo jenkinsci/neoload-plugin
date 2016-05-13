@@ -26,6 +26,8 @@
  */
 package org.jenkinsci.plugins.neoload.integration.supporting;
 
+import java.util.List;
+
 public interface NeoLoadPluginOptions {
 
 	/** @return the showTrendAverageResponse */
@@ -33,5 +35,8 @@ public interface NeoLoadPluginOptions {
 
 	/** @return the showTrendErrorRate */
 	boolean isShowTrendErrorRate();
+	
+	/** @return the graphOptionsInfo */
+	List<GraphOptionsInfo> getGraphOptionsInfo();
 
 }
