@@ -27,9 +27,12 @@
 package org.jenkinsci.plugins.neoload.integration.supporting;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.imageio.ImageIO;
 import javax.servlet.ServletOutputStream;
@@ -40,6 +43,7 @@ import org.jfree.chart.axis.CategoryAxis;
 import org.jfree.chart.axis.CategoryLabelPositions;
 import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.title.TextTitle;
 import org.jfree.data.category.CategoryDataset;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
@@ -57,6 +61,9 @@ public class NeoLoadGraph implements Serializable {
 	/** We use the same size as the default junit trend graph. */
 	private static final int IMAGE_WIDTH = 500;
 
+	/** We use the same size as the default junit trend legend. */
+	private static final int LEGEND_HEIGHT = 25;
+
 	/** data to plot */
 	private final CategoryDataset dataset;
 
@@ -65,11 +72,46 @@ public class NeoLoadGraph implements Serializable {
 
 	/** Line color to use. */
 	private final Color lineColor;
+	
+	private final List<Color> availableColors;
+	
+	/** Title of the graph. */
+	private final String title;
+	
+	/** The number of color you need to used. */
+	private final int numberOfColor;
 
 	public NeoLoadGraph(final CategoryDataset dataset, final String yAxisLabel, final Color lineColor) {
 		this.dataset = dataset;
 		this.yAxisLabel = yAxisLabel;
 		this.lineColor = lineColor;
+		this.numberOfColor = 0;
+		this.title = null;
+		availableColors = new ArrayList<Color>();
+	}
+
+	public NeoLoadGraph(final CategoryDataset dataset, final String yAxisLabel, final int numberOfColor, final String title) {
+		this.dataset = dataset;
+		this.yAxisLabel = yAxisLabel;
+		this.lineColor = null;
+		this.numberOfColor = numberOfColor;
+		this.title = title;
+		availableColors = new ArrayList<Color>();
+		fillAllColors();
+	}
+	
+	private void fillAllColors() {
+		availableColors.add(Color.BLUE);
+		availableColors.add(Color.GREEN);
+		availableColors.add(Color.RED);
+		availableColors.add(Color.MAGENTA);
+		availableColors.add(Color.CYAN);
+		availableColors.add(Color.PINK);
+		availableColors.add(Color.ORANGE);
+		availableColors.add(Color.gray);
+		availableColors.add(Color.YELLOW);
+		availableColors.add(Color.darkGray);
+		availableColors.add(Color.lightGray);
 	}
 
 	public JFreeChart createGraph() {
@@ -78,20 +120,36 @@ public class NeoLoadGraph implements Serializable {
 				yAxisLabel, // range axis label
 				dataset, // data
 				PlotOrientation.VERTICAL, // orientation
-				false, // include legend
+				lineColor == null, // include legend
 				true, // tooltips
 				false // urls
 				);
-
+		if (title != null) {
+			final TextTitle textTitle = new TextTitle(title, new Font("Helvetica", Font.BOLD, 16));
+			chart.setTitle(textTitle);
+		}
 		chart.setBackgroundPaint(Color.white);
-
+		if (lineColor == null) {
+			chart.getLegend().setBorder(0, 0, 0, 0); // To haven't border for the legend.
+		}
 		final CategoryPlot plot = chart.getCategoryPlot();
 
 		// turn the y labels sideways
 		final CategoryAxis axis = plot.getDomainAxis();
 		axis.setCategoryLabelPositions(CategoryLabelPositions.UP_90);
 
-		plot.getRenderer().setSeriesPaint(0, lineColor);
+		if (lineColor == null) {
+			for (int i=0; i<numberOfColor; i++) {
+				Color colorToUse = availableColors.get(i % availableColors.size());
+				for (int j=0; j < (i / availableColors.size()); j++) {
+					colorToUse.brighter();
+				}
+				plot.getRenderer().setSeriesPaint(i, colorToUse);
+			}
+		}
+		else {
+			plot.getRenderer().setSeriesPaint(0, lineColor);
+		}
 		plot.setBackgroundPaint(Color.white);
 
 		return chart;
@@ -105,7 +163,7 @@ public class NeoLoadGraph implements Serializable {
 	public void doPng(final StaplerRequest req, final StaplerResponse rsp) throws IOException {
 		rsp.setContentType("image/png");
 		final ServletOutputStream os = rsp.getOutputStream();
-		final BufferedImage image = createImage(IMAGE_WIDTH, IMAGE_HEIGHT);
+		final BufferedImage image = createImage(IMAGE_WIDTH, IMAGE_HEIGHT + numberOfColor*LEGEND_HEIGHT);
 		ImageIO.write(image, "PNG", os);
 		os.close();
 	}

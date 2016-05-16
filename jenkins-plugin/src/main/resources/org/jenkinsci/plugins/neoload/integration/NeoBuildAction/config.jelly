@@ -147,7 +147,7 @@
 	</f:entry>
 	
 	<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  -->
-	<f:section title="Incorporate NeoLoad Results" name="incorporateNeoLoadResults" >
+	<f:section title="Default NeoLoad Trend Graphs" name="incorporateNeoLoadResults" >
 	</f:section>
 	
 	<f:entry title="Avg" field="showTrendAverageResponse" >
@@ -180,7 +180,7 @@
 
 						<table width="100%">
 							<f:entry title="Curve" field="path" >
-								<f:textbox value="${curveVar.path}" placeholder="UserPath>Actions>(Transaction or Page)>...(required)" />
+								<f:textbox value="${curveVar.path}" placeholder="UserPath>Actions>(Transaction or Page)(required)" />
 							</f:entry>
 
 							<f:entry title="">
