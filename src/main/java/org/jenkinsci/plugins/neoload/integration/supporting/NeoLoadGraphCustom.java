@@ -87,6 +87,13 @@ public class NeoLoadGraphCustom implements Serializable {
 		final TextTitle textTitle = new TextTitle(title, new Font("Helvetica", Font.BOLD, 16));
 		chart.setTitle(textTitle);
 		chart.getXYPlot().setDomainGridlinePaint(Color.WHITE); // Remove the vertical gridline
+		
+		// This code permit to display only point with values. (KEEP IT FOR TEST) Remove it after finding a solution for the null value.
+//		if (chart.getXYPlot().getRenderer() instanceof XYLineAndShapeRenderer) {
+//			final XYLineAndShapeRenderer renderer = ((XYLineAndShapeRenderer) chart.getXYPlot().getRenderer());
+//			renderer.setBaseShapesVisible(true); // This permit to just show point included in datas
+//			renderer.setBaseLinesVisible(false); // This permit to doesn't show lines.
+//		}
 		chart.getLegend().setBorder(0, 0, 0, 0); // To haven't border for the legend.
 		return chart;
 	}
@@ -97,6 +104,7 @@ public class NeoLoadGraphCustom implements Serializable {
 	 */
 	private XYSeriesCollection generateData() {
 		XYSeriesCollection data = new XYSeriesCollection();
+		data.setIntervalWidth(1.0);
 		for (final String curve : datas.keySet()) {
 			data.addSeries(generateSeries(curve, datas.get(curve)));
 		}
