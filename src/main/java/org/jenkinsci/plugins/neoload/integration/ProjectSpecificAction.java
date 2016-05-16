@@ -32,7 +32,6 @@ import java.awt.Color;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -49,7 +48,6 @@ import org.codehaus.plexus.util.FileUtils;
 import org.jenkinsci.plugins.neoload.integration.supporting.GraphOptionsCurveInfo;
 import org.jenkinsci.plugins.neoload.integration.supporting.GraphOptionsInfo;
 import org.jenkinsci.plugins.neoload.integration.supporting.NeoLoadGraph;
-import org.jenkinsci.plugins.neoload.integration.supporting.NeoLoadGraphCustom;
 import org.jenkinsci.plugins.neoload.integration.supporting.NeoLoadPluginOptions;
 import org.jenkinsci.plugins.neoload.integration.supporting.PluginUtils;
 import org.jenkinsci.plugins.neoload.integration.supporting.XMLUtilities;
@@ -316,45 +314,50 @@ public class ProjectSpecificAction implements ProminentProjectAction, Serializab
 	
 	private final class GraphDataGrabberCustom {
 		private final GraphOptionsInfo customGraphInfo;
-
+		
 		/**
-		 * @param neoLoadReportDoc
-		 * @param dataConverter
-		 * @param successMessage
-		 * @param yAxisLabel
-		 * @param lineColor
+		 * @param customGraphInfo
 		 */
 		public GraphDataGrabberCustom(final GraphOptionsInfo customGraphInfo) {
 			this.customGraphInfo = customGraphInfo;
 		}
 
-		public NeoLoadGraphCustom go() {
-			final Map<String, Map<String, Float>> nums = new HashMap<String, Map<String, Float>>(); // linked hash maps keep the order of their keys
+		public NeoLoadGraph go() {
+			final DefaultCategoryDataset ds = new DefaultCategoryDataset();
+			int numberOfColor = 0;
+			// get the number we want from all builds that we found earlier
 			for (final GraphOptionsCurveInfo curve : customGraphInfo.getCurve()) {
-				// get the number we want from all builds that we found earlier
-				final Map<String, Float> value = new LinkedHashMap<String, Float>();
+				final Map<String, Float> nums = new LinkedHashMap<String, Float>(); // linked hash maps keep the order of their keys
+				numberOfColor++;
 				for (final Entry<AbstractBuild<?, ?>, NeoLoadReportDoc> entry: buildsAndDocs.entrySet()) {
 					final AbstractBuild<?, ?> build = entry.getKey();
 					final NeoLoadReportDoc nlrd = entry.getValue();
 					final String buildName = build.getDisplayName() == null ? "#" + build.number : build.getDisplayName();
+					final Float value;
+					
 					try {
-						final Float floatVal = nlrd.getCustom(getXPathForCustomGraph(curve.getPath(), getTypeByStatistic(customGraphInfo.getStatistic())));
-						if (floatVal != null) {
-							value.put(buildName, floatVal);
+						value = nlrd.getCustom(getXPathForCustomGraph(curve.getPath(), getTypeByStatistic(customGraphInfo.getStatistic())));
+						if (value != null) {
+							// use the custom name, otherwise use the default name.
+							nums.put(buildName, value);
 						}
 					} catch (XPathExpressionException e) {
 						LOGGER.finest("Error XPATH : " + e.getStackTrace());
 					}
 				}
-				if (value != null) {
-					// use the custom name, otherwise use the default name.
-					nums.put(curve.getPath(), value);
+				final List<String> keys = new ArrayList<String>(nums.keySet());
+
+				// reverse the keys so that they appear in the correct order in the graphs.
+				for (final String buildName: Iterables.reverse(keys)) {
+					ds.addValue(nums.get(buildName), curve.getPath(), buildName);
 				}
 			}
-			return new NeoLoadGraphCustom(nums, customGraphInfo.getStatistic(), customGraphInfo.getName());
+
+			// color from ColorTable.java
+			return new NeoLoadGraph(ds, customGraphInfo.getStatistic(), numberOfColor, customGraphInfo.getName());
 		}
 	}
-
+	
 	/**
 	 * @return
 	 * @throws XPathExpressionException
@@ -374,7 +377,7 @@ public class ProjectSpecificAction implements ProminentProjectAction, Serializab
 	 * @param index
 	 * @throws XPathExpressionException
 	 */
-	public NeoLoadGraphCustom getCustomGraph(final int index) {
+	public NeoLoadGraph getCustomGraph(final int index) {
 		return new GraphDataGrabberCustom(graphOptionsInfo.get(index)).go();
 	}
 
