@@ -26,7 +26,12 @@
  */
 package org.jenkinsci.plugins.neoload.integration;
 
+import static com.neotys.nl.controller.report.transform.NeoLoadReportDoc.AVG;
+import static com.neotys.nl.controller.report.transform.NeoLoadReportDoc.ERROR_RATE;
+import static com.neotys.nl.controller.report.transform.NeoLoadReportDoc.PERCENTILE2;
+import static com.neotys.nl.controller.report.transform.NeoLoadReportDoc.VAL;
 import static com.neotys.nl.controller.report.transform.NeoLoadReportDoc.getXPathForCustomGraph;
+import static com.neotys.nl.controller.report.transform.NeoLoadReportDoc.getXPathForCustomMonitorOrLGGraph;
 
 import java.awt.Color;
 import java.io.IOException;
@@ -139,16 +144,16 @@ public class ProjectSpecificAction implements ProminentProjectAction, Serializab
 		final String value;
 		switch (statistic) {
 		case "percentile":
-			value = NeoLoadReportDoc.PERCENTILE3;
+			value = PERCENTILE2;
 			break;
 		case "average":
-			value = NeoLoadReportDoc.AVG;
+			value = AVG;
 			break;
 		case "error":
-			value = NeoLoadReportDoc.ERROR_RATE;
+			value = ERROR_RATE;
 			break;
 		default:
-			value = NeoLoadReportDoc.VAL;
+			value = VAL;
 			break;
 		}
 		return value;
@@ -232,6 +237,16 @@ public class ProjectSpecificAction implements ProminentProjectAction, Serializab
 
 		LOGGER.finer("Plugin options : no graph data.");
 		return 0;
+	}
+
+	/**
+	 * @return the height of custom graph (in px).
+	 */
+	public String heightCustomGraph() {
+		if (graphDataExists()) {
+			return ((int) Math.floor(getGraphOptionsInfo().size()/2)) * 350 + "px";
+		}
+		return 0 + "px";
 	}
 
 	/**
@@ -333,13 +348,23 @@ public class ProjectSpecificAction implements ProminentProjectAction, Serializab
 					final AbstractBuild<?, ?> build = entry.getKey();
 					final NeoLoadReportDoc nlrd = entry.getValue();
 					final String buildName = build.getDisplayName() == null ? "#" + build.number : build.getDisplayName();
-					final Float value;
+					Float value;
 					
 					try {
 						value = nlrd.getCustom(getXPathForCustomGraph(curve.getPath(), getTypeByStatistic(customGraphInfo.getStatistic())));
 						if (value != null) {
 							// use the custom name, otherwise use the default name.
 							nums.put(buildName, value);
+						}
+						else {
+							value = nlrd.getCustom(getXPathForCustomMonitorOrLGGraph(curve.getPath(), getTypeByStatistic(customGraphInfo.getStatistic())));
+							if (value != null) {
+								// use the custom name, otherwise use the default name.
+								nums.put(buildName, value);
+							}
+							else {
+								LOGGER.warning("No custom value for XPath : " + curve.getPath());
+							}
 						}
 					} catch (XPathExpressionException e) {
 						LOGGER.finest("Error XPATH : " + e.getStackTrace());

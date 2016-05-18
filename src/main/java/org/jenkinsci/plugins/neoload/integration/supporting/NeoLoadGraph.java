@@ -28,11 +28,14 @@ package org.jenkinsci.plugins.neoload.integration.supporting;
 
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.logging.Logger;
 
 import javax.imageio.ImageIO;
 import javax.servlet.ServletOutputStream;
@@ -59,10 +62,16 @@ public class NeoLoadGraph implements Serializable {
 	private static final int IMAGE_HEIGHT = 200;
 
 	/** We use the same size as the default junit trend graph. */
+	private static final int IMAGE_HEIGHT_CUSTOM = 250;
+
+	/** We use the same size as the default junit trend graph. */
 	private static final int IMAGE_WIDTH = 500;
 
 	/** We use the same size as the default junit trend legend. */
-	private static final int LEGEND_HEIGHT = 25;
+	private static final int LEGEND_HEIGHT = 20;
+
+	/** Log various messages. */
+	private static final Logger LOGGER = Logger.getLogger(NeoLoadGraph.class.getName());
 
 	/** data to plot */
 	private final CategoryDataset dataset;
@@ -155,6 +164,38 @@ public class NeoLoadGraph implements Serializable {
 		return chart;
 	}
 
+	/**
+	 * This function permet to know how many line are used for the legend.
+	 * @param lstLegend
+	 * @param fontMetrics
+	 * @return
+	 */
+	private int searchHowManyLineForLegend(final List<String> lstLegend, final FontMetrics fontMetrics) {
+		//TODO Maybe upgrade it to have better performance.
+		int numberOfLine = 0;
+		Collections.sort(lstLegend, new ComparatorListByLength(false));
+		final List<String> lstCounted = new ArrayList<String>();
+		for (int i=0; i<lstLegend.size(); i++) {
+			if (!lstCounted.contains(lstLegend.get(i))) {
+				if (fontMetrics.stringWidth(lstLegend.get(i)) <= IMAGE_WIDTH) {
+					String strCumul = lstLegend.get(i);
+					for (int j=(lstLegend.size() - 1); j>i; j--) {
+						if (!lstCounted.contains(lstLegend.get(j))) {
+							// Here we try to calculate if it's possible to add the new String in the cumul to be under the width.
+							if (fontMetrics.stringWidth(strCumul + lstLegend.get(j)) <= IMAGE_WIDTH) {
+								strCumul += lstLegend.get(j);
+								lstCounted.add(lstLegend.get(j));
+							}
+						}
+					}
+				}
+				numberOfLine++;
+				lstCounted.add(lstLegend.get(i));
+			}
+		}
+		return numberOfLine;
+	}
+
 	/** This is the method Hudson uses when a dynamic png is referenced in a jelly file.
 	 * @param req
 	 * @param rsp
@@ -163,13 +204,25 @@ public class NeoLoadGraph implements Serializable {
 	public void doPng(final StaplerRequest req, final StaplerResponse rsp) throws IOException {
 		rsp.setContentType("image/png");
 		final ServletOutputStream os = rsp.getOutputStream();
-		final BufferedImage image = createImage(IMAGE_WIDTH, IMAGE_HEIGHT + numberOfColor*LEGEND_HEIGHT);
+		final BufferedImage image = createImage(IMAGE_WIDTH, (lineColor == null)?IMAGE_HEIGHT_CUSTOM:IMAGE_HEIGHT);
 		ImageIO.write(image, "PNG", os);
 		os.close();
 	}
 
 	public BufferedImage createImage(final int width, final int height) {
-		return createGraph().createBufferedImage(width, height);
+		final JFreeChart chart = createGraph();
+		if (lineColor == null) {
+			final List<String> lstLegend = new ArrayList<String>();
+			for (final Object obj : dataset.getRowKeys()) {
+				lstLegend.add(obj.toString());
+			}
+			final BufferedImage buffImg = chart.createBufferedImage(width, height);
+			final int heightLegend = searchHowManyLineForLegend(lstLegend, buffImg.getGraphics().getFontMetrics())*LEGEND_HEIGHT;
+			return chart.createBufferedImage(width, height + heightLegend);
+		}
+		else {
+			return chart.createBufferedImage(width, height);
+		}
 	}
 
 	/** @return the yAxisLabel */
