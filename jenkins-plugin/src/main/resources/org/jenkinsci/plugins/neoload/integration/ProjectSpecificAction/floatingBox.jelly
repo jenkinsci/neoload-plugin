@@ -1,7 +1,23 @@
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define"
 	xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form"
 	xmlns:i="jelly:fmt">
-
+	<script>
+		function placeDiv(x_pos, y_pos, name) {
+			var d = document.getElementById(name);
+			d.style.position = "absolute";
+			d.style.left = x_pos+'px';
+			d.style.top = y_pos+'px';
+		}
+		
+		function calculateDiv(cpt) {
+			placeDiv(350 + (cpt%2) * 500, (Math.floor(cpt/2)*350 + 550), 'Custom' + cpt);
+		}
+		
+		function divPhantom(cpt) {
+			document.write('height:' + (Math.floor(cpt/2)*250) + 'px;background-color:pink;');
+		}
+	</script>
+	
 	<!-- neoload graphs -->
 	
 	<!-- refresh graph data -->
@@ -30,12 +46,17 @@
 	</j:if>
 	<j:set var="cpt" value="0"/>
 	<j:while test="${from.sizeCustomGraph() > cpt}">
-		<div>
+		<div id="Custom${cpt}">
 			<!-- this links to a method which extends Graph and returns a JFreeChart -->
 			<img src="neoload/customGraph/${cpt}/png" />
+			<script>
+				calculateDiv(${cpt});
+			</script>
 		</div>
-
 		<j:set var="cpt" value="${cpt + 1}"/>
 	</j:while>
-
+	
+	<div style="height:${from.heightCustomGraph()}">
+		<!-- This div is only for the good display -->
+	</div>
 </j:jelly>

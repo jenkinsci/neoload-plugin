@@ -73,6 +73,9 @@ public class NeoLoadReportDoc {
 	public static final String ERROR_RATE = "/@error_rate";
 	
 	/** String for the percentile3 type. */
+	public static final String PERCENTILE2 = "/@percentile2";
+	
+	/** String for the percentile3 type. */
 	public static final String PERCENTILE3 = "/@percentile3";
 
 	/** A time format that is used for all languages in the context of this plugin. */
@@ -150,12 +153,11 @@ public class NeoLoadReportDoc {
 	 * @throws XPathExpressionException
 	 */
 	public Float getCustom(final String path) throws XPathExpressionException {
+		if (path == null) return null;
 		final Node node = XMLUtilities.findFirstByExpression(path, doc);
-
 		if (node != null) {
 			return extractNeoLoadNumber(node.getNodeValue());
 		}
-		LOGGER.warning("No custom value for XPath : " + path);
 		return null;
 	}
 
@@ -177,6 +179,36 @@ public class NeoLoadReportDoc {
 		for (final String str : tabSplited) {
 			path += "/statistic-item[@name='" + str + "']";
 		}
+		return path + type;
+	}
+
+	/**
+	 * @param litePath the path of the request to get the information.<br />
+	 * <i>Exemple : "UserPath/Actions/(Transaction or Page)/..."</i>
+	 * @param type the type of value search.
+	 * @return the xpath.
+	 */
+	public static String getXPathForCustomMonitorOrLGGraph(final String litePath, final String type) {
+		String path = "/report/monitors/monitored-host[@name='";
+		if (litePath.startsWith("/")) {
+			final String splited = litePath.substring(1);
+			final int index = splited.indexOf("/");
+			if (index < 0) {
+				return null;
+			}
+			path += splited.substring(0, index);
+		}
+		else {
+			final int index = litePath.indexOf("/");
+			if (index < 0) {
+				return null;
+			}
+			path += litePath.substring(0, index);
+		}
+		
+		path += "']/monitor/counters/statistic-item[@name='";
+		path += litePath;
+		path += "']";
 		return path + type;
 	}
 
