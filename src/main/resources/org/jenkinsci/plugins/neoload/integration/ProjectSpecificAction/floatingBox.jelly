@@ -2,19 +2,30 @@
 	xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form"
 	xmlns:i="jelly:fmt">
 	<script>
-		function placeDiv(x_pos, y_pos, name) {
-			var d = document.getElementById(name);
-			d.style.position = "absolute";
-			d.style.left = x_pos+'px';
-			d.style.top = y_pos+'px';
+		function insertTheCustomDiv() {
+			var d = document.getElementById('custom-chart');
+			d.style.float = "none";
+			insertAfter(d, document.getElementById('main-panel'));
 		}
 		
-		function calculateDiv(cpt) {
-			placeDiv(350 + (cpt%2) * 500, (Math.floor(cpt/2)*350 + 550), 'Custom' + cpt);
+		// Source : http://stackoverflow.com/questions/4793604/how-to-do-insert-after-in-javascript-without-using-a-library
+		function insertAfter(newElement,targetElement) {
+		    //target is what you want it to go after. Look for this elements parent.
+		    var parent = targetElement.parentNode;
+		
+		    //if the parents lastchild is the targetElement...
+		    if(parent.lastchild == targetElement) {
+		        //add the newElement after the target element.
+		        parent.appendChild(newElement);
+	        } else {
+		        // else the target has siblings, insert the new element between the target and it's next sibling.
+		        parent.insertBefore(newElement, targetElement.nextSibling);
+	        }
 		}
 		
-		function divPhantom(cpt) {
-			document.write('height:' + (Math.floor(cpt/2)*250) + 'px;background-color:pink;');
+		function insertNewCustom(cpt) {
+			var d = document.getElementById('Custom' + cpt);
+			d.style.display = "inline-block";
 		}
 	</script>
 	
@@ -44,19 +55,21 @@
 		</div>
 
 	</j:if>
-	<j:set var="cpt" value="0"/>
-	<j:while test="${from.sizeCustomGraph() > cpt}">
-		<div id="Custom${cpt}">
-			<!-- this links to a method which extends Graph and returns a JFreeChart -->
-			<img src="neoload/customGraph/${cpt}/png" />
-			<script>
-				calculateDiv(${cpt});
-			</script>
-		</div>
-		<j:set var="cpt" value="${cpt + 1}"/>
-	</j:while>
-	
-	<div style="height:${from.heightCustomGraph()}">
-		<!-- This div is only for the good display -->
+	<div id="custom-chart">
+		<script>
+			insertTheCustomDiv();
+		</script>
+		
+		<j:set var="cpt" value="0"/>
+		<j:while test="${from.sizeCustomGraph() > cpt}">
+			<div id="Custom${cpt}">
+				<!-- this links to a method which extends Graph and returns a JFreeChart -->
+				<img src="neoload/customGraph/${cpt}/png" />
+				<script>
+					insertNewCustom(${cpt});
+				</script>
+			</div>
+			<j:set var="cpt" value="${cpt + 1}"/>
+		</j:while>
 	</div>
 </j:jelly>
