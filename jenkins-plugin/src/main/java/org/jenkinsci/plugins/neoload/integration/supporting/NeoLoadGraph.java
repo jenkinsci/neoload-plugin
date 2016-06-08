@@ -133,12 +133,18 @@ public class NeoLoadGraph implements Serializable {
 				true, // tooltips
 				false // urls
 				);
-		if (title != null) {
-			final TextTitle textTitle = new TextTitle(title, new Font("Helvetica", Font.BOLD, 16));
-			chart.setTitle(textTitle);
-		}
 		chart.setBackgroundPaint(Color.white);
 		if (lineColor == null) {
+			final TextTitle textTitle;
+			if (title != null && !title.trim().equals("")) {
+				textTitle = new TextTitle(title, new Font("Helvetica", Font.BOLD, 16));
+				
+			}
+			else {
+				// Here it's to have a good display, we need a "blank" title.
+				textTitle = new TextTitle(" ", new Font("Helvetica", Font.BOLD, 16));
+			}
+			chart.setTitle(textTitle);
 			chart.getLegend().setBorder(0, 0, 0, 0); // To haven't border for the legend.
 		}
 		final CategoryPlot plot = chart.getCategoryPlot();
