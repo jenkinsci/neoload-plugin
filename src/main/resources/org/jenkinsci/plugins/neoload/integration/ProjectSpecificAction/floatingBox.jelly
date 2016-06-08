@@ -26,6 +26,7 @@
 		function insertNewCustom(cpt) {
 			var d = document.getElementById('Custom' + cpt);
 			d.style.display = "inline-block";
+			d.style.verticalAlign = "top";
 		}
 	</script>
 	
