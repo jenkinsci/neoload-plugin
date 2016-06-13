@@ -11,7 +11,7 @@
 		<f:radioBlock name="projectType" value="projectTypeLocal" title="Local Project" 
 			help="/descriptor/org.jenkinsci.plugins.neoload.integration.NeoBuildAction/help/projectTypeLocal" 
 			default="projectTypeLocal" 
-			checked="${instance.isProjectType('projectTypeLocal')}" inline="true">
+			checked="true" inline="true">
 			<f:nested>
 				<f:entry title="Project File" field="localProjectFile" >
 					<f:textbox placeholder="/Users/userName/neoload_projects/JenkinsExample/JenkinsExample.nlp (required)"  />
@@ -70,16 +70,10 @@
 	<!-- report type - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  -->
 	
 	<f:section title="Report File Details" >
-		<f:radioBlock name="reportType" value="reportTypeNone" title="No Report" 
-			help="/descriptor/org.jenkinsci.plugins.neoload.integration.NeoBuildAction/help/reportTypeDefault" 
-			default="reportTypeNone" 
-			checked="true" inline="true">
-		</f:radioBlock>
-		
 		<f:radioBlock name="reportType" value="reportTypeDefault" title="Default Report File Names" 
 			help="/descriptor/org.jenkinsci.plugins.neoload.integration.NeoBuildAction/help/reportTypeDefault" 
 			default="reportTypeDefault" 
-			checked="${instance.isReportType('reportTypeDefault')}" inline="true">
+			checked="true" inline="true">
 		</f:radioBlock>
 		
 		<f:radioBlock name="reportType" value="reportTypeCustom" title="Custom Report File Names" 
@@ -94,7 +88,7 @@
 				</f:entry>
 				<f:entry title="XML Report" field="xmlReport" >
 					<f:textbox name="xmlReport" value="${xmlReport}" default="$${WORKSPACE}/neoload-report/report.xml" 
-						placeholder="$${WORKSPACE}/neoload-report/report.xml (optional)" />
+						placeholder="$${WORKSPACE}/neoload-report/report.xml (required)" />
 				</f:entry>
 				<f:entry title="PDF Report" field="pdfReport" >
 					<f:textbox name="pdfReport" value="${pdfReport}" 
@@ -118,7 +112,7 @@
 		<f:radioBlock name="licenseType" value="licenseTypeLocal" title="Existing License" 
 			help="/descriptor/org.jenkinsci.plugins.neoload.integration.NeoBuildAction/help/licenseTypeLocal" 
 			default="licenseTypeLocal" 
-			checked="${instance.isLicenseType('licenseTypeLocal')}" inline="true" >
+			checked="true" inline="true" >
 		</f:radioBlock>
 		
 		<f:radioBlock name="licenseType" value="licenseTypeShared" title="Shared License"  
@@ -169,7 +163,7 @@
 	<f:entry title="Graphs" >
 		<f:repeatable field="graphOptionsInfo" minimum="0" add="Add Graph">
 			<table width="100%">
-				<f:entry title="Name" field="name">
+				<f:entry title="Name" field="name" placeholder="(optional)">
 					<f:textbox />
 				</f:entry>
 
