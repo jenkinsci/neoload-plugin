@@ -2,6 +2,20 @@
                        *  NeoLoad Jenkins Plugin ChangeLog  *
                        **************************************
                                
+Version 2.0.0 (June 9, 2016)
+=============   
+- FIXED: When creating a new Neoload job there is no choice selected by default for Report File Details. (#10272)
+- FIXED: PDF report option is not kept in Project details after a save or apply. (#10253)
+- FIXED: Exception : Fail to convert sharedProject. (#10278)
+- FIXED: When using NTS server, job failed due to NTS password "PASSWORD" . Input length must be multiple of 16 when decrypting. (#10248)
+- FIXED: Label have to be reviewed for Neoload servers. (#10246)
+- FIXED: Project details field ordering need to be review for better understanding. (#10244)
+- FIXED: Help mention VU ( User path) when field label mention User Path (VU). (#10243)
+- FIXED: Even Customize Report ... settings are not set they are filled in executed command. (#10236)
+- FIXED: Jenkins 2.0: Deleting a server from the main config page makes the job fail. (#10260)
+- FIXED: Job can't be run if there is no Test description : Invalid argument '', Expected value of type 'STRING'. (#10235)
+- FIXED: Use new NL logo for link to Performance result. (#10249)
+
 Version 1.0.2 (February 9, 2016)
 =============   
 - FIXED: HTML report files sometimes didn't display. (#9257)

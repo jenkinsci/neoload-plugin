@@ -744,6 +744,9 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 		public FormValidation doCheckSharedProjectName(@QueryParameter final String sharedProjectName) {
 			return PluginUtils.formValidationErrorToWarning(FormValidation.validateRequired(sharedProjectName));
 		}
+		public FormValidation doCheckXmlReport(@QueryParameter final String xmlReport) {
+			return PluginUtils.formValidationErrorToWarning(FormValidation.validateRequired(xmlReport));
+		}
 		public FormValidation doCheckScenarioName(@QueryParameter final String scenarioName) {
 			return PluginUtils.formValidationErrorToWarning(FormValidation.validateRequired(scenarioName));
 		}
