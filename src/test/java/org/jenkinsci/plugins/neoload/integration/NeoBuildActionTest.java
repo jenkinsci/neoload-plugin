@@ -109,7 +109,7 @@ public class NeoBuildActionTest extends HudsonTestCase {
 				"1", // license hours
 				"", // custom command line options
 				true, // publish test results
-				ntssi, ntssi, // shared project server, license server.
+						csi, ntssi, // shared project server, license server.
 				true, // show trend average response
 				true, // show trend error rate
 				null); // graph info
@@ -139,12 +139,12 @@ public class NeoBuildActionTest extends HudsonTestCase {
 				"c:/htmlReport.html", "c:/xmlReport.xml", "c:/pdfReport.pdf", "c:/junitReport.xml", 
 				false, // display the GUI
 				"test result name", "test description", 
-				"shared-license-type", // license type - local or shared. 
+				"local", // license type - local or shared.
 				"50", // VU count for license
 				"1", // license hours
 				"", // custom command line options
 				true, // publish test results
-				ntssi, ntssi, // shared project server, license server.
+				ntssi, null, // shared project server, license server.
 				true, // show trend average response
 				true, // show trend error rate
 				null); // graph info
@@ -163,7 +163,7 @@ public class NeoBuildActionTest extends HudsonTestCase {
 				"NTS_loginPassword", "Label", "NTS_collabPath", "NTS_licenseID");
 		final NeoBuildAction neoBuildAction = 
 				new NeoBuildAction("c:/NeoLoad/executable", 
-				"shared-project-type", // project type - local or shared. 
+				"local", // project type - local or shared.
 				"reportTypeDefault", // report type
 				"c:/local_Project_File.prj", 
 				"Shared_Project_Name", "Scenario_Name",

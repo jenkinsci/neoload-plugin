@@ -59,10 +59,10 @@ import hudson.util.RunList;
 public class MockObjects {
 
 	/** Mock project for testing. */
-	private final Project<?,? extends AbstractBuild<?,?>> apWithOptions;
+	private final Project<?,? extends AbstractBuild> apWithOptions;
 
 	/** Mock project for testing. */
-	private final Project<?,? extends AbstractBuild<?,?>> apWithoutOptions;
+	private final Project<?,? extends AbstractBuild> apWithoutOptions;
 
 	/** Mock object for testing. */
 	private final Publisher publisherWithNeoOptions;
@@ -72,8 +72,8 @@ public class MockObjects {
 	
 	private final NeoBuildAction neoBuildAction;
 
-	private final Run<? extends Job<?,?>, ? extends Run<?,?>>.Artifact reportFileArtifact;
-	private final Run<? extends Job<?,?>, ? extends Run<?,?>>.Artifact reportFileArtifactXml;
+	private final Run<? extends Job, ? extends Run>.Artifact reportFileArtifact;
+	private final Run<? extends Job, ? extends Run>.Artifact reportFileArtifactXml;
 
 	/** The date the test started in the report file. */
 	private static final String START_DATE_IN_HTML_FILE = "Mar 18, 2013 11:15:39 AM";
@@ -151,12 +151,12 @@ public class MockObjects {
 		when(abstractBuild.getDuration()).thenReturn(buildDuration);
 
 		// add artifact to build.getArtifacts
-		final List<Run<? extends Job<?,?>, ? extends Run<?,?>>.Artifact> artifacts = createArtifacts();
+		final List<Run<? extends Job, ? extends Run>.Artifact> artifacts = createArtifacts();
 		when(abstractBuild.getArtifacts()).thenReturn(artifacts);
 
-		Run<? extends Job<?,?>, ? extends Run<?,?>>.Artifact localReportFileArtifact = null;
-		Run<? extends Job<?,?>, ? extends Run<?,?>>.Artifact localXmlReportFileArtifact = null;
-		for (final Run<? extends Job<?,?>, ? extends Run<?,?>>.Artifact a: artifacts) {
+		Run<? extends Job, ? extends Run>.Artifact localReportFileArtifact = null;
+		Run<? extends Job, ? extends Run>.Artifact localXmlReportFileArtifact = null;
+		for (final Run<? extends Job, ? extends Run>.Artifact a: artifacts) {
 			if (a.getFile().getName().contains("eport.html")) {
 				localReportFileArtifact = a;
 			} else if (a.getFile().getName().contains("eport.xml")) {
@@ -186,12 +186,12 @@ public class MockObjects {
 	 * @throws IOException
 	 * @throws IllegalAccessException
 	 */
-	private static List<Run<? extends Job<?,?>, ? extends Run<?,?>>.Artifact> createArtifacts() throws FileNotFoundException, IOException, IllegalAccessException {
+	private static List<Run<? extends Job, ? extends Run>.Artifact> createArtifacts() throws FileNotFoundException, IOException, IllegalAccessException {
 		// create new test files
 		final URL url = MockObjects.class.getResource("neoload-report.zip");
 		final List<File> createdFiles = ZipUtilities.unzip(url.getFile(), new File(url.getFile()).getParent());
-		Run<? extends Job<?,?>, ? extends Run<?,?>>.Artifact a = null;
-		final List<Run<? extends Job<?,?>, ? extends Run<?,?>>.Artifact> artifacts = new ArrayList<Run<? extends Job<?,?>, ? extends Run<?,?>>.Artifact>(createdFiles.size());
+		Run<? extends Job, ? extends Run>.Artifact a = null;
+		final List<Run<? extends Job, ? extends Run>.Artifact> artifacts = new ArrayList<Run<? extends Job, ? extends Run>.Artifact>(createdFiles.size());
 
 		for (final File f: createdFiles) {
 			a = mock(Artifact.class);
@@ -210,12 +210,12 @@ public class MockObjects {
 	}
 
 	/** @return the apWithOptions */
-	public AbstractProject<?, ?> getApWithOptions() {
+	public AbstractProject getApWithOptions() {
 		return apWithOptions;
 	}
 
 	/** @return the apWithoutOptions */
-	public AbstractProject<?, ?> getApWithoutOptions() {
+	public AbstractProject getApWithoutOptions() {
 		return apWithoutOptions;
 	}
 
@@ -225,17 +225,17 @@ public class MockObjects {
 	}
 
 	/** @return the abstractBuild */
-	public AbstractBuild<?, ?> getAbstractBuild() {
+	public AbstractBuild getAbstractBuild() {
 		return abstractBuild;
 	}
 
 	/** @return the reportFileArtifact */
-	public Run<?, ?>.Artifact getReportFileArtifact() {
+	public Run.Artifact getReportFileArtifact() {
 		return reportFileArtifact;
 	}
 
 	/** @return the reportFileArtifactXml */
-	public Run<?, ?>.Artifact getReportFileArtifactXml() {
+	public Run.Artifact getReportFileArtifactXml() {
 		return reportFileArtifactXml;
 	}
 

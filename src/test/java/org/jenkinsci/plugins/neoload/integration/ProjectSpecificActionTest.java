@@ -83,7 +83,7 @@ public class ProjectSpecificActionTest extends TestCase {
 	@Test
 	public void testShowAvgGraph() {
 		ProjectSpecificAction psa = new ProjectSpecificAction(mo.getApWithoutOptions());
-		final AbstractBuild<?, ?> ab = mo.getAbstractBuild();
+		final AbstractBuild ab = mo.getAbstractBuild();
 		Mockito.when(ab.getResult()).thenReturn(Result.FAILURE);
 		assertFalse(psa.showAvgGraph());
 
@@ -129,18 +129,18 @@ public class ProjectSpecificActionTest extends TestCase {
 	@SuppressWarnings("null")
 	@Test
 	public void testGetErrGraph2() throws IOException {
-		final AbstractProject<?,? extends AbstractBuild<?,?>> ap = mo.getApWithOptions();
+		final AbstractProject ap = mo.getApWithOptions();
 
-		final RunList<AbstractBuild<?,?>> rl = (RunList<AbstractBuild<?, ?>>) ap.getBuilds();
+		final RunList<AbstractBuild> rl = (RunList) ap.getBuilds();
 		// add the same build to the project multiple times
-		final AbstractBuild<?, ?> abstractBuild = mo.getAbstractBuild();
+		final AbstractBuild abstractBuild = mo.getAbstractBuild();
 		rl.add(abstractBuild);
 		rl.add(abstractBuild);
 		rl.add(abstractBuild);
 		Mockito.when(ap.getBuilds()).thenReturn(rl);
 
-		final List<Run<?, ?>.Artifact> artifacts = abstractBuild.getArtifacts();
-		for (final Run<?, ?>.Artifact a: artifacts) {
+		final List<Run.Artifact> artifacts = abstractBuild.getArtifacts();
+		for (final Run.Artifact a: artifacts) {
 			NeoResultsActionTest.setArtifactFileTimetoAfterBuildTime(abstractBuild, a);
 
 			if ("xml".equalsIgnoreCase(FilenameUtils.getExtension(a.getFileName()))) {
@@ -166,18 +166,18 @@ public class ProjectSpecificActionTest extends TestCase {
 	@SuppressWarnings("null")
 	@Test
 	public void testGetAvgGraph2() throws IOException {
-		final AbstractProject<?,? extends AbstractBuild<?,?>> ap = mo.getApWithOptions();
+		final AbstractProject<?,? extends AbstractBuild> ap = mo.getApWithOptions();
 
-		final RunList<AbstractBuild<?,?>> rl = (RunList<AbstractBuild<?, ?>>) ap.getBuilds();
+		final RunList rl =  ap.getBuilds();
 		// add the same build to the project multiple times
-		final AbstractBuild<?, ?> abstractBuild = mo.getAbstractBuild();
+		final AbstractBuild abstractBuild = mo.getAbstractBuild();
 		rl.add(abstractBuild);
 		rl.add(abstractBuild);
 		rl.add(abstractBuild);
 		Mockito.when(ap.getBuilds()).thenReturn(rl);
 
-		final List<Run<?, ?>.Artifact> artifacts = abstractBuild.getArtifacts();
-		for (final Run<?, ?>.Artifact a: artifacts) {
+		final List<Run.Artifact> artifacts = abstractBuild.getArtifacts();
+		for (final Run.Artifact a: artifacts) {
 			NeoResultsActionTest.setArtifactFileTimetoAfterBuildTime(abstractBuild, a);
 
 			if ("xml".equalsIgnoreCase(FilenameUtils.getExtension(a.getFileName()))) {
@@ -201,13 +201,13 @@ public class ProjectSpecificActionTest extends TestCase {
 
 	@Test
 	public void testFindXmlResultsFileValidFileHasNoCorrespondingDate() throws IOException, XPathExpressionException, ParserConfigurationException, SAXException {
-		final AbstractBuild<?, ?> abstractBuild = mo.getAbstractBuild();
+		final AbstractBuild abstractBuild = mo.getAbstractBuild();
 
 		NeoLoadReportDoc result = ProjectSpecificAction.findXMLResultsFile(abstractBuild);
 		assertNull("should have an invalid date", result);
 
-		final List<Run<?, ?>.Artifact> artifacts = abstractBuild.getArtifacts();
-		for (final Run<?, ?>.Artifact a: artifacts) {
+		final List<Run.Artifact> artifacts = abstractBuild.getArtifacts();
+		for (final Run.Artifact a: artifacts) {
 			NeoResultsActionTest.setArtifactFileTimetoAfterBuildTime(abstractBuild, a);
 
 			if ("xml".equalsIgnoreCase(FilenameUtils.getExtension(a.getFileName()))) {

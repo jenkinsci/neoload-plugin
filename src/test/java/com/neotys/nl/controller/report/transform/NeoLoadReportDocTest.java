@@ -132,7 +132,7 @@ public class NeoLoadReportDocTest extends TestCase {
 
 	@Test
 	public void testNeoLoadReportDocIsNewer1() throws ParserConfigurationException, SAXException, IOException, XPathExpressionException {
-		final AbstractBuild<?, ?> ab = mo.getAbstractBuild();
+		final AbstractBuild ab = mo.getAbstractBuild();
 		final Calendar buildStartTime = PluginUtils.getBuildStartTime(ab);
 		final long middleOfRunTime = buildStartTime.getTimeInMillis() + ab.getDuration() / 2;
 		final Calendar duringBuild = Calendar.getInstance();
@@ -156,7 +156,7 @@ public class NeoLoadReportDocTest extends TestCase {
 
 	@Test
 	public void testNeoLoadReportDocIsNewer2() throws ParserConfigurationException, SAXException, IOException, XPathExpressionException {
-		final AbstractBuild<?, ?> ab = mo.getAbstractBuild();
+		final AbstractBuild ab = mo.getAbstractBuild();
 		final Calendar buildStartTime = PluginUtils.getBuildStartTime(ab);
 		final long middleOfRunTime = buildStartTime.getTimeInMillis() + ab.getDuration() / 2;
 		final Calendar duringBuild = Calendar.getInstance();
@@ -180,7 +180,7 @@ public class NeoLoadReportDocTest extends TestCase {
 
 	@Test
 	public void testNeoLoadReportDocIsNewer3() throws ParserConfigurationException, SAXException, IOException, XPathExpressionException {
-		final AbstractBuild<?, ?> ab = mo.getAbstractBuild();
+		final AbstractBuild ab = mo.getAbstractBuild();
 		final Calendar buildStartTime = PluginUtils.getBuildStartTime(ab);
 		final long middleOfRunTime = buildStartTime.getTimeInMillis() + ab.getDuration() / 2;
 		final Calendar duringBuild = Calendar.getInstance();
@@ -200,7 +200,7 @@ public class NeoLoadReportDocTest extends TestCase {
 
 	@Test
 	public void testNeoLoadReportDocIsNewerFrenchFalse1() throws ParserConfigurationException, SAXException, IOException, XPathExpressionException {
-		final AbstractBuild<?, ?> ab = mo.getAbstractBuild();
+		final AbstractBuild ab = mo.getAbstractBuild();
 		final Calendar buildStartTime = PluginUtils.getBuildStartTime(ab);
 		final long middleOfRunTime = buildStartTime.getTimeInMillis() + ab.getDuration() / 2;
 		final Calendar duringBuild = Calendar.getInstance();
@@ -224,7 +224,7 @@ public class NeoLoadReportDocTest extends TestCase {
 
 	@Test
 	public void testNeoLoadReportDocIsNewerFrenchFalse2() throws ParserConfigurationException, SAXException, IOException, XPathExpressionException {
-		final AbstractBuild<?, ?> ab = mo.getAbstractBuild();
+		final AbstractBuild ab = mo.getAbstractBuild();
 		final Calendar buildStartTime = PluginUtils.getBuildStartTime(ab);
 		final long middleOfRunTime = buildStartTime.getTimeInMillis() + ab.getDuration() / 2;
 		final Calendar duringBuild = Calendar.getInstance();
@@ -248,7 +248,7 @@ public class NeoLoadReportDocTest extends TestCase {
 
 	@Test
 	public void testNeoLoadReportDocIsNewerFrenchTrue() throws ParserConfigurationException, SAXException, IOException, XPathExpressionException {
-		final AbstractBuild<?, ?> ab = mo.getAbstractBuild();
+		final AbstractBuild ab = mo.getAbstractBuild();
 		final Calendar buildStartTime = PluginUtils.getBuildStartTime(ab);
 		final long middleOfRunTime = buildStartTime.getTimeInMillis() + ab.getDuration() / 2;
 		final Calendar duringBuild = Calendar.getInstance();
@@ -273,7 +273,7 @@ public class NeoLoadReportDocTest extends TestCase {
 
 	@Test
 	public void testNeoLoadReportDocIsNewerStandardTrue() throws ParserConfigurationException, SAXException, IOException, XPathExpressionException {
-		final AbstractBuild<?, ?> ab = mo.getAbstractBuild();
+		final AbstractBuild ab = mo.getAbstractBuild();
 		final Calendar buildStartTime = PluginUtils.getBuildStartTime(ab);
 		final long middleOfRunTime = buildStartTime.getTimeInMillis() + ab.getDuration() / 2;
 		final Calendar duringBuild = Calendar.getInstance();
@@ -298,7 +298,7 @@ public class NeoLoadReportDocTest extends TestCase {
 
 	@Test
 	public void testNeoLoadReportDocIsNewerStandardFalse1() throws ParserConfigurationException, SAXException, IOException, XPathExpressionException {
-		final AbstractBuild<?, ?> ab = mo.getAbstractBuild();
+		final AbstractBuild ab = mo.getAbstractBuild();
 		final Calendar buildStartTime = PluginUtils.getBuildStartTime(ab);
 		final long middleOfRunTime = buildStartTime.getTimeInMillis() + ab.getDuration() / 2;
 		final Calendar duringBuild = Calendar.getInstance();
@@ -323,7 +323,7 @@ public class NeoLoadReportDocTest extends TestCase {
 
 	@Test
 	public void testNeoLoadReportDocIsNewerStandardFalse2() throws ParserConfigurationException, SAXException, IOException, XPathExpressionException {
-		final AbstractBuild<?, ?> ab = mo.getAbstractBuild();
+		final AbstractBuild ab = mo.getAbstractBuild();
 		final Calendar buildStartTime = PluginUtils.getBuildStartTime(ab);
 		final long middleOfRunTime = buildStartTime.getTimeInMillis() + ab.getDuration() / 2;
 		final Calendar duringBuild = Calendar.getInstance();

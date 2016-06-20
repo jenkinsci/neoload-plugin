@@ -84,7 +84,7 @@ public class NeoResultsActionTest extends HudsonTestCase {
 	/** Test that the report file is not fond. */
 	@Test
 	public void testGetHtmlReportFilePath_DontFindReportFile() {
-		final AbstractBuild<?, ?> ab = mo.getAbstractBuild();
+		final AbstractBuild ab = mo.getAbstractBuild();
 		Mockito.when(ab.getArtifacts()).thenReturn(Collections.EMPTY_LIST);
 		final NeoResultsAction nra = new NeoResultsAction(ab);
 		assertTrue(nra.getHtmlReportFilePath() == null);
@@ -103,7 +103,7 @@ public class NeoResultsActionTest extends HudsonTestCase {
 				"99999" + NeoResultsAction.COMMENT_APPLIED_FOR_BUILD_PART2;
 		FileUtils.write(mo.getReportFileArtifact().getFile(), actualContent);
 
-		final AbstractBuild<?, ?> ab = mo.getAbstractBuild();
+		final AbstractBuild ab = mo.getAbstractBuild();
 		final List artifacts = new ArrayList();
 		artifacts.add(mo.getReportFileArtifact());
 		Mockito.when(ab.getArtifacts()).thenReturn(artifacts);
@@ -119,7 +119,7 @@ public class NeoResultsActionTest extends HudsonTestCase {
 	 * @throws IOException */
 	@Test
 	public void testGetHtmlReportFilePath_DoFindReportFileWithTag() throws IOException {
-		final AbstractBuild<?, ?> ab = mo.getAbstractBuild();
+		final AbstractBuild ab = mo.getAbstractBuild();
 		final NeoResultsAction nra = new NeoResultsAction(ab);
 
 		final Calendar cal = Calendar.getInstance();
@@ -129,8 +129,8 @@ public class NeoResultsActionTest extends HudsonTestCase {
 		// set the duration to 60 minutes
 		when(ab.getDuration()).thenReturn((long) (1000 * 60 * 60));
 		// set the file create date to 30 seconds after the start date
-		final List<Run<?, ?>.Artifact> artifacts = ab.getArtifacts();
-		for (final Run<?, ?>.Artifact a: artifacts) {
+		final List<Run.Artifact> artifacts = ab.getArtifacts();
+		for (final Run.Artifact a: artifacts) {
 			setArtifactFileTimetoAfterBuildTime(ab, a);
 		}
 
@@ -144,7 +144,7 @@ public class NeoResultsActionTest extends HudsonTestCase {
 	 * @param a
 	 * @throws IOException
 	 */
-	public static void setArtifactFileTimetoAfterBuildTime(final AbstractBuild<?, ?> ab, final Run<?, ?>.Artifact a) throws IOException {
+	public static void setArtifactFileTimetoAfterBuildTime(final AbstractBuild ab, final Run.Artifact a) throws IOException {
 		final long middleOfRunTime = ab.getTimestamp().getTimeInMillis() + ab.getDuration() / 2;
 		final File file = a.getFile();
 
@@ -169,7 +169,7 @@ public class NeoResultsActionTest extends HudsonTestCase {
 	/** Test that the report file is found when it includes the correct tag. */
 	@Test
 	public void testGetHtmlReportFilePath_OldData() {
-		final AbstractBuild<?, ?> ab = mo.getAbstractBuild();
+		final AbstractBuild ab = mo.getAbstractBuild();
 		final NeoResultsAction nra = new NeoResultsAction(ab);
 
 		final Calendar cal = Calendar.getInstance();
@@ -182,11 +182,11 @@ public class NeoResultsActionTest extends HudsonTestCase {
 	}
 
 	/** Test that if the plugin is uninstalled and reinstalled that the file date alone is not sufficient to add the report link.
-	 * This looks exactly like {@link #testGetHtmlReportFilePath_DoFindReportFileWithoutTag()} except for one setting.
+	 * This looks exactly like {@see #testGetHtmlReportFilePath_DoFindReportFileWithoutTag()} except for one setting.
 	 * @throws IOException */
 	@Test
 	public void testGetHtmlReportFilePath_EarlyExit() throws IOException {
-		final AbstractBuild<?, ?> ab = mo.getAbstractBuild();
+		final AbstractBuild ab = mo.getAbstractBuild();
 		final NeoResultsAction nra = new NeoResultsAction(ab);
 
 		final Calendar cal = Calendar.getInstance();
@@ -196,8 +196,8 @@ public class NeoResultsActionTest extends HudsonTestCase {
 		when(ab.getDuration()).thenReturn((long) (1000 * 60 * 60));
 
 		// remove the neoload tag for all html artifacts
-		final List<Run<?, ?>.Artifact> artifacts = ab.getArtifacts();
-		for (final Run<?, ?>.Artifact a: artifacts) {
+		final List<Run.Artifact> artifacts = ab.getArtifacts();
+		for (final Run.Artifact a: artifacts) {
 			a.getFile().setLastModified(ab.getTimestamp().getTimeInMillis() + 1000 * 30);
 
 			final String absolutePath = a.getFile().getAbsolutePath();
@@ -219,7 +219,7 @@ public class NeoResultsActionTest extends HudsonTestCase {
 
 	@Test
 	public void testGetDisplayName() {
-		final AbstractBuild<?, ?> ab = mo.getAbstractBuild();
+		final AbstractBuild ab = mo.getAbstractBuild();
 		Mockito.when(ab.getArtifacts()).thenReturn(Collections.EMPTY_LIST);
 		final NeoResultsAction nra = new NeoResultsAction(ab);
 		assertTrue(nra.getDisplayName() == null);
@@ -227,7 +227,7 @@ public class NeoResultsActionTest extends HudsonTestCase {
 
 	@Test
 	public void testGetIconFileName() {
-		final AbstractBuild<?, ?> ab = mo.getAbstractBuild();
+		final AbstractBuild ab = mo.getAbstractBuild();
 		Mockito.when(ab.getArtifacts()).thenReturn(Collections.EMPTY_LIST);
 		final NeoResultsAction nra = new NeoResultsAction(ab);
 		assertTrue(nra.getIconFileName() == null);
@@ -235,14 +235,14 @@ public class NeoResultsActionTest extends HudsonTestCase {
 
 	@Test
 	public void testGetUrlName() {
-		final AbstractBuild<?, ?> ab = mo.getAbstractBuild();
+		final AbstractBuild ab = mo.getAbstractBuild();
 		Mockito.when(ab.getArtifacts()).thenReturn(Collections.EMPTY_LIST);
 		final NeoResultsAction nra = new NeoResultsAction(ab);
 		assertTrue(nra.getUrlName() == null);
 	}
 
 	/**
-	 * Test method for {@link org.jenkinsci.plugins.neoload.integration.supporting.PluginUtils#addActionIfNotExists(hudson.model.AbstractBuild)}.
+	 * Test method for {@see org.jenkinsci.plugins.neoload.integration.supporting.PluginUtils#addActionIfNotExists(hudson.model.AbstractBuild)}.
 	 */
 	@Test
 	public void testAddActionIfNotExists() {
@@ -251,7 +251,7 @@ public class NeoResultsActionTest extends HudsonTestCase {
 		actions.add(mock(Action.class));
 		actions.add(mock(Action.class));
 
-		final AbstractBuild<?, ?> abstractBuild = mo.getAbstractBuild();
+		final AbstractBuild abstractBuild = mo.getAbstractBuild();
 		when(abstractBuild.getActions()).thenReturn(actions);
 
 		final ArgumentCaptor<Action> argument = ArgumentCaptor.forClass(Action.class);
@@ -263,7 +263,7 @@ public class NeoResultsActionTest extends HudsonTestCase {
 	}
 
 	/**
-	 * Test method for {@link org.jenkinsci.plugins.neoload.integration.supporting.PluginUtils#addActionIfNotExists(hudson.model.AbstractBuild)}.
+	 * Test method for {@see org.jenkinsci.plugins.neoload.integration.supporting.PluginUtils#addActionIfNotExists(hudson.model.AbstractBuild)}.
 	 */
 	@Test
 	public void testAddActionIfNotExistsDontAdd() {
@@ -273,7 +273,7 @@ public class NeoResultsActionTest extends HudsonTestCase {
 		actions.add(mock(Action.class));
 		actions.add(mock(NeoResultsAction.class));
 
-		final AbstractBuild<?, ?> abstractBuild = mo.getAbstractBuild();
+		final AbstractBuild abstractBuild = mo.getAbstractBuild();
 		when(abstractBuild.getActions()).thenReturn(actions);
 
 		NeoResultsAction.addActionIfNotExists(abstractBuild);
@@ -283,7 +283,7 @@ public class NeoResultsActionTest extends HudsonTestCase {
 
 	@Test
 	public void testIsFromCurrentBuild2() throws IOException, InterruptedException {
-		final AbstractBuild<?, ?> abstractBuild = mo.getAbstractBuild();
+		final AbstractBuild abstractBuild = mo.getAbstractBuild();
 		final NeoResultsAction nra = new NeoResultsAction(abstractBuild);
 
 		// ---------------
@@ -307,7 +307,7 @@ public class NeoResultsActionTest extends HudsonTestCase {
 
 	@Test
 	public void testGetAssociatedBuildFromFile() {
-		final AbstractBuild<?, ?> abstractBuild = mo.getAbstractBuild();
+		final AbstractBuild abstractBuild = mo.getAbstractBuild();
 		final NeoResultsAction nra = new NeoResultsAction(abstractBuild);
 		assertEquals("No data is provided so the default value should be used.", -1, nra.getAssociatedBuildNumberFromFile("bob"));
 
@@ -321,7 +321,7 @@ public class NeoResultsActionTest extends HudsonTestCase {
 
 	@Test
 	public void testGetAssociatedBuildFromFile2() {
-		final AbstractBuild<?, ?> abstractBuild = mo.getAbstractBuild();
+		final AbstractBuild abstractBuild = mo.getAbstractBuild();
 		final NeoResultsAction nra = new NeoResultsAction(abstractBuild);
 		assertEquals("No data is provided so the default value should be used.", -1, nra.getAssociatedBuildNumberFromFile("bob"));
 

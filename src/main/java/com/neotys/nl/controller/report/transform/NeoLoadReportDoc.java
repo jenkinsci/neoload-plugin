@@ -249,7 +249,7 @@ public class NeoLoadReportDoc {
 	 * @return
 	 * @throws XPathExpressionException
 	 */
-	public boolean hasCorrespondingDate(final AbstractBuild<?, ?> build) throws XPathExpressionException {
+	public boolean hasCorrespondingDate(final AbstractBuild build) throws XPathExpressionException {
 		final Calendar buildStartTime = PluginUtils.getBuildStartTime(build);
 		final Calendar buildEndTime = PluginUtils.getBuildEndTime(build);
 		// we add X seconds leeway because sometimes the endTime matches the processed time exactly.
