@@ -26,22 +26,18 @@
  */
 package org.jenkinsci.plugins.neoload.integration;
 
-import java.io.ByteArrayOutputStream;
-import java.io.Serializable;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
+import com.google.common.base.Joiner;
+import hudson.Extension;
+import hudson.FilePath;
+import hudson.Launcher;
+import hudson.model.*;
+import hudson.remoting.Callable;
+import hudson.tasks.*;
+import hudson.util.FormValidation;
+import hudson.util.ListBoxModel;
+import hudson.util.ListBoxModel.Option;
+import jenkins.model.Jenkins;
+import net.sf.json.JSONObject;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.exec.CommandLine;
 import org.apache.commons.exec.DefaultExecuteResultHandler;
@@ -50,39 +46,22 @@ import org.apache.commons.exec.PumpStreamHandler;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.SystemUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
-import org.jenkinsci.plugins.neoload.integration.supporting.CollabServerInfo;
-import org.jenkinsci.plugins.neoload.integration.supporting.GraphOptionsInfo;
-import org.jenkinsci.plugins.neoload.integration.supporting.NTSServerInfo;
-import org.jenkinsci.plugins.neoload.integration.supporting.NeoLoadPluginOptions;
-import org.jenkinsci.plugins.neoload.integration.supporting.PluginUtils;
-import org.jenkinsci.plugins.neoload.integration.supporting.ServerInfo;
+import org.jenkinsci.plugins.neoload.integration.supporting.*;
 import org.kohsuke.stapler.AncestorInPath;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
 
-import com.google.common.base.Joiner;
-
-import hudson.Extension;
-import hudson.FilePath;
-import hudson.Launcher;
-import hudson.model.AbstractBuild;
-import hudson.model.AbstractProject;
-import hudson.model.BuildListener;
-import hudson.model.Descriptor;
-import hudson.model.Item;
-import hudson.remoting.Callable;
-import hudson.tasks.BatchFile;
-import hudson.tasks.BuildStepDescriptor;
-import hudson.tasks.BuildStepMonitor;
-import hudson.tasks.Builder;
-import hudson.tasks.CommandInterpreter;
-import hudson.tasks.Shell;
-import hudson.util.FormValidation;
-import hudson.util.ListBoxModel;
-import hudson.util.ListBoxModel.Option;
-import jenkins.model.Jenkins;
-import net.sf.json.JSONObject;
+import java.io.ByteArrayOutputStream;
+import java.io.Serializable;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * This class adds the link to the html report to a build after the build has
@@ -246,7 +225,7 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 		// get the project
 		setupProjectType(commands, hashedPasswords);
 
-		setupTestInfo(commands);
+		setupTestInfo(commands, launcher);
 
 		setupLicenseInfo(commands, hashedPasswords);
 
@@ -295,7 +274,7 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 		}
 
 		// this executes on the slave, not on the master.
-		final CallableForPasswordScrambler callableForPasswordScrambler = new CallableForPasswordScrambler(map, executable);
+		final CallableForPasswordScrambler callableForPasswordScrambler = new CallableForPasswordScrambler(map, executable, isOsWindows(launcher));
 		Map<String, String> newMap;
 		try {
 			newMap = launcher.getChannel().call(callableForPasswordScrambler);
@@ -315,10 +294,12 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 
 		final Map<String, String> map;
 		final String executable;
+		final boolean osWindows;
 		
-		public CallableForPasswordScrambler(final HashMap<String, String> map, final String executable) {
+		public CallableForPasswordScrambler(final HashMap<String, String> map, final String executable, boolean osWindows) {
 			this.map = map;
 			this.executable = executable;
+			this.osWindows = osWindows;
 		}
 		
 		public Map<String, String> call() throws Exception {
@@ -367,7 +348,7 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 					break;
 				}
 				
-				if (SystemUtils.IS_OS_WINDOWS) {
+				if (this.osWindows) {
 					possibleFile = parent.resolve("password-scrambler.bat");
 					if (Files.exists(possibleFile)) {
 						break;
@@ -426,12 +407,12 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 		}
 	}
 
-	private void setupTestInfo(final List<String> commands) {
+	private void setupTestInfo(final List<String> commands, Launcher launcher) {
 		commands.add("-launch \"" + scenarioName + "\"");
 
 		// the $Date{.*} value in testResultName must be escaped if we're on linux so that NeoLoad is passed the $.
 		final String escapedTestResultName;
-		if (SystemUtils.IS_OS_WINDOWS) {
+		if (isOsWindows(launcher)) {
 			escapedTestResultName = testResultName;
 		} else {
 			escapedTestResultName = testResultName.replaceAll(
@@ -511,7 +492,7 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 	private boolean runTheCommand(final String command, final AbstractBuild<?, ?> build, final Launcher launcher, final BuildListener listener) 
 			throws InterruptedException {
 
-		if (SystemUtils.IS_OS_WINDOWS) {
+		if (isOsWindows(launcher)) {
 			commandInterpreter = new BatchFile(command);
 		} else {
 			commandInterpreter = new Shell(command);
@@ -520,6 +501,10 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 		LOGGER.log(Level.FINEST, "Executing command: " + command);
 
 		return commandInterpreter.perform(build, launcher, listener);
+	}
+
+	private boolean isOsWindows(Launcher launcher) {
+		return !launcher.isUnix();
 	}
 
 	private void addNTSArguments(final List<String> commands, final NTSServerInfo n, final Map<String, String> hashedPasswords) {
