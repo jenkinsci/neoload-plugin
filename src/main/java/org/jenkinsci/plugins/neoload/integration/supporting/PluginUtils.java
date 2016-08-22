@@ -28,6 +28,7 @@ package org.jenkinsci.plugins.neoload.integration.supporting;
 
 import static org.kohsuke.stapler.Stapler.CONVERT_UTILS;
 
+import java.io.File;
 import java.io.Serializable;
 import java.net.URI;
 import java.nio.file.Files;
@@ -57,11 +58,14 @@ import org.jenkinsci.plugins.neoload.integration.NeoGlobalConfig;
 
 import com.google.common.base.Charsets;
 
+import hudson.EnvVars;
+import hudson.Util;
 import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
 import hudson.model.Project;
 import hudson.tasks.Builder;
 import hudson.util.FormValidation;
+import hudson.util.FormValidation.FileValidator;
 import jenkins.model.Jenkins;
 
 public final class PluginUtils implements Serializable, Converter {
@@ -198,14 +202,6 @@ public final class PluginUtils implements Serializable, Converter {
 		return formValidation;
 	}
 
-	public static FormValidation validateFileExists(final String filePath) {
-		if (!Files.exists(Paths.get(filePath))) {
-			return FormValidation.warning("File not found: " + filePath);
-		}
-
-		return FormValidation.ok();
-	}
-
 	public static FormValidation validateURL(final String url) {
 		if (StringUtils.trimToNull(url) == null) {
 			return FormValidation.warning("Don't forget to include the URL.");
@@ -276,5 +272,62 @@ public final class PluginUtils implements Serializable, Converter {
 		}
 
 		return NO_BUILD_FOUND;
+	}
+
+	/**
+     * Check if the given string points to a file on local machine.
+     * If it's not the case, just display an info message, not a warning because 
+     * it might be executed on a remote host.
+     */
+	public static FormValidation validateFileExists(String file, final String extension, final boolean checkExtension, final boolean checkInPath) {
+		// If file is null or empty, return an error
+		final FormValidation emptyOrNullValidation = FormValidation.validateRequired(file);
+		if (!FormValidation.Kind.OK.equals(emptyOrNullValidation.kind)) {
+			return emptyOrNullValidation;
+		}
+		
+		if(checkExtension && !file.toLowerCase().endsWith(extension)){
+			return FormValidation.error("Please specify a file with " + extension + " extension");
+		}
+					
+		// insufficient permission to perform validation?
+        if(!Jenkins.getInstance().hasPermission(Jenkins.ADMINISTER)){
+        	return FormValidation.ok("Insufficient permission to perform path validation.");
+        }
+
+        if(file.indexOf(File.separatorChar)>=0) {
+            // this is full path
+            File f = new File(file);
+            if(f.exists())  return FileValidator.NOOP.validate(f);
+
+            File fexe = new File(file+extension);
+            if(fexe.exists())   return FileValidator.NOOP.validate(fexe);            
+        }
+        
+        if (Files.exists(Paths.get(file))) {
+			return FormValidation.ok();
+		}
+       
+        if(checkInPath){
+        	String path = EnvVars.masterEnvVars.get("PATH");
+            
+            String delimiter = null;
+            if(path!=null) {
+                for (String _dir : Util.tokenize(path.replace("\\", "\\\\"),File.pathSeparator)) {
+                    if (delimiter == null) {
+                      delimiter = ", ";
+                    }
+                    File dir = new File(_dir);
+
+                    File f = new File(dir,file);
+                    if(f.exists())  return FileValidator.NOOP.validate(f);
+
+                    File fexe = new File(dir,file+".exe");
+                    if(fexe.exists())   return FileValidator.NOOP.validate(fexe);
+                }               
+            }                     
+        } 
+        
+        return FormValidation.ok("There is no such file on local host. You can ignore this message if the job is executed on a remote slave.");        
 	}
 }

@@ -100,7 +100,7 @@ public class NeoGlobalConfig extends GlobalConfiguration implements Serializable
 			return PluginUtils.validateWarnIfEmpty(loginPassword, "password");
 		}
 		public FormValidation doCheckPrivateKey(@QueryParameter final String privateKey) {
-			return PluginUtils.validateFileExists(privateKey);
+			return PluginUtils.validateFileExists(privateKey, "", false, false);
 		}
 
 		public List<CollabServerInfo> getCollabInfo() {

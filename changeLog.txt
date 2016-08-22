@@ -1,6 +1,14 @@
                        **************************************
                        *  NeoLoad Jenkins Plugin ChangeLog  *
                        **************************************
+
+Version 2.0.1 (${current.date})
+==================
+- FIXED: Job could not be executed if Jenkins master and slave were on different OS. (#10588)
+- FIXED: Job configuration warned about missing executable and nlp file on master even though it could be executed on slave. (#10635)
+- FIXED: Graphs trend did not work when job was executed on Windows. (#10629)
+- IMPROVED: To install the plugin, Java version 8 was required. Now Java version 7 and higher are supported. (#10610)
+
                                
 Version 2.0.0 (June 9, 2016)
 =============   

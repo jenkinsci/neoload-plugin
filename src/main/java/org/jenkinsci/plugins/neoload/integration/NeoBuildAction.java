@@ -241,16 +241,16 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 			LOGGER.log(Level.WARNING, "Can't find NeoLoad executable: " + executable);
 		}
 		// build the command line.
-		final List<String> commands = new ArrayList<String>();
+		final List<String> commands = new ArrayList<>();
 
 		// get the project
 		setupProjectType(commands, hashedPasswords);
 
-		setupTestInfo(commands);
+		setupTestInfo(commands, launcher);
 
 		setupLicenseInfo(commands, hashedPasswords);
 
-		setupReports(commands);
+		setupReports(commands, launcher);
 
 		if (!displayTheGUI) {
 			commands.add("-noGUI");
@@ -263,7 +263,7 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 
 		// remove duplicate commands. this is for the -NTS argument to make sure it doesn't appear twice when checking out 
 		// a project and leasing a license.
-		final ArrayList<String> cleanedCommands = new ArrayList<String>(new LinkedHashSet<String>(commands));
+		final ArrayList<String> cleanedCommands = new ArrayList<>(new LinkedHashSet<>(commands));
 
 		// build the command on one line.
 		final StringBuilder sb = new StringBuilder();
@@ -279,7 +279,7 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 	 * @return key is the plain text version, value is the hashed version.
 	 */
 	Map<String, String> getHashedPasswords(final Launcher launcher) {
-		final HashMap<String, String> map = new HashMap<String, String>();
+		final HashMap<String, String> map = new HashMap<>();
 
 		if (sharedProjectServer != null && StringUtils.trimToNull(sharedProjectServer.getLoginPassword()) != null) {
 			map.put(sharedProjectServer.getLoginPassword(), "## use the password-scrambler to resolve this issue ##");
@@ -295,8 +295,8 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 		}
 
 		// this executes on the slave, not on the master.
-		final CallableForPasswordScrambler callableForPasswordScrambler = new CallableForPasswordScrambler(map, executable);
-		Map<String, String> newMap;
+		final CallableForPasswordScrambler callableForPasswordScrambler = new CallableForPasswordScrambler(map, executable, isOsWindows(launcher));
+ 		Map<String, String> newMap;
 		try {
 			newMap = launcher.getChannel().call(callableForPasswordScrambler);
 			map.putAll(newMap);
@@ -315,10 +315,12 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 
 		final Map<String, String> map;
 		final String executable;
+		final boolean osWindows;
 		
-		public CallableForPasswordScrambler(final HashMap<String, String> map, final String executable) {
+		public CallableForPasswordScrambler(final HashMap<String, String> map, final String executable, boolean osWindows) {
 			this.map = map;
 			this.executable = executable;
+			this.osWindows = osWindows;
 		}
 		
 		public Map<String, String> call() throws Exception {
@@ -367,7 +369,7 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 					break;
 				}
 				
-				if (SystemUtils.IS_OS_WINDOWS) {
+				if (this.osWindows) {
 					possibleFile = parent.resolve("password-scrambler.bat");
 					if (Files.exists(possibleFile)) {
 						break;
@@ -393,7 +395,8 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 		}
 	}
 
-	private void setupReports(final List<String> commands) {
+	private void setupReports(final List<String> commands, final Launcher launcher) {
+		final String workspaceVariable = isOsWindows(launcher) ? "%WORKSPACE%" : "${WORKSPACE}";
 		if (Boolean.valueOf(isReportType("reportTypeCustom"))) {
 			final List<String> reportPaths = PluginUtils.removeAllEmpties(htmlReport, xmlReport, pdfReport);
 			final String reportFileNames = Joiner.on(",").skipNulls().join(reportPaths);
@@ -406,8 +409,8 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 			}
 
 		} else {
-			commands.add("-report \"${WORKSPACE}/neoload-report/report.html,${WORKSPACE}/neoload-report/report.xml\"");
-			commands.add("-SLAJUnitResults \"${WORKSPACE}/neoload-report/junit-sla-results.xml\"");
+			commands.add("-report \"" + workspaceVariable + "/neoload-report/report.html," + workspaceVariable + "/neoload-report/report.xml\"");
+			commands.add("-SLAJUnitResults \"" + workspaceVariable + "/neoload-report/junit-sla-results.xml\"");
 		}
 	}
 
@@ -426,12 +429,12 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 		}
 	}
 
-	private void setupTestInfo(final List<String> commands) {
+	private void setupTestInfo(final List<String> commands, Launcher launcher) {
 		commands.add("-launch \"" + scenarioName + "\"");
 
 		// the $Date{.*} value in testResultName must be escaped if we're on linux so that NeoLoad is passed the $.
 		final String escapedTestResultName;
-		if (SystemUtils.IS_OS_WINDOWS) {
+		if (isOsWindows(launcher)) {
 			escapedTestResultName = testResultName;
 		} else {
 			escapedTestResultName = testResultName.replaceAll(
@@ -511,7 +514,7 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 	private boolean runTheCommand(final String command, final AbstractBuild<?, ?> build, final Launcher launcher, final BuildListener listener) 
 			throws InterruptedException {
 
-		if (SystemUtils.IS_OS_WINDOWS) {
+		if (isOsWindows(launcher)) {
 			commandInterpreter = new BatchFile(command);
 		} else {
 			commandInterpreter = new Shell(command);
@@ -521,8 +524,12 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 
 		return commandInterpreter.perform(build, launcher, listener);
 	}
+	
+	private static boolean isOsWindows(final Launcher launcher) {
+		return !launcher.isUnix();
+	}
 
-	private void addNTSArguments(final List<String> commands, final NTSServerInfo n, final Map<String, String> hashedPasswords) {
+	private static void addNTSArguments(final List<String> commands, final NTSServerInfo n, final Map<String, String> hashedPasswords) {
 		commands.add("-NTS \"" + n.getUrl() + "\"");
 		commands.add("-NTSLogin \"" + n.getLoginUser() + ":" + 
 				hashedPasswords.get(n.getLoginPassword()) + "\"");
@@ -712,25 +719,10 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 			return true;
 		}
 		public FormValidation doCheckLocalProjectFile(@QueryParameter("localProjectFile") final String localProjectFile) {
-			final FormValidation requiredWarning = PluginUtils.formValidationErrorToWarning(FormValidation.validateRequired(localProjectFile));
-			if (!FormValidation.Kind.OK.equals(requiredWarning.kind)) {
-				return requiredWarning;
-			}
-			
-			if (localProjectFile == null || !localProjectFile.toLowerCase().endsWith(".nlp")) {
-				return FormValidation.error("Please specify an NLP file");
-			}
-
-			return PluginUtils.validateFileExists(localProjectFile);
+			return PluginUtils.validateFileExists(localProjectFile, ".nlp", true, false);		
 		}
-		public FormValidation doCheckExecutable(@QueryParameter final String executable) {
-			// we force a missing file to be a warning instead of an error (because it might be on a remote machine? to be tested.)
-			final FormValidation requiredWarning = PluginUtils.formValidationErrorToWarning(FormValidation.validateRequired(executable));
-			if (!FormValidation.Kind.OK.equals(requiredWarning.kind)) {
-				return requiredWarning;
-			}
-
-			return PluginUtils.formValidationErrorToWarning(FormValidation.validateExecutable(executable));
+		public FormValidation doCheckExecutable(@QueryParameter final String executable) {			
+			return PluginUtils.validateFileExists(executable, ".exe", false, true);			
 		}
 		public FormValidation doCheckLicenseVUCount(@QueryParameter final String licenseVUCount) {
 			return PluginUtils.formValidationErrorToWarning(FormValidation.validatePositiveInteger(licenseVUCount));
