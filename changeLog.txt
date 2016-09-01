@@ -2,7 +2,7 @@
                        *  NeoLoad Jenkins Plugin ChangeLog  *
                        **************************************
 
-Version 2.0.1 (${current.date})
+Version 2.0.1 (September 1, 2016)
 ==================
 - FIXED: Job could not be executed if Jenkins master and slave were on different OS. (#10588)
 - FIXED: Job configuration warned about missing executable and nlp file on master even though it could be executed on slave. (#10635)
