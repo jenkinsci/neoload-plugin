@@ -38,8 +38,8 @@
 	</developers>
 
 	<scm>
-		<connection>scm:git:https://github.com/jenkinsci/neoload-plugin.git</connection>
-		<developerConnection>scm:git:https://git@github.com/jenkinsci/neoload-plugin.git</developerConnection>
+		<connection>scm:git:ssh://github.com/jenkinsci/neoload-plugin.git</connection>
+		<developerConnection>scm:git:ssh://git@github.com:NeotysPluginSupport/jenkinsci/neoload-plugin.git</developerConnection>
 		<url>https://github.com/jenkinsci/neoload-plugin</url>
 	</scm>
 
