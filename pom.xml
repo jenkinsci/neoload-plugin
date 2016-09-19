@@ -10,7 +10,7 @@
 	</parent>
 
 	<artifactId>neoload-jenkins-plugin</artifactId>
-	<version>2.0.1-SNAPSHOT</version>
+	<version>2.0.1</version>
 	<packaging>hpi</packaging>
 	<name>NeoLoad Plugin</name>
 	<description>Integrates NeoLoad results, generates trend graphs, and links to NeoLoad reports.</description>
