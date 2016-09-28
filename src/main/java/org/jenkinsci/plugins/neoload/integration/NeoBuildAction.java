@@ -62,6 +62,7 @@ import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
 
 import com.google.common.base.Joiner;
+import com.google.common.base.Strings;
 
 import hudson.Extension;
 import hudson.FilePath;
@@ -301,7 +302,14 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 			newMap = launcher.getChannel().call(callableForPasswordScrambler);
 			map.putAll(newMap);
 		} catch (final Exception e) {
-			LOGGER.finest("Issue executing password scrambler. " + e.getMessage());
+			String errorMessage = "Issue executing password scrambler. ";
+			if(e.getMessage() != null){
+				errorMessage += e.getMessage();
+			} else {
+				errorMessage += e.toString();
+			}			
+			LOGGER.severe(errorMessage);
+			throw new RuntimeException(errorMessage);
 		}
 
 		return map;
@@ -323,12 +331,17 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 			this.osWindows = osWindows;
 		}
 		
+		@Override
 		public Map<String, String> call() throws Exception {
+			LOGGER.finest("Start password scrambler execution...");
 			// look for the password scrambler. it should be next to the executable or one directory higher.
 			final Path possibleFile = findThePasswordScrambler();
-			if (!Files.exists(possibleFile)) {
-				LOGGER.severe("Password scrambler not found : \"" + possibleFile + "\"");
-				return map;
+			if (Files.exists(possibleFile)) {
+				LOGGER.finest("Path is: " + possibleFile.toString());
+			} else {
+				final String errorMessage = "Password scrambler not found : \"" + possibleFile + "\"";
+				LOGGER.severe(errorMessage);
+				throw new RuntimeException(errorMessage);				
 			}
 
 			for (final String plainPassword: map.keySet()) {
@@ -344,9 +357,17 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 				executor.setStreamHandler(streamHandler);
 				executor.setWorkingDirectory(possibleFile.getParent().toFile());
 				executor.execute(cmdLine, resultHandler);
-				resultHandler.waitFor(5000);
+				resultHandler.waitFor(60000);
 				final String result = outputStream.toString();
-				
+				if(resultHandler.getException() != null){
+					LOGGER.severe("Error while executing password-scrambler: " + resultHandler.getException().getMessage());
+					throw new RuntimeException(resultHandler.getException());
+				}
+				if(Strings.isNullOrEmpty(result)){
+					final String errorMessage = "Error while executing password-scrambler: no result.";
+					LOGGER.severe(errorMessage);
+					throw new RuntimeException(errorMessage);
+				}
 				// parse the result.
 				// example: AES128 ciphering result of nluser: 6RGXo/iJAai0tGuxtAih2Q== \n Copyright (c) 2016 Neotys, PasswordScrambler v-
 				final String firstPart = result.substring(result.indexOf(plainPassword + ":"));
@@ -357,7 +378,7 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 				
 				map.put(plainPassword, hashedPassword);
 			}
-			
+			LOGGER.finest(map.size() + " passwords has been hashed");
 			return map;
 		}
 

@@ -2,6 +2,10 @@
                        *  NeoLoad Jenkins Plugin ChangeLog  *
                        **************************************
 
+Version 2.0.2 (${current.date})
+==================
+- FIXED: Randomly, the password scrambler could not be executed, so usage of shared project of shared license could fail. (#10743)
+
 Version 2.0.1 (September 1, 2016)
 ==================
 - FIXED: Job could not be executed if Jenkins master and slave were on different OS. (#10588)
