@@ -30,25 +30,6 @@ public class NeoBuildActionTest extends HudsonTestCase {
 		super.setUp();
 		mo = new MockObjects();
 	}
-	
-	@Test
-	public void testUpdateUsingUniqueID() {
-		final NeoBuildAction neoBuildAction = mo.getNeoBuildAction();
-		final CollabServerInfo si_existingInfo = new CollabServerInfo("uniqueID", "url", "loginUser", "loginPassword", "Label 1", "privateKey", "passphrase");
-		final CollabServerInfo si_HasNewInfo = new CollabServerInfo("uniqueID", "url_UPDATED", "loginUser_UPDATED", "loginPassword_UPDATED", "Label 2", "privateKey_UPDATED", "passphrase_UPDATED");
-		final List<CollabServerInfo> infos = new ArrayList<CollabServerInfo>();
-		infos.add(si_HasNewInfo);
-
-		// place the new info on the global config.
-		final NeoGlobalConfig.DescriptorImpl globalConfigDescriptor = 
-				(NeoGlobalConfig.DescriptorImpl) Jenkins.getInstance().getDescriptor(NeoGlobalConfig.class);
-		globalConfigDescriptor.setCollabInfo(infos);
-		
-		// update the original existing info with the new info using the uniqueID.
-		final CollabServerInfo si_updated = neoBuildAction.updateUsingUniqueID(si_existingInfo);
-		
-		assertTrue("data should have been updated", si_HasNewInfo.equals(si_updated));
-	}
 
 	@Test
 	public void testPrepareCommandLineBasic() {
