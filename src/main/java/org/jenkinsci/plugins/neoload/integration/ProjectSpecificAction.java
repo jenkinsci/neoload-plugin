@@ -105,8 +105,8 @@ public class ProjectSpecificAction implements ProminentProjectAction, Serializab
 			graphOptionsInfo = npo.getGraphOptionsInfo();
 			showTrendAverageResponse = npo.isShowTrendAverageResponse();
 			showTrendErrorRate = npo.isShowTrendErrorRate();
+			refreshGraphData();
 		}
-		refreshGraphData();
 	}
 
 	/** This corresponds to the url of the image files displayed on the job page.
