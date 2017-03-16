@@ -39,7 +39,6 @@
 
 	<scm>
 		<connection>scm:git:ssh://github.com/jenkinsci/neoload-plugin.git</connection>
-		<developerConnection>scm:git:ssh://git@github.com/jenkinsci/neoload-plugin.git</developerConnection>
 		<url>https://github.com/jenkinsci/neoload-plugin</url>
 	</scm>
 	<repositories>
