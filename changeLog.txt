@@ -1,14 +1,17 @@
                        **************************************
                        *  NeoLoad Jenkins Plugin ChangeLog  *
                        **************************************
+Version 2.0.3 
+=============
 
-Version 2.0.2 (${current.date})
-==================
+
+Version 2.0.2 (March 17, 2017)
+=============
 - FIXED: Randomly, the password scrambler could not be executed, so usage of shared project of shared license could fail. (#10743)
 - FIXED: Avoid scanning result files if project does not have NeoLoad configuration.
 
 Version 2.0.1 (September 1, 2016)
-==================
+=============
 - FIXED: Job could not be executed if Jenkins master and slave were on different OS. (#10588)
 - FIXED: Job configuration warned about missing executable and nlp file on master even though it could be executed on slave. (#10635)
 - FIXED: Graphs trend did not work when job was executed on Windows. (#10629)
