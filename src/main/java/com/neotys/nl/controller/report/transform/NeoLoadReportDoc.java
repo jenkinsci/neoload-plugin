@@ -105,7 +105,7 @@ public class NeoLoadReportDoc {
 				tempDoc = XMLUtilities.createNodeFromText("<empty></empty>").getOwnerDocument();
 			}
 		} catch (final Exception e) {
-			LOGGER.log(Level.WARNING, "Error reading xml file. " + e.getMessage(), e);
+			LOGGER.log(Level.FINER, "Error reading xml file. " + e.getMessage(), e);
 		}
 		doc = tempDoc;
 	}
@@ -119,13 +119,17 @@ public class NeoLoadReportDoc {
 	 * @throws XPathExpressionException
 	 */
 	public boolean isValidReportDoc() throws XPathExpressionException {
-		final List<Node> nodes = XMLUtilities.findByExpression("/report/summary/all-summary/statistic-item", doc);
-
-		if (nodes == null || nodes.size() == 0) {
-			return false;
+		try {
+			final List<Node> nodes = XMLUtilities.findByExpression("/report/summary/all-summary/statistic-item", doc);
+			if (nodes == null || nodes.size() == 0) {
+				return false;
+			}
+	
+			return true;
+		} catch (final Exception e) {
+			LOGGER.log(Level.FINER, "Error while checking if report is valid. " + e.getMessage(), e);
 		}
-
-		return true;
+		return false;
 	}
 
 	/**
@@ -266,16 +270,17 @@ public class NeoLoadReportDoc {
 		return hasCorrespondingDate;
 	}
 
-	Calendar getNeoLoadCreationDate() throws XPathExpressionException {
-		final List<Node> nodes = XMLUtilities.findByExpression("/report/summary/test", doc);
-
-		// we didn't find the time so we use 1970 as a default.
-		if (nodes == null || nodes.size() != 1) {
-			return PluginUtils.toCalendar(DATE_1970);
-		}
-
-		final Map<String, String> attributes = XMLUtilities.getMap(nodes.get(0).getAttributes());
+	Calendar getNeoLoadCreationDate() {
 		try {
+			final List<Node> nodes = XMLUtilities.findByExpression("/report/summary/test", doc);
+	
+			// we didn't find the time so we use 1970 as a default.
+			if (nodes == null || nodes.size() != 1) {
+				return PluginUtils.toCalendar(DATE_1970);
+			}
+	
+			final Map<String, String> attributes = XMLUtilities.getMap(nodes.get(0).getAttributes());
+		
 			final String fileCreationTimeStr = Objects.firstNonNull(attributes.get("std_start_time"), attributes.get("start"));
 			final Date fileCreationTime = parseFileCreationTime(fileCreationTimeStr);
 			final Calendar fileCreationTimeCal = PluginUtils.toCalendar(fileCreationTime);
@@ -284,7 +289,7 @@ public class NeoLoadReportDoc {
 
 		} catch (final Exception e) {
 			// this may be a null pointer exception from the {@code Objects#firstNonNull()} method.
-			LOGGER.log(Level.WARNING, "Issue parsing dates in " + doc.getDocumentURI(), e);
+			LOGGER.log(Level.FINER, "Issue parsing dates in " + doc.getDocumentURI(), e);
 			return PluginUtils.toCalendar(DATE_1970);
 		}
 	}
