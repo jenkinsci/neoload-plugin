@@ -1,0 +1,827 @@
+<html xmlns:fo="http://www.w3.org/1999/XSL/Format">
+<head>
+<META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Performance Testing Report</title>
+<link type="text/css" rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="divHeader">Summary</div>
+<div style="width: 100%; height: 20px;" id="report.resultssummary">
+<div id="statistics_summary_title" class="h1" style="float:left">Results summary</div>
+</div>
+<div id="summary" name="summary" align="center" class="wrapper">
+<div align="center">
+<table>
+<tr>
+<td class="titleCell line2">Project</td><td width="35%" class="line2">Why</td><td rowspan="2" class="titleCell line2">Load Policy</td><td width="55%" valign="top" rowspan="2" class="line2">
+<ul class="valuesList">
+<li class="listItem">The population&nbsp;<strong>Population1</strong>&nbsp;
+	 is ramp up&nbsp;
+	 from&nbsp;<strong>9</strong>&nbsp;users&nbsp;
+	 adding&nbsp;<strong>1</strong>&nbsp;users&nbsp;
+	 every&nbsp;<strong>9.0</strong>&nbsp;seconds.
+</li>
+</ul>
+</td>
+</tr>
+<tr>
+<td class="titleCell line2">Scenario</td><td class="line2">scenario1</td>
+</tr>
+<tr>
+<td class="titleCell line2">Start date</td><td class="line2">Mar 20, 2013 3:00:56 PM</td><td rowspan="2" nowrap class="titleCell line2">Description</td><td valign="top" rowspan="2" class="line2"></td>
+</tr>
+<tr>
+<td class="titleCell line2">End date</td><td class="line2">Mar 20, 2013 3:01:26 PM</td>
+</tr>
+<tr>
+<td class="titleCell line2">Duration</td><td class="line2">00:00:30</td><td class="titleCell line2">Filters</td><td class="line2">
+<div>None</div>
+</td>
+</tr>
+<tr>
+<td class="titleCell line2">LG Hosts</td><td class="line2">localhost</td><td nowrap class="titleCell line2">Debug</td><td class="line2">Debug only virtual users containing errors</td>
+</tr>
+</table>
+</div>
+</div>
+<div style="width: 100%; height: 20px;" id="report.statisticssummary">
+<div id="statistics_summary_title" class="h1" style="float:left">Statistics Summary</div>
+</div>
+<div align="center" class="wrapper">
+<div align="center">
+<table style="border: 0">
+<tr>
+<td class="field1" nowrap>Total pages</td><td>0</td><td><img src="images/severity_none.png" style="vertical-align: middle;"></td><td class="field1" nowrap width="220">Average pages/s</td><td>0.0</td><td><img src="images/severity_none.png" style="vertical-align: middle;"></td>
+</tr>
+<tr>
+<td class="field1" nowrap>Total hits</td><td>11</td><td><img src="images/severity_none.png" style="vertical-align: middle;"></td><td class="field1" nowrap width="220">Average hits/s</td><td>0.4</td><td><img src="images/severity_none.png" style="vertical-align: middle;"></td>
+</tr>
+<tr>
+<td class="field1" nowrap>Total users launched</td><td>11&nbsp;</td><td><img src="images/severity_none.png" style="vertical-align: middle;"></td><td scope="row" class="field1" nowrap>Average Request response time</td><td>60&nbsp;s</td><td><img src="images/severity_high.png" style="vertical-align: middle;"></td>
+</tr>
+<tr>
+<td class="field1" nowrap>Total iterations completed</td><td>11&nbsp;</td><td><img src="images/severity_none.png" style="vertical-align: middle;"></td><td scope="row" class="field1" nowrap>Average Page response time</td><td>0&nbsp;s</td><td><img src="images/severity_passed.png" style="vertical-align: middle;"></td>
+</tr>
+<tr>
+<td class="field1" nowrap>Total throughput</td><td>0.01&nbsp; MB</td><td><img src="images/severity_none.png" style="vertical-align: middle;"></td><td class="field1" nowrap>Average throughput</td><td>0.00&nbsp; Mb/s</td><td><img src="images/severity_none.png" style="vertical-align: middle;"></td>
+</tr>
+<tr>
+<td class="field1" nowrap>Total hit errors</td><td>11</td><td><img src="images/severity_none.png" style="vertical-align: middle;"></td><td class="field1" nowrap>Error rate</td><td>100&nbsp;%</td><td><img src="images/severity_none.png" style="vertical-align: middle;"></td>
+</tr>
+<tr>
+<td class="field1" nowrap>Total action errors</td><td>0&nbsp;</td><td><img src="images/severity_none.png" style="vertical-align: middle;"></td><td scope="row" class="field1" nowrap width="220">Total duration alerts</td><td>0&nbsp;%</td><td><img src="images/severity_none.png" style="vertical-align: middle;"></td><td>&nbsp;</td>
+</tr>
+</table>
+</div>
+<br>
+<div>
+<table style="text-align: center; width: 400px; border: 0px;">
+<tr>
+<td><img style="vertical-align: middle;" src="images/severity_none.png">&nbsp;=&nbsp;No SLA</td><td><img style="vertical-align: middle;" src="images/severity_passed.png">&nbsp;=&nbsp;Passed</td><td><img style="vertical-align: middle;" src="images/severity_low.png">&nbsp;=&nbsp;Acceptable</td><td><img style="vertical-align: middle;" src="images/severity_high.png">&nbsp;=&nbsp;Failed</td>
+</tr>
+</table>
+</div>
+<br>
+<div style="margin-top: 5px" class="graph_predefined" align="center">
+<img alt="summary" src="images/summary.png"></div>
+</div>
+<div style="width: 100%; height: 20px;" id="report.hotspots">
+<div id="statistics_summary_title" class="h1" style="float:left">Hot spots</div>
+</div>
+<div align="center" class="wrapper">
+<p class="smallTitle">Top 5 errors</p>
+<div align="center">
+<table id="top_five_errors_table">
+<tr>
+<td>No errors on pages</td>
+</tr>
+</table>
+</div>
+<p class="smallTitle">Top 5 alerts</p>
+<div align="center">
+<table id="top_five_alerts_table">
+<tr>
+<th>Alert</th><th width="20%">Duration %</th><th width="20%">Occurrences</th>
+</tr>
+<tr>
+<td class="line1">
+<div class="tablelabel" style="font-weight:normal; margin-left:0px">Average Response Time : /jpetstore/ &gt;= 0.1 sec.</div>
+</td><td class="line1">0</td><td class="line1">1</td>
+</tr>
+</table>
+</div>
+<p class="smallTitle">First critical alerts</p>
+<div align="center">
+<table id="first_critical_alerts_table">
+<tr>
+<th width="20%">Time</th><th>Alert</th>
+</tr>
+<tr>
+<td class="line1">00:00:30.062</td><td class="line1">
+<div class="tablelabel" style="font-weight:normal; margin-left:0px">Average Response Time : /jpetstore/ &gt;= 0.1 sec.</div>
+</td>
+</tr>
+</table>
+</div>
+<p class="smallTitle" align="center">Top 5 average response time (Pages)</p>
+<div align="center">
+<table>
+<tr>
+<td>Empty list</td>
+</tr>
+</table>
+</div>
+<p class="smallTitle">Top 5 maximum response time (Pages)</p>
+<div align="center">
+<table id="top_maximum_response_time_table">
+<tr>
+<td>Empty list</td>
+</tr>
+</table>
+</div>
+</div>
+<div style="width: 100%; height: 20px;" id="report.errors">
+<div id="statistics_summary_title" class="h1" style="float:left">Errors</div>
+</div>
+<div align="center" class="wrapper">
+<p class="smalltitle">Request errors</p>
+<div align="center">
+<table align="center" border="0" width="100%">
+<tr>
+<th>Error Type</th><th>Count</th><th width="70%">Description</th>
+</tr>
+<tr>
+<td class="line1">503</td><td class="line1" align="center">11</td><td class="line1">Service Unavailable - The server is currently unable to handle the request due to a temporary overloading or maintenance of the server.</td>
+</tr>
+<tr>
+<td class="line2">Total</td><td class="line2" align="center">11</td><td class="line2">Total error count.</td>
+</tr>
+</table>
+</div>
+<p class="smalltitle">Action errors</p>
+<div align="center">
+<table align="center" border="0" width="100%">
+<tr>
+<td colspan="3">No errors</td>
+</tr>
+</table>
+</div>
+</div>
+<div style="width: 100%; height: 20px;" id="report.alerts">
+<div id="statistics_summary_title" class="h1" style="float:left">Alerts</div>
+</div>
+<div align="center" class="wrapper">
+<div align="center">
+<table align="center" border="0" width="100%">
+<tr>
+<th>Element</th><th>Critical</th><th>Warning</th><th>Monitored</th>
+</tr>
+<tr>
+<td class="line1">
+<div class="tablelabel typped checkinfo" style="font-weight:normal; margin-left:0px">/jpetstore/</div>
+</td><td class="line1" align="center">0</td><td class="line1" align="center">0</td><td class="line1" align="center">4</td>
+</tr>
+<tr>
+<td class="line2">
+<div class="tablelabel typped checkinfo" style="font-weight:normal; margin-left:0px">/jpetstore/</div>
+</td><td class="line2" align="center">0</td><td class="line2" align="center">0</td><td class="line2" align="center">4</td>
+</tr>
+<tr>
+<td class="line1">
+<div class="tablelabel typped checkinfo" style="font-weight:normal; margin-left:0px">.../jpetstore/images/logo-topbar.gif</div>
+</td><td class="line1" align="center">0</td><td class="line1" align="center">0</td><td class="line1" align="center">4</td>
+</tr>
+<tr>
+<td class="line2">
+<div class="tablelabel typped checkinfo" style="font-weight:normal; margin-left:0px">.../jpetstore/images/bkg-topbar.gif</div>
+</td><td class="line2" align="center">0</td><td class="line2" align="center">0</td><td class="line2" align="center">4</td>
+</tr>
+<tr>
+<td class="line1">
+<div class="tablelabel typped checkinfo" style="font-weight:normal; margin-left:0px">/jpetstore/images/search.gif</div>
+</td><td class="line1" align="center">0</td><td class="line1" align="center">0</td><td class="line1" align="center">4</td>
+</tr>
+<tr>
+<td class="line2">
+<div class="tablelabel typped checkinfo" style="font-weight:normal; margin-left:0px">/jpetstore/images/cart.gif</div>
+</td><td class="line2" align="center">0</td><td class="line2" align="center">0</td><td class="line2" align="center">4</td>
+</tr>
+<tr>
+<td class="line1">
+<div class="tablelabel typped checkinfo" style="font-weight:normal; margin-left:0px">/jpetstore/images/help.gif</div>
+</td><td class="line1" align="center">0</td><td class="line1" align="center">0</td><td class="line1" align="center">4</td>
+</tr>
+<tr>
+<td class="line2">
+<div class="tablelabel typped checkinfo" style="font-weight:normal; margin-left:0px">/jpetstore/images/sign-in.gif</div>
+</td><td class="line2" align="center">0</td><td class="line2" align="center">0</td><td class="line2" align="center">4</td>
+</tr>
+<tr>
+<td class="line1">
+<div class="tablelabel typped checkinfo" style="font-weight:normal; margin-left:0px">.../jpetstore/images/poweredby.gif</div>
+</td><td class="line1" align="center">0</td><td class="line1" align="center">0</td><td class="line1" align="center">4</td>
+</tr>
+<tr>
+<td class="line2">
+<div class="tablelabel typped checkinfo" style="font-weight:normal; margin-left:0px">.../jpetstore/images/separator.gif</div>
+</td><td class="line2" align="center">0</td><td class="line2" align="center">0</td><td class="line2" align="center">4</td>
+</tr>
+<tr>
+<td class="line1">
+<div class="tablelabel typped checkinfo" style="font-weight:normal; margin-left:0px">/favicon.ico</div>
+</td><td class="line1" align="center">0</td><td class="line1" align="center">0</td><td class="line1" align="center">4</td>
+</tr>
+<tr>
+<td class="line2">
+<div class="tablelabel typped checkinfo" style="font-weight:normal; margin-left:0px">/jpetstore/</div>
+</td><td class="line2" align="center">0</td><td class="line2" align="center">0</td><td class="line2" align="center">4</td>
+</tr>
+<tr>
+<td class="line1">
+<div class="tablelabel typped checkinfo" style="font-weight:normal; margin-left:0px">/jpetstore/</div>
+</td><td class="line1" align="center">0</td><td class="line1" align="center">0</td><td class="line1" align="center">4</td>
+</tr>
+<tr>
+<td class="line2">
+<div class="tablelabel typped checkinfo" style="font-weight:normal; margin-left:0px">.../jpetstore/images/logo-topbar.gif</div>
+</td><td class="line2" align="center">0</td><td class="line2" align="center">0</td><td class="line2" align="center">4</td>
+</tr>
+<tr>
+<td class="line1">
+<div class="tablelabel typped checkinfo" style="font-weight:normal; margin-left:0px">.../jpetstore/images/bkg-topbar.gif</div>
+</td><td class="line1" align="center">0</td><td class="line1" align="center">0</td><td class="line1" align="center">4</td>
+</tr>
+<tr>
+<td class="line2">
+<div class="tablelabel typped checkinfo" style="font-weight:normal; margin-left:0px">/jpetstore/images/search.gif</div>
+</td><td class="line2" align="center">0</td><td class="line2" align="center">0</td><td class="line2" align="center">4</td>
+</tr>
+<tr>
+<td class="line1">
+<div class="tablelabel typped checkinfo" style="font-weight:normal; margin-left:0px">/jpetstore/images/cart.gif</div>
+</td><td class="line1" align="center">0</td><td class="line1" align="center">0</td><td class="line1" align="center">4</td>
+</tr>
+<tr>
+<td class="line2">
+<div class="tablelabel typped checkinfo" style="font-weight:normal; margin-left:0px">/jpetstore/images/help.gif</div>
+</td><td class="line2" align="center">0</td><td class="line2" align="center">0</td><td class="line2" align="center">4</td>
+</tr>
+<tr>
+<td class="line1">
+<div class="tablelabel typped checkinfo" style="font-weight:normal; margin-left:0px">/jpetstore/images/sign-in.gif</div>
+</td><td class="line1" align="center">0</td><td class="line1" align="center">0</td><td class="line1" align="center">4</td>
+</tr>
+<tr>
+<td class="line2">
+<div class="tablelabel typped checkinfo" style="font-weight:normal; margin-left:0px">.../jpetstore/images/poweredby.gif</div>
+</td><td class="line2" align="center">0</td><td class="line2" align="center">0</td><td class="line2" align="center">4</td>
+</tr>
+<tr>
+<td class="line1">
+<div class="tablelabel typped checkinfo" style="font-weight:normal; margin-left:0px">.../jpetstore/images/separator.gif</div>
+</td><td class="line1" align="center">0</td><td class="line1" align="center">0</td><td class="line1" align="center">4</td>
+</tr>
+<tr>
+<td class="line2">
+<div class="tablelabel typped checkinfo" style="font-weight:normal; margin-left:0px">/favicon.ico</div>
+</td><td class="line2" align="center">0</td><td class="line2" align="center">0</td><td class="line2" align="center">4</td>
+</tr>
+<tr>
+<td class="line1">
+<div class="tablelabel typped checkinfo" style="font-weight:normal; margin-left:0px">/jpetstore/shop/index.shtml</div>
+</td><td class="line1" align="center">0</td><td class="line1" align="center">0</td><td class="line1" align="center">4</td>
+</tr>
+<tr>
+<td class="line2">
+<div class="tablelabel typped checkinfo" style="font-weight:normal; margin-left:0px">/jpetstore/shop/index.shtml</div>
+</td><td class="line2" align="center">0</td><td class="line2" align="center">0</td><td class="line2" align="center">4</td>
+</tr>
+<tr>
+<td class="line1">
+<div class="tablelabel typped checkinfo" style="font-weight:normal; margin-left:0px">/jpetstore/images/sm_birds.gif</div>
+</td><td class="line1" align="center">0</td><td class="line1" align="center">0</td><td class="line1" align="center">4</td>
+</tr>
+<tr>
+<td class="line2">
+<div class="tablelabel typped checkinfo" style="font-weight:normal; margin-left:0px">.../jpetstore/images/sm_reptiles.gif</div>
+</td><td class="line2" align="center">0</td><td class="line2" align="center">0</td><td class="line2" align="center">4</td>
+</tr>
+<tr>
+<td class="line1">
+<div class="tablelabel typped checkinfo" style="font-weight:normal; margin-left:0px">/jpetstore/images/sm_cats.gif</div>
+</td><td class="line1" align="center">0</td><td class="line1" align="center">0</td><td class="line1" align="center">4</td>
+</tr>
+<tr>
+<td class="line2">
+<div class="tablelabel typped checkinfo" style="font-weight:normal; margin-left:0px">/jpetstore/images/sm_fish.gif</div>
+</td><td class="line2" align="center">0</td><td class="line2" align="center">0</td><td class="line2" align="center">4</td>
+</tr>
+<tr>
+<td class="line1">
+<div class="tablelabel typped checkinfo" style="font-weight:normal; margin-left:0px">.../jpetstore/images/fish_icon.gif</div>
+</td><td class="line1" align="center">0</td><td class="line1" align="center">0</td><td class="line1" align="center">4</td>
+</tr>
+<tr>
+<td class="line2">
+<div class="tablelabel typped checkinfo" style="font-weight:normal; margin-left:0px">/jpetstore/images/splash.gif</div>
+</td><td class="line2" align="center">0</td><td class="line2" align="center">0</td><td class="line2" align="center">4</td>
+</tr>
+<tr>
+<td class="line1">
+<div class="tablelabel typped checkinfo" style="font-weight:normal; margin-left:0px">.../jpetstore/images/dogs_icon.gif</div>
+</td><td class="line1" align="center">0</td><td class="line1" align="center">0</td><td class="line1" align="center">4</td>
+</tr>
+<tr>
+<td class="line2">
+<div class="tablelabel typped checkinfo" style="font-weight:normal; margin-left:0px">.../jpetstore/images/cats_icon.gif</div>
+</td><td class="line2" align="center">0</td><td class="line2" align="center">0</td><td class="line2" align="center">4</td>
+</tr>
+<tr>
+<td class="line1">
+<div class="tablelabel typped checkinfo" style="font-weight:normal; margin-left:0px">.../jpetstore/images/reptiles_icon.gif</div>
+</td><td class="line1" align="center">0</td><td class="line1" align="center">0</td><td class="line1" align="center">4</td>
+</tr>
+<tr>
+<td class="line2">
+<div class="tablelabel typped checkinfo" style="font-weight:normal; margin-left:0px">/jpetstore/images/sm_dogs.gif</div>
+</td><td class="line2" align="center">0</td><td class="line2" align="center">0</td><td class="line2" align="center">4</td>
+</tr>
+<tr>
+<td class="line1">
+<div class="tablelabel typped checkinfo" style="font-weight:normal; margin-left:0px">.../jpetstore/images/birds_icon.gif</div>
+</td><td class="line1" align="center">0</td><td class="line1" align="center">0</td><td class="line1" align="center">4</td>
+</tr>
+<tr>
+<td class="line2">
+<div class="tablelabel typped checkinfo" style="font-weight:normal; margin-left:0px">.../jpetstore/shop/viewCategory.shtml</div>
+</td><td class="line2" align="center">0</td><td class="line2" align="center">0</td><td class="line2" align="center">4</td>
+</tr>
+<tr>
+<td class="line1">
+<div class="tablelabel typped checkinfo" style="font-weight:normal; margin-left:0px">.../jpetstore/shop/viewCategory.shtml</div>
+</td><td class="line1" align="center">0</td><td class="line1" align="center">0</td><td class="line1" align="center">4</td>
+</tr>
+<tr>
+<td class="line2">
+<div class="tablelabel typped checkinfo" style="font-weight:normal; margin-left:0px">.../jpetstore/shop/viewProduct.shtml</div>
+</td><td class="line2" align="center">0</td><td class="line2" align="center">0</td><td class="line2" align="center">4</td>
+</tr>
+<tr>
+<td class="line1">
+<div class="tablelabel typped checkinfo" style="font-weight:normal; margin-left:0px">.../jpetstore/shop/viewProduct.shtml</div>
+</td><td class="line1" align="center">0</td><td class="line1" align="center">0</td><td class="line1" align="center">4</td>
+</tr>
+<tr>
+<td class="line2">
+<div class="tablelabel typped checkinfo" style="font-weight:normal; margin-left:0px">.../jpetstore/images/button_add_to_cart.gif</div>
+</td><td class="line2" align="center">0</td><td class="line2" align="center">0</td><td class="line2" align="center">4</td>
+</tr>
+<tr>
+<td class="line1">
+<div class="tablelabel typped checkinfo" style="font-weight:normal; margin-left:0px">.../jpetstore/shop/addItemToCart.shtml</div>
+</td><td class="line1" align="center">0</td><td class="line1" align="center">0</td><td class="line1" align="center">4</td>
+</tr>
+<tr>
+<td class="line2">
+<div class="tablelabel typped checkinfo" style="font-weight:normal; margin-left:0px">.../jpetstore/shop/addItemToCart.shtml</div>
+</td><td class="line2" align="center">0</td><td class="line2" align="center">0</td><td class="line2" align="center">4</td>
+</tr>
+<tr>
+<td class="line1">
+<div class="tablelabel typped checkinfo" style="font-weight:normal; margin-left:0px">.../jpetstore/images/button_remove.gif</div>
+</td><td class="line1" align="center">0</td><td class="line1" align="center">0</td><td class="line1" align="center">4</td>
+</tr>
+<tr>
+<td class="line2">
+<div class="tablelabel typped checkinfo" style="font-weight:normal; margin-left:0px">.../jpetstore/images/button_checkout.gif</div>
+</td><td class="line2" align="center">0</td><td class="line2" align="center">0</td><td class="line2" align="center">4</td>
+</tr>
+<tr>
+<td class="line1">
+<div class="tablelabel typped checkinfo" style="font-weight:normal; margin-left:0px">.../jpetstore/images/button_update_cart.gif</div>
+</td><td class="line1" align="center">0</td><td class="line1" align="center">0</td><td class="line1" align="center">4</td>
+</tr>
+<tr>
+<td class="line2">
+<div class="tablelabel typped checkinfo" style="font-weight:normal; margin-left:0px">.../jpetstore/shop/viewCategory.shtml_1</div>
+</td><td class="line2" align="center">0</td><td class="line2" align="center">0</td><td class="line2" align="center">4</td>
+</tr>
+<tr>
+<td class="line1">
+<div class="tablelabel typped checkinfo" style="font-weight:normal; margin-left:0px">.../jpetstore/shop/viewCategory.shtml</div>
+</td><td class="line1" align="center">0</td><td class="line1" align="center">0</td><td class="line1" align="center">4</td>
+</tr>
+<tr>
+<td class="line2">
+<div class="tablelabel typped checkinfo" style="font-weight:normal; margin-left:0px">.../jpetstore/shop/viewProduct.shtml_1</div>
+</td><td class="line2" align="center">0</td><td class="line2" align="center">0</td><td class="line2" align="center">4</td>
+</tr>
+<tr>
+<td class="line1">
+<div class="tablelabel typped checkinfo" style="font-weight:normal; margin-left:0px">.../jpetstore/shop/viewProduct.shtml</div>
+</td><td class="line1" align="center">0</td><td class="line1" align="center">0</td><td class="line1" align="center">4</td>
+</tr>
+<tr>
+<td class="line2">
+<div class="tablelabel typped checkinfo" style="font-weight:normal; margin-left:0px">/jpetstore/shop/viewItem.shtml</div>
+</td><td class="line2" align="center">0</td><td class="line2" align="center">0</td><td class="line2" align="center">4</td>
+</tr>
+<tr>
+<td class="line1">
+<div class="tablelabel typped checkinfo" style="font-weight:normal; margin-left:0px">/jpetstore/shop/viewItem.shtml</div>
+</td><td class="line1" align="center">0</td><td class="line1" align="center">0</td><td class="line1" align="center">4</td>
+</tr>
+<tr>
+<td class="line2">
+<div class="tablelabel typped checkinfo" style="font-weight:normal; margin-left:0px">/jpetstore/images/cat3.gif</div>
+</td><td class="line2" align="center">0</td><td class="line2" align="center">0</td><td class="line2" align="center">4</td>
+</tr>
+<tr>
+<td class="line1">
+<div class="tablelabel typped checkinfo" style="font-weight:normal; margin-left:0px">.../jpetstore/shop/addItemToCart.shtml_1</div>
+</td><td class="line1" align="center">0</td><td class="line1" align="center">0</td><td class="line1" align="center">4</td>
+</tr>
+<tr>
+<td class="line2">
+<div class="tablelabel typped checkinfo" style="font-weight:normal; margin-left:0px">.../jpetstore/shop/addItemToCart.shtml</div>
+</td><td class="line2" align="center">0</td><td class="line2" align="center">0</td><td class="line2" align="center">4</td>
+</tr>
+<tr>
+<td class="line1">
+<div class="tablelabel typped checkinfo" style="font-weight:normal; margin-left:0px">/jpetstore/shop/checkout.shtml</div>
+</td><td class="line1" align="center">0</td><td class="line1" align="center">0</td><td class="line1" align="center">4</td>
+</tr>
+<tr>
+<td class="line2">
+<div class="tablelabel typped checkinfo" style="font-weight:normal; margin-left:0px">/jpetstore/shop/checkout.shtml</div>
+</td><td class="line2" align="center">0</td><td class="line2" align="center">0</td><td class="line2" align="center">4</td>
+</tr>
+<tr>
+<td class="line1">
+<div class="tablelabel typped checkinfo" style="font-weight:normal; margin-left:0px">.../jpetstore/images/button_continue.gif</div>
+</td><td class="line1" align="center">0</td><td class="line1" align="center">0</td><td class="line1" align="center">4</td>
+</tr>
+<tr>
+<td class="line2">
+<div class="tablelabel typped checkinfo" style="font-weight:normal; margin-left:0px">.../jpetstore/shop/newOrderForm.shtml</div>
+</td><td class="line2" align="center">0</td><td class="line2" align="center">0</td><td class="line2" align="center">4</td>
+</tr>
+<tr>
+<td class="line1">
+<div class="tablelabel typped checkinfo" style="font-weight:normal; margin-left:0px">.../jpetstore/shop/newOrderForm.shtml</div>
+</td><td class="line1" align="center">0</td><td class="line1" align="center">0</td><td class="line1" align="center">4</td>
+</tr>
+<tr>
+<td class="line2">
+<div class="tablelabel typped checkinfo" style="font-weight:normal; margin-left:0px">...jpetstore/images/button_register_now.gif</div>
+</td><td class="line2" align="center">0</td><td class="line2" align="center">0</td><td class="line2" align="center">4</td>
+</tr>
+<tr>
+<td class="line1">
+<div class="tablelabel typped checkinfo" style="font-weight:normal; margin-left:0px">.../jpetstore/images/button_submit.gif</div>
+</td><td class="line1" align="center">0</td><td class="line1" align="center">0</td><td class="line1" align="center">4</td>
+</tr>
+<tr>
+<td class="line2">
+<div class="tablelabel typped checkinfo" style="font-weight:normal; margin-left:0px">/jpetstore/shop/signon.shtml</div>
+</td><td class="line2" align="center">0</td><td class="line2" align="center">0</td><td class="line2" align="center">4</td>
+</tr>
+<tr>
+<td class="line1">
+<div class="tablelabel typped checkinfo" style="font-weight:normal; margin-left:0px">/jpetstore/shop/signon.shtml</div>
+</td><td class="line1" align="center">0</td><td class="line1" align="center">0</td><td class="line1" align="center">4</td>
+</tr>
+<tr>
+<td class="line2">
+<div class="tablelabel typped checkinfo" style="font-weight:normal; margin-left:0px">.../jpetstore/images/banner_fish.gif</div>
+</td><td class="line2" align="center">0</td><td class="line2" align="center">0</td><td class="line2" align="center">4</td>
+</tr>
+<tr>
+<td class="line1">
+<div class="tablelabel typped checkinfo" style="font-weight:normal; margin-left:0px">.../jpetstore/images/my_account.gif</div>
+</td><td class="line1" align="center">0</td><td class="line1" align="center">0</td><td class="line1" align="center">4</td>
+</tr>
+<tr>
+<td class="line2">
+<div class="tablelabel typped checkinfo" style="font-weight:normal; margin-left:0px">/jpetstore/images/sign-out.gif</div>
+</td><td class="line2" align="center">0</td><td class="line2" align="center">0</td><td class="line2" align="center">4</td>
+</tr>
+<tr>
+<td class="line1">
+<div class="tablelabel typped checkinfo" style="font-weight:normal; margin-left:0px">/jpetstore/shop/viewCart.shtml</div>
+</td><td class="line1" align="center">0</td><td class="line1" align="center">0</td><td class="line1" align="center">4</td>
+</tr>
+<tr>
+<td class="line2">
+<div class="tablelabel typped checkinfo" style="font-weight:normal; margin-left:0px">/jpetstore/shop/viewCart.shtml</div>
+</td><td class="line2" align="center">0</td><td class="line2" align="center">0</td><td class="line2" align="center">4</td>
+</tr>
+<tr>
+<td class="line1">
+<div class="tablelabel typped checkinfo" style="font-weight:normal; margin-left:0px">.../jpetstore/shop/checkout.shtml_1</div>
+</td><td class="line1" align="center">0</td><td class="line1" align="center">0</td><td class="line1" align="center">4</td>
+</tr>
+<tr>
+<td class="line2">
+<div class="tablelabel typped checkinfo" style="font-weight:normal; margin-left:0px">/jpetstore/shop/checkout.shtml</div>
+</td><td class="line2" align="center">0</td><td class="line2" align="center">0</td><td class="line2" align="center">4</td>
+</tr>
+<tr>
+<td class="line1">
+<div class="tablelabel typped checkinfo" style="font-weight:normal; margin-left:0px">.../jpetstore/shop/newOrderForm.shtml_1</div>
+</td><td class="line1" align="center">0</td><td class="line1" align="center">0</td><td class="line1" align="center">4</td>
+</tr>
+<tr>
+<td class="line2">
+<div class="tablelabel typped checkinfo" style="font-weight:normal; margin-left:0px">.../jpetstore/shop/newOrderForm.shtml</div>
+</td><td class="line2" align="center">0</td><td class="line2" align="center">0</td><td class="line2" align="center">4</td>
+</tr>
+<tr>
+<td class="line1">
+<div class="tablelabel typped checkinfo" style="font-weight:normal; margin-left:0px">/jpetstore/shop/newOrder.shtml</div>
+</td><td class="line1" align="center">0</td><td class="line1" align="center">0</td><td class="line1" align="center">4</td>
+</tr>
+<tr>
+<td class="line2">
+<div class="tablelabel typped checkinfo" style="font-weight:normal; margin-left:0px">/jpetstore/shop/newOrder.shtml</div>
+</td><td class="line2" align="center">0</td><td class="line2" align="center">0</td><td class="line2" align="center">4</td>
+</tr>
+<tr>
+<td class="line1">
+<div class="tablelabel typped checkinfo" style="font-weight:normal; margin-left:0px">.../jpetstore/shop/newOrder.shtml_1</div>
+</td><td class="line1" align="center">0</td><td class="line1" align="center">0</td><td class="line1" align="center">4</td>
+</tr>
+<tr>
+<td class="line2">
+<div class="tablelabel typped checkinfo" style="font-weight:normal; margin-left:0px">/jpetstore/shop/newOrder.shtml</div>
+</td><td class="line2" align="center">0</td><td class="line2" align="center">0</td><td class="line2" align="center">4</td>
+</tr>
+<tr>
+<td class="line1">
+<div class="tablelabel typped checkinfo" style="font-weight:normal; margin-left:0px">container1</div>
+</td><td class="line1" align="center">0</td><td class="line1" align="center">0</td><td class="line1" align="center">4</td>
+</tr>
+<tr>
+<td class="line2">
+<div class="tablelabel typped checkinfo" style="font-weight:normal; margin-left:0px">/jpetstore/</div>
+</td><td class="line2" align="center">0</td><td class="line2" align="center">0</td><td class="line2" align="center">4</td>
+</tr>
+<tr>
+<td class="line1">
+<div class="tablelabel typped checkinfo" style="font-weight:normal; margin-left:0px">/jpetstore/</div>
+</td><td class="line1" align="center">0</td><td class="line1" align="center">0</td><td class="line1" align="center">4</td>
+</tr>
+<tr>
+<td class="line2">
+<div class="tablelabel typped checkinfo" style="font-weight:normal; margin-left:0px">.../jpetstore/images/logo-topbar.gif</div>
+</td><td class="line2" align="center">0</td><td class="line2" align="center">0</td><td class="line2" align="center">4</td>
+</tr>
+<tr>
+<td class="line1">
+<div class="tablelabel typped checkinfo" style="font-weight:normal; margin-left:0px">.../jpetstore/images/bkg-topbar.gif</div>
+</td><td class="line1" align="center">0</td><td class="line1" align="center">0</td><td class="line1" align="center">4</td>
+</tr>
+<tr>
+<td class="line2">
+<div class="tablelabel typped checkinfo" style="font-weight:normal; margin-left:0px">/jpetstore/images/search.gif</div>
+</td><td class="line2" align="center">0</td><td class="line2" align="center">0</td><td class="line2" align="center">4</td>
+</tr>
+<tr>
+<td class="line1">
+<div class="tablelabel typped checkinfo" style="font-weight:normal; margin-left:0px">/jpetstore/images/cart.gif</div>
+</td><td class="line1" align="center">0</td><td class="line1" align="center">0</td><td class="line1" align="center">4</td>
+</tr>
+<tr>
+<td class="line2">
+<div class="tablelabel typped checkinfo" style="font-weight:normal; margin-left:0px">/jpetstore/images/help.gif</div>
+</td><td class="line2" align="center">0</td><td class="line2" align="center">0</td><td class="line2" align="center">4</td>
+</tr>
+<tr>
+<td class="line1">
+<div class="tablelabel typped checkinfo" style="font-weight:normal; margin-left:0px">/jpetstore/images/sign-in.gif</div>
+</td><td class="line1" align="center">0</td><td class="line1" align="center">0</td><td class="line1" align="center">4</td>
+</tr>
+<tr>
+<td class="line2">
+<div class="tablelabel typped checkinfo" style="font-weight:normal; margin-left:0px">.../jpetstore/images/poweredby.gif</div>
+</td><td class="line2" align="center">0</td><td class="line2" align="center">0</td><td class="line2" align="center">4</td>
+</tr>
+<tr>
+<td class="line1">
+<div class="tablelabel typped checkinfo" style="font-weight:normal; margin-left:0px">.../jpetstore/images/separator.gif</div>
+</td><td class="line1" align="center">0</td><td class="line1" align="center">0</td><td class="line1" align="center">4</td>
+</tr>
+<tr>
+<td class="line2">
+<div class="tablelabel typped checkinfo" style="font-weight:normal; margin-left:0px">/favicon.ico</div>
+</td><td class="line2" align="center">0</td><td class="line2" align="center">0</td><td class="line2" align="center">4</td>
+</tr>
+<tr>
+<td class="line1">
+<div class="tablelabel typped checkinfo" style="font-weight:normal; margin-left:0px">container2</div>
+</td><td class="line1" align="center">0</td><td class="line1" align="center">0</td><td class="line1" align="center">4</td>
+</tr>
+<tr>
+<td class="line2">
+<div class="tablelabel typped checkinfo" style="font-weight:normal; margin-left:0px">/jpetstore/</div>
+</td><td class="line2" align="center">0</td><td class="line2" align="center">0</td><td class="line2" align="center">4</td>
+</tr>
+<tr>
+<td class="line1">
+<div class="tablelabel typped checkinfo" style="font-weight:normal; margin-left:0px">/jpetstore/</div>
+</td><td class="line1" align="center">0</td><td class="line1" align="center">0</td><td class="line1" align="center">4</td>
+</tr>
+<tr>
+<td class="line2">
+<div class="tablelabel typped checkinfo" style="font-weight:normal; margin-left:0px">.../jpetstore/images/logo-topbar.gif</div>
+</td><td class="line2" align="center">0</td><td class="line2" align="center">0</td><td class="line2" align="center">4</td>
+</tr>
+<tr>
+<td class="line1">
+<div class="tablelabel typped checkinfo" style="font-weight:normal; margin-left:0px">.../jpetstore/images/bkg-topbar.gif</div>
+</td><td class="line1" align="center">0</td><td class="line1" align="center">0</td><td class="line1" align="center">4</td>
+</tr>
+<tr>
+<td class="line2">
+<div class="tablelabel typped checkinfo" style="font-weight:normal; margin-left:0px">/jpetstore/images/search.gif</div>
+</td><td class="line2" align="center">0</td><td class="line2" align="center">0</td><td class="line2" align="center">4</td>
+</tr>
+<tr>
+<td class="line1">
+<div class="tablelabel typped checkinfo" style="font-weight:normal; margin-left:0px">/jpetstore/images/cart.gif</div>
+</td><td class="line1" align="center">0</td><td class="line1" align="center">0</td><td class="line1" align="center">4</td>
+</tr>
+<tr>
+<td class="line2">
+<div class="tablelabel typped checkinfo" style="font-weight:normal; margin-left:0px">/jpetstore/images/help.gif</div>
+</td><td class="line2" align="center">0</td><td class="line2" align="center">0</td><td class="line2" align="center">4</td>
+</tr>
+<tr>
+<td class="line1">
+<div class="tablelabel typped checkinfo" style="font-weight:normal; margin-left:0px">/jpetstore/images/sign-in.gif</div>
+</td><td class="line1" align="center">0</td><td class="line1" align="center">0</td><td class="line1" align="center">4</td>
+</tr>
+<tr>
+<td class="line2">
+<div class="tablelabel typped checkinfo" style="font-weight:normal; margin-left:0px">.../jpetstore/images/poweredby.gif</div>
+</td><td class="line2" align="center">0</td><td class="line2" align="center">0</td><td class="line2" align="center">4</td>
+</tr>
+<tr>
+<td class="line1">
+<div class="tablelabel typped checkinfo" style="font-weight:normal; margin-left:0px">.../jpetstore/images/separator.gif</div>
+</td><td class="line1" align="center">0</td><td class="line1" align="center">0</td><td class="line1" align="center">4</td>
+</tr>
+<tr>
+<td class="line2">
+<div class="tablelabel typped checkinfo" style="font-weight:normal; margin-left:0px">/favicon.ico</div>
+</td><td class="line2" align="center">0</td><td class="line2" align="center">0</td><td class="line2" align="center">4</td>
+</tr>
+<tr>
+<td class="line1">
+<div class="tablelabel typped checkinfo" style="font-weight:normal; margin-left:0px">container3</div>
+</td><td class="line1" align="center">0</td><td class="line1" align="center">0</td><td class="line1" align="center">4</td>
+</tr>
+<tr>
+<td class="line2">
+<div class="tablelabel typped checkinfo" style="font-weight:normal; margin-left:0px">/jpetstore/</div>
+</td><td class="line2" align="center">0</td><td class="line2" align="center">0</td><td class="line2" align="center">4</td>
+</tr>
+<tr>
+<td class="line1">
+<div class="tablelabel typped checkcritical" style="font-weight:normal; margin-left:0px">/jpetstore/</div>
+</td><td class="line1" align="center">1</td><td class="line1" align="center">0</td><td class="line1" align="center">4</td>
+</tr>
+<tr>
+<td class="line2">
+<div class="tablelabel typped checkinfo" style="font-weight:normal; margin-left:0px">.../jpetstore/images/logo-topbar.gif</div>
+</td><td class="line2" align="center">0</td><td class="line2" align="center">0</td><td class="line2" align="center">4</td>
+</tr>
+<tr>
+<td class="line1">
+<div class="tablelabel typped checkinfo" style="font-weight:normal; margin-left:0px">.../jpetstore/images/bkg-topbar.gif</div>
+</td><td class="line1" align="center">0</td><td class="line1" align="center">0</td><td class="line1" align="center">4</td>
+</tr>
+<tr>
+<td class="line2">
+<div class="tablelabel typped checkinfo" style="font-weight:normal; margin-left:0px">/jpetstore/images/search.gif</div>
+</td><td class="line2" align="center">0</td><td class="line2" align="center">0</td><td class="line2" align="center">4</td>
+</tr>
+<tr>
+<td class="line1">
+<div class="tablelabel typped checkinfo" style="font-weight:normal; margin-left:0px">/jpetstore/images/cart.gif</div>
+</td><td class="line1" align="center">0</td><td class="line1" align="center">0</td><td class="line1" align="center">4</td>
+</tr>
+<tr>
+<td class="line2">
+<div class="tablelabel typped checkinfo" style="font-weight:normal; margin-left:0px">/jpetstore/images/help.gif</div>
+</td><td class="line2" align="center">0</td><td class="line2" align="center">0</td><td class="line2" align="center">4</td>
+</tr>
+<tr>
+<td class="line1">
+<div class="tablelabel typped checkinfo" style="font-weight:normal; margin-left:0px">/jpetstore/images/sign-in.gif</div>
+</td><td class="line1" align="center">0</td><td class="line1" align="center">0</td><td class="line1" align="center">4</td>
+</tr>
+<tr>
+<td class="line2">
+<div class="tablelabel typped checkinfo" style="font-weight:normal; margin-left:0px">.../jpetstore/images/poweredby.gif</div>
+</td><td class="line2" align="center">0</td><td class="line2" align="center">0</td><td class="line2" align="center">4</td>
+</tr>
+<tr>
+<td class="line1">
+<div class="tablelabel typped checkinfo" style="font-weight:normal; margin-left:0px">.../jpetstore/images/separator.gif</div>
+</td><td class="line1" align="center">0</td><td class="line1" align="center">0</td><td class="line1" align="center">4</td>
+</tr>
+<tr>
+<td class="line2">
+<div class="tablelabel typped checkinfo" style="font-weight:normal; margin-left:0px">/favicon.ico</div>
+</td><td class="line2" align="center">0</td><td class="line2" align="center">0</td><td class="line2" align="center">4</td>
+</tr>
+</table>
+</div>
+</div>
+<div style="width: 100%; height: 20px;" id="report.summary.all">
+<div id="statistics_summary_title" class="h1" style="float:left">General statistics</div>
+</div>
+<div align="center" class="wrapper">
+<div align="center">
+<table>
+<tr>
+<th width="10%">Min</th><th width="10%">Avg</th><th width="10%">Max</th><th width="10%">Hits</th><th width="10%">Err</th><th width="10%">% of Err</th><th width="10%">Med</th><th width="10%">Avg-90%</th><th width="10%">Std Dev</th><th width="10%">SLA Profile</th>
+</tr>
+<tr>
+<td colspan="10" class="line2">
+<div class="tablelabel" style="margin-left: 00px">All Virtual Users</div>
+</td>
+</tr>
+<tr>
+<td class="line2right bordered">16.4</td><td class="line2right bordered">60</td><td class="line2right bordered">78.2</td><td class="line2right bordered">11</td><td class="line2right bordered">11</td><td class="line2right bordered">100</td><td class="line2right bordered">64</td><td class="line2right bordered">56.3</td><td class="line2right bordered">18.2</td><td class="line2right bordered">
+								-
+							</td>
+</tr>
+<tr>
+<td colspan="10" class="line1">
+<div class="tablelabel" style="margin-left: 00px">All containers</div>
+</td>
+</tr>
+<tr>
+<td class="line1right bordered">
+						-
+					</td><td class="line1right bordered">
+						-
+					</td><td class="line1right bordered">
+						-
+					</td><td class="line1right bordered">
+						-
+					</td><td class="line1right bordered">0</td><td class="line1right bordered">
+						-
+					</td><td class="line1right bordered">
+						-
+					</td><td class="line1right bordered">
+						-
+					</td><td class="line1right bordered">
+						-
+					</td><td class="line1right bordered">
+						-
+					</td>
+</tr>
+<tr>
+<td colspan="10" class="line2">
+<div class="tablelabel" style="margin-left: 00px">All pages</div>
+</td>
+</tr>
+<tr>
+<td class="line2right bordered">
+						-
+					</td><td class="line2right bordered">
+						-
+					</td><td class="line2right bordered">
+						-
+					</td><td class="line2right bordered">
+						-
+					</td><td class="line2right bordered">0</td><td class="line2right bordered">
+						-
+					</td><td class="line2right bordered">
+						-
+					</td><td class="line2right bordered">
+						-
+					</td><td class="line2right bordered">
+						-
+					</td><td class="line2right bordered">
+						-
+					</td>
+</tr>
+<tr>
+<td colspan="10" class="line1">
+<div class="tablelabel" style="margin-left: 00px">All requests</div>
+</td>
+</tr>
+<tr>
+<td class="line1right bordered">16.4</td><td class="line1right bordered">60</td><td class="line1right bordered">78.2</td><td class="line1right bordered">11</td><td class="line1right bordered">11</td><td class="line1right bordered">100</td><td class="line1right bordered">64</td><td class="line1right bordered">56.3</td><td class="line1right bordered">18.2</td><td class="line1right bordered">
+								-
+							</td>
+</tr>
+</table>
+</div>
+</div>
+</body>
+</html>

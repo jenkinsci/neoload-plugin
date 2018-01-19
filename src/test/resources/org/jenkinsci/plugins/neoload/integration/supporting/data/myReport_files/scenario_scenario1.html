@@ -1,0 +1,148 @@
+<html xmlns:fo="http://www.w3.org/1999/XSL/Format">
+<head>
+<META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Performance Testing Report</title>
+<link type="text/css" rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="divHeader">Scenario</div>
+<div style="width: 100%; height: 20px;" id="report.scenario.summary">
+<div id="statistics_summary_title" class="h1" style="float:left">Summary</div>
+</div>
+<div align="center" class="wrapper">
+<div align="center">
+<table>
+<tr>
+<td class="titleCell line2">Project</td><td width="35%" class="line2">Why</td><td rowspan="2" class="titleCell line2">Load Policy</td><td width="55%" valign="top" rowspan="2" class="line2">
+<ul class="valuesList">
+<li class="listItem">The population&nbsp;<strong>Population1</strong>&nbsp;
+	 is ramp up&nbsp;
+	 from&nbsp;<strong>9</strong>&nbsp;users&nbsp;
+	 adding&nbsp;<strong>1</strong>&nbsp;users&nbsp;
+	 every&nbsp;<strong>9.0</strong>&nbsp;seconds.
+</li>
+</ul>
+</td>
+</tr>
+<tr>
+<td class="titleCell line2">Scenario</td><td class="line2">scenario1</td>
+</tr>
+<tr>
+<td class="titleCell line2">Start date</td><td class="line2">Mar 20, 2013 3:00:56 PM</td><td rowspan="2" nowrap class="titleCell line2">Description</td><td valign="top" rowspan="2" class="line2"></td>
+</tr>
+<tr>
+<td class="titleCell line2">End date</td><td class="line2">Mar 20, 2013 3:01:26 PM</td>
+</tr>
+<tr>
+<td class="titleCell line2">Duration</td><td class="line2">00:00:30</td><td class="titleCell line2">Filters</td><td class="line2">
+<div>None</div>
+</td>
+</tr>
+<tr>
+<td class="titleCell line2">LG Hosts</td><td class="line2">localhost</td><td nowrap class="titleCell line2">Debug</td><td class="line2">Debug only virtual users containing errors</td>
+</tr>
+</table>
+</div>
+</div>
+<div style="width: 100%; height: 20px;" id="report.scenario.populations">
+<div id="statistics_summary_title" class="h1" style="float:left">Populations</div>
+</div>
+<div align="center" class="wrapper">
+<p class="smalltitle">Population1</p>
+<div>
+<div align="center">
+<table>
+<tr>
+<th>Virtual user</th><th>Percentage</th><th>WAN Emulation</th><th>Signal strength</th><th>Bandwidth &uarr;</th><th>Latency &uarr;</th><th>Packet loss % &uarr;</th><th>Bandwidth &darr;</th><th>Latency &darr;</th><th>Packet loss % &darr;</th><th>Browser</th><th>Handle cookies</th><th>Connections</th><th>Handle cache</th>
+</tr>
+<tr>
+<td class="line2">VirtualUser</td><td class="line2">100.0%
+		</td><td class="line2">Unlimited</td><td class="line2"></td><td class="line2">Unlimited</td><td class="line2">0ms</td><td class="line2">0%</td><td class="line2">Unlimited</td><td class="line2">0ms</td><td class="line2">0%</td><td class="line2">Recorded one</td><td class="line2">Yes</td><td class="line2">4</td><td class="line2">As recorded</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div style="width: 100%; height: 20px;" id="report.scenario.virtual.user.profiles">
+<div id="statistics_summary_title" class="h1" style="float:left">Virtual user profiles</div>
+</div>
+<div align="center" class="wrapper">
+<table>
+<tr>
+<th width="15%" nowrap>Name</th><th width="45%" nowrap>Description</th><th width="10%">On failed assertion</th><th width="10%">On error</th><th width="10%">Think time</th><th width="10%">Thinktime range</th>
+</tr>
+<tr>
+<td class="line2">VirtualUser</td><td class="line2"></td><td class="line2">Do nothing</td><td class="line2">Do nothing</td><td class="line2">From pages</td><td class="line2">
+					0%
+				</td>
+</tr>
+</table>
+</div>
+<div style="width: 100%; height: 20px;" id="report.scenario.rendezvous">
+<div id="statistics_summary_title" class="h1" style="float:left">Rendezvous</div>
+</div>
+<div align="center" class="wrapper">
+<div align="center">
+<table>
+<tr>
+<th>Enabled</th><th>Name</th><th>Policy</th><th>Value</th><th>Timeout</th>
+</tr>
+<tr>
+<td class="line1" colspan="5">Empty list</td>
+</tr>
+</table>
+</div>
+</div>
+<div style="width: 100%; height: 20px;" id="report.scenario.sla.profiles">
+<div id="statistics_summary_title" class="h1" style="float:left">SLA Profiles</div>
+</div>
+<div align="center" class="wrapper">
+<p class="smalltitle">SLAName</p>
+<table>
+<tr>
+<th width="70%">Criteria Description</th><th width="10%">Operator</th><th width="10%">value</th><th width="10%">severity</th>
+</tr>
+<tr>
+<td colspan="4" class="line2"><strong>Per Run - Average Request Response Time</strong></td>
+</tr>
+<tr>
+<td width="50%" class="line2">When Average Request Response Time is greater than 0.1&nbsp;sec.,
+			 the Average Request Response Time severity is failed.
+		</td><td class="line2">&gt;=</td><td class="line2">0.1</td><td style="text-align: center;" class="line2"><img src="images/severity_HIGH.png" style="vertical-align: middle;"></td>
+</tr>
+<tr>
+<td colspan="4" class="line1"><strong>Per Run - Average Page Response Time</strong></td>
+</tr>
+<tr>
+<td width="50%" class="line1">When Average Page Response Time is greater than 0.1&nbsp;sec.,
+			 the Average Page Response Time severity is failed.
+		</td><td class="line1">&gt;=</td><td class="line1">0.1</td><td style="text-align: center;" class="line1"><img src="images/severity_HIGH.png" style="vertical-align: middle;"></td>
+</tr>
+<tr>
+<td colspan="4" class="line2"><strong>Per Run - Average Container Response Time</strong></td>
+</tr>
+<tr>
+<td width="50%" class="line2">When Average Container Response Time is greater than 0.1&nbsp;sec.,
+			 the Average Container Response Time severity is failed.
+		</td><td class="line2">&gt;=</td><td class="line2">0.1</td><td style="text-align: center;" class="line2"><img src="images/severity_HIGH.png" style="vertical-align: middle;"></td>
+</tr>
+<tr>
+<td colspan="4" class="line1"><strong>Per Time Interval - Average Response Time</strong></td>
+</tr>
+<tr>
+<td width="50%" class="line1">When Average Response Time is greater than 0.1&nbsp;sec.,
+			 the Average Response Time severity is failed.
+		</td><td class="line1">&gt;=</td><td class="line1">0.1</td><td style="text-align: center;" class="line1"><img src="images/severity_HIGH.png" style="vertical-align: middle;"></td>
+</tr>
+</table>
+<div align="center">
+<br>
+<table style="text-align: center; width: 400px; border: 0px;">
+<tr>
+<td><img style="vertical-align: middle;" src="images/severity_none.png">&nbsp;=&nbsp;No SLA</td><td><img style="vertical-align: middle;" src="images/severity_passed.png">&nbsp;=&nbsp;Passed</td><td><img style="vertical-align: middle;" src="images/severity_low.png">&nbsp;=&nbsp;Acceptable</td><td><img style="vertical-align: middle;" src="images/severity_high.png">&nbsp;=&nbsp;Failed</td>
+</tr>
+</table>
+</div>
+</div>
+</body>
+</html>

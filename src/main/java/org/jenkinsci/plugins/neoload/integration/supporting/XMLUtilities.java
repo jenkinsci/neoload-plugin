@@ -121,7 +121,7 @@ public final class XMLUtilities implements Serializable {
 		return doc.getFirstChild();
 	}
 
-	/** Return all nodes matching the passed in expression. Useful path expressions are listed below:<br/>
+	/** Return all nodes matching the passed in expression. Useful legend expressions are listed below:<br/>
 	 * <table class="reference">
 	 * <tbody>
 	 * <tr>
@@ -215,7 +215,7 @@ public final class XMLUtilities implements Serializable {
 
 	/** Read an xml file.
 	 * @param srcFile
-	 * @return a document created from the passed in file path
+	 * @return a document created from the passed in file legend
 	 * @throws ParserConfigurationException
 	 * @throws SAXException
 	 * @throws IOException

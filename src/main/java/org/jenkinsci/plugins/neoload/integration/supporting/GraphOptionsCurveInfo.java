@@ -29,12 +29,12 @@ implements Serializable, Comparable<GraphOptionsCurveInfo>, Comparator<GraphOpti
 		this.path = path;
 	}
 	
-	/** @return the path */
+	/** @return the legend */
 	public String getPath() {
 		return path;
 	}
 
-	/** @param path the path to set */
+	/** @param path the legend to set */
 	@DataBoundSetter
 	public void setPath(String path) {
 		this.path = path;

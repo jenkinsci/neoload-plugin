@@ -39,4 +39,7 @@ public interface NeoLoadPluginOptions {
 	/** @return the graphOptionsInfo */
 	List<GraphOptionsInfo> getGraphOptionsInfo();
 
+	/** @return the maximum of points for each trends **/
+	int getMaxTrends();
+
 }

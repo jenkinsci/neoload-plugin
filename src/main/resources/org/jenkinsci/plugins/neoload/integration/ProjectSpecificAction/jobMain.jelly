@@ -1,0 +1,14 @@
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define"
+         xmlns:t="/lib/hudson" xmlns:f="/lib/form" xmlns:l="/lib/layout"
+         xmlns:i="jelly:fmt">
+
+	<j:if test="${from.isNeoloadBuildJob()}">
+		<div id="charts" >
+			<j:forEach items="${from.getChartsName()}" var="chartNameURL">
+				<img src="${chartNameURL}" style="vertical-align:top;"/>
+			</j:forEach>
+		</div>
+	</j:if>
+	<!--</l:layout>-->
+
+</j:jelly>

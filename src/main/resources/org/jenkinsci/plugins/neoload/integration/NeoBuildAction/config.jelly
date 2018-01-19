@@ -57,8 +57,7 @@
 	</f:entry>
 
 	<f:entry title="Test Description" field="testDescription" >
-		<f:textbox value="${testDescription}" 
-		placeholder="(optional)" />
+		<f:textbox value="${testDescription}" placeholder="(optional)" />
 	</f:entry>
 
     <f:entry field="displayTheGUI" title="GUI" >
@@ -198,6 +197,10 @@
 
 			</table>
 		</f:repeatable>
+	</f:entry>
+	<f:entry title="Limit the number of points in trend charts" field="maxTrends"
+	         help="/descriptor/org.jenkinsci.plugins.neoload.integration.NeoBuildAction/help/maxTrends">
+		<f:textbox value="${maxTrends}" default="" placeholder="0 for unlimited"	/>
 	</f:entry>
 	
 </j:jelly>
