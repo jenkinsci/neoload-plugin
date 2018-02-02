@@ -1,8 +1,11 @@
                        **************************************
                        *  NeoLoad Jenkins Plugin ChangeLog  *
                        **************************************
-Version 2.0.3 
+Version 2.1.0
 =============
+Change version of plugin base to 1.609.1
+
+- FIXED: performance: Refactor to generate image only one time
 
 
 Version 2.0.2 (March 17, 2017)
