@@ -31,11 +31,13 @@ import org.junit.Test;
 
 import junit.framework.TestCase;
 
+import static org.junit.Assert.assertTrue;
+
 /**
  * @author ajohnson
  *
  */
-public class PluginUtilsTest extends TestCase {
+public class PluginUtilsTest {
 
 	/** Mock project for testing. */
 	private MockObjects mo = null;
@@ -43,7 +45,6 @@ public class PluginUtilsTest extends TestCase {
 	/**
 	 * @throws java.lang.Exception
 	 */
-	@Override
 	@Before
 	public void setUp() throws Exception {
 		mo = new MockObjects();

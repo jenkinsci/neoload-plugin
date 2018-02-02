@@ -12,7 +12,7 @@
  *     * Neither the name of Neotys nor the
  *       names of its contributors may be used to endorse or promote products
  *       derived from this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -34,11 +34,12 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
+import com.google.common.collect.Lists;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.filefilter.IOFileFilter;
 import org.codehaus.plexus.util.ReflectionUtils;
 import org.jenkinsci.plugins.neoload.integration.NeoBuildAction;
 
@@ -58,34 +59,49 @@ import hudson.util.RunList;
 
 public class MockObjects {
 
-	/** Mock project for testing. */
-	private final Project<?,? extends AbstractBuild> apWithOptions;
+	/**
+	 * Mock project for testing.
+	 */
+	private final Project<?, ? extends AbstractBuild> apWithOptions;
 
-	/** Mock project for testing. */
-	private final Project<?,? extends AbstractBuild> apWithoutOptions;
+	/**
+	 * Mock project for testing.
+	 */
+	private final Project<?, ? extends AbstractBuild> apWithoutOptions;
 
-	/** Mock object for testing. */
+	/**
+	 * Mock object for testing.
+	 */
 	private final Publisher publisherWithNeoOptions;
 
-	/** Mock object for testing. */
+	/**
+	 * Mock object for testing.
+	 */
 	private final AbstractBuild abstractBuild;
-	
+
 	private final NeoBuildAction neoBuildAction;
 
 	private final Run<? extends Job, ? extends Run>.Artifact reportFileArtifact;
 	private final Run<? extends Job, ? extends Run>.Artifact reportFileArtifactXml;
 
-	/** The date the test started in the report file. */
+	/**
+	 * The date the test started in the report file.
+	 */
 	private static final String START_DATE_IN_HTML_FILE = "Mar 18, 2013 11:15:39 AM";
 
-	/** The date the test started in the report file. */
+	/**
+	 * The date the test started in the report file.
+	 */
 	private static final String START_DATE_IN_XML_FILE = "Mar 20, 2013 3:00:56 PM";
 
 
-	/** Constructor.
+	/**
+	 * Constructor.
+	 *
 	 * @throws IOException
 	 * @throws FileNotFoundException
-	 * @throws IllegalAccessException */
+	 * @throws IllegalAccessException
+	 */
 	public MockObjects() throws FileNotFoundException, IOException, IllegalAccessException {
 		// abstract project without options
 		final List<Publisher> publishersWithoutNeoOptions = new ArrayList<Publisher>();
@@ -113,24 +129,29 @@ public class MockObjects {
 		when(describableListWithNeoOptions.iterator()).thenReturn(publishersWithNeoOptions.iterator());
 		final List<Builder> builders = new ArrayList<Builder>();
 		final NTSServerInfo ntssi = new NTSServerInfo("uniqueID", "http://url.com:8080", "loginUser", "loginPassword", "Label", "collabPath", "licenseID");
-		neoBuildAction = 
-				new NeoBuildAction("c:/NeoLoad/executable", 
-				"shared-project-type", // project type - local or shared. 
-				"reportTypeDefault", // report type
-				"c:/local_Project_File.prj", 
-				"Shared_Project_Name", "Scenario_Name",
-				"c:/htmlReport.html", "c:/xmlReport.xml", "c:/pdfReport.pdf", "c:/junitReport.xml", 
-				false, // display the GUI
-				"test result name", "test description", 
-				"shared-license-type", // license type - local or shared. 
-				"50", // VU count for license
-				"1", // license hours
-				"", // custom command line options
-				true, // publish test results
-				ntssi, ntssi, // shared project server, license server.
-				true, // show trend average response
-				true, // show trend error rate
-				null); // graph info
+		neoBuildAction =
+				new NeoBuildAction("c:/NeoLoad/executable",
+						"shared-project-type", // project type - local or shared.
+						"reportTypeDefault", // report type
+						"c:/local_Project_File.prj",
+						"Shared_Project_Name",
+						"Scenario_Name",
+						"c:/htmlReport.html",
+						"c:/xmlReport.xml",
+						"c:/pdfReport.pdf",
+						"c:/junitReport.xml",
+						false, // display the GUI
+						"test result name", "test description",
+						"shared-license-type", // license type - local or shared.
+						"50", // VU count for license
+						"1", // license hours
+						"", // custom command line options
+						true, // publish test results
+						ntssi, ntssi, // shared project server, license server.
+						true, // show trend average response
+						true, // show trend error rate
+						null,
+						30); // graph info
 		builders.add(neoBuildAction);
 
 		apWithOptions = mock(Project.class, "AbstractProject with plugin options");
@@ -156,7 +177,7 @@ public class MockObjects {
 
 		Run<? extends Job, ? extends Run>.Artifact localReportFileArtifact = null;
 		Run<? extends Job, ? extends Run>.Artifact localXmlReportFileArtifact = null;
-		for (final Run<? extends Job, ? extends Run>.Artifact a: artifacts) {
+		for (final Run<? extends Job, ? extends Run>.Artifact a : artifacts) {
 			if (a.getFile().getName().contains("eport.html")) {
 				localReportFileArtifact = a;
 			} else if (a.getFile().getName().contains("eport.xml")) {
@@ -174,13 +195,14 @@ public class MockObjects {
 		final File artifactsDir = artifacts.get(0).getFile().getParentFile();
 		when(abstractBuild.getArtifactsDir()).thenReturn(artifactsDir);
 
-		final RunList rl = new RunList();
-		rl.add(abstractBuild);
+		final RunList rl = RunList.fromRuns(Lists.newArrayList(abstractBuild));
 		when(apWithOptions.getBuilds()).thenReturn(rl);
 		when(apWithoutOptions.getBuilds()).thenReturn(rl);
 	}
 
-	/** Create artifacts out of all files in the zip file.
+	/**
+	 * Create artifacts out of all files in the zip file.
+	 *
 	 * @return
 	 * @throws FileNotFoundException
 	 * @throws IOException
@@ -188,12 +210,26 @@ public class MockObjects {
 	 */
 	private static List<Run<? extends Job, ? extends Run>.Artifact> createArtifacts() throws FileNotFoundException, IOException, IllegalAccessException {
 		// create new test files
-		final URL url = MockObjects.class.getResource("neoload-report.zip");
-		final List<File> createdFiles = ZipUtilities.unzip(url.getFile(), new File(url.getFile()).getParent());
-		Run<? extends Job, ? extends Run>.Artifact a = null;
+		final URL url = MockObjects.class.getResource("data");
+		File dir = new File(url.getFile());
+		final IOFileFilter ioFileFilter = new IOFileFilter() {
+			@Override
+			public boolean accept(final File file) {
+				return true;
+			}
+
+			@Override
+			public boolean accept(final File dir, final String name) {
+				return true;
+			}
+		};
+		final Collection<File> createdFiles = FileUtils.listFiles(dir, ioFileFilter, ioFileFilter);
+
+		Run<? extends Job, ? extends Run>.Artifact a;
+
 		final List<Run<? extends Job, ? extends Run>.Artifact> artifacts = new ArrayList<Run<? extends Job, ? extends Run>.Artifact>(createdFiles.size());
 
-		for (final File f: createdFiles) {
+		for (final File f : createdFiles) {
 			a = mock(Artifact.class);
 
 			// add artifact.getFileName, artifact.getFile, artifact.getHref
@@ -209,46 +245,62 @@ public class MockObjects {
 		return artifacts;
 	}
 
-	/** @return the apWithOptions */
+	/**
+	 * @return the apWithOptions
+	 */
 	public AbstractProject getApWithOptions() {
 		return apWithOptions;
 	}
 
-	/** @return the apWithoutOptions */
+	/**
+	 * @return the apWithoutOptions
+	 */
 	public AbstractProject getApWithoutOptions() {
 		return apWithoutOptions;
 	}
 
-	/** @return the publisherWithNeoOptions */
+	/**
+	 * @return the publisherWithNeoOptions
+	 */
 	public Publisher getPublisherWithNeoOptions() {
 		return publisherWithNeoOptions;
 	}
 
-	/** @return the abstractBuild */
+	/**
+	 * @return the abstractBuild
+	 */
 	public AbstractBuild getAbstractBuild() {
 		return abstractBuild;
 	}
 
-	/** @return the reportFileArtifact */
+	/**
+	 * @return the reportFileArtifact
+	 */
 	public Run.Artifact getReportFileArtifact() {
 		return reportFileArtifact;
 	}
 
-	/** @return the reportFileArtifactXml */
+	/**
+	 * @return the reportFileArtifactXml
+	 */
 	public Run.Artifact getReportFileArtifactXml() {
 		return reportFileArtifactXml;
 	}
 
-	/** @return the startDateInFile */
+	/**
+	 * @return the startDateInFile
+	 */
 	public static String getStartDateInHtmlFile() {
 		return START_DATE_IN_HTML_FILE;
 	}
 
-	/** @return the startDateInXmlFile */
+	/**
+	 * @return the startDateInXmlFile
+	 */
 	public static String getStartDateInXmlFile() {
 		return START_DATE_IN_XML_FILE;
 	}
-	
+
 	public NeoBuildAction getNeoBuildAction() {
 		return neoBuildAction;
 	}

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?><resource name="NeoLoadTests">
+   <testsuite name="com.neotys.SLAName.PerTimeInterval">
+      <testcase end="2" name="test_AverageResponseTime" result="failure" start="1">
+         <failure type="NeoLoad SLA"> 
+SLA Profile: SLAName
+SLA Type: Per Time Interval
+Alert Type: Average Response Time
+Project: Why
+Scenario: Why
+
+Alert description: 
+
+if the
+	 Average Response Time &gt;= 0.1
+then
+	 fail
+
+Results: 
+
+Average Response Time = 78.163
+
+Created 2013-03-20 15:02:21 </failure>
+      </testcase>
+   </testsuite>
+   <testsuite name="com.neotys.SLAName.PerRun">
+      <testcase end="2" name="test_AverageReque_tResponseTime" result="failure" start="1">
+         <failure type="NeoLoad SLA"> 
+SLA Profile: SLAName
+SLA Type: Per Run
+Alert Type: Average Request Response Time
+Project: Why
+Scenario: Why
+
+Alert description: 
+
+if the
+	 Average Request Response Time &gt;= 0.1
+then
+	 fail
+
+Results: 
+
+Average Request Response Time = 78.163
+
+Created 2013-03-20 15:02:21 </failure>
+      </testcase>
+   </testsuite>
+</resource>

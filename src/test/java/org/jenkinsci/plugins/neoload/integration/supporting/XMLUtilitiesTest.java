@@ -63,7 +63,7 @@ public class XMLUtilitiesTest extends TestCase {
 	@Before
 	protected void setUp() throws Exception {
 		super.setUp();
-		url = this.getClass().getResource("books.xml");
+		url = this.getClass().getResource("data/books.xml");
 		d = XMLUtilities.readXmlFile(url.getFile());
 	}
 

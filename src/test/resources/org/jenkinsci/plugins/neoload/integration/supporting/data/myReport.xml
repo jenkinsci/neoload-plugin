@@ -1,0 +1,303 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE report SYSTEM "report.dtd">
+<report>
+   <summary>
+      <project name="Why">
+         <scenario name="scenario1">
+            <loadpolicies>
+               <rampuppolicy add="1" from="9" interval="9.0" max="0" population="Population1" unit="s"/>
+            </loadpolicies>
+            <loadgenerators>
+               <loadgenerator name="localhost"/>
+            </loadgenerators>
+            <dataFilters/>
+            <populations>
+               <population name="Population1">
+                  <populationSplits>
+                     <populationSplit browserProfileName="Recorded one" cache="1" connections="4" cookies="true" downloadBandwidth="Unlimited" downloadLatency="0ms" downloadPacketLoss="0%" factor="100.0" name="VirtualUser" signalStrength="" uploadBandwidth="Unlimited" uploadLatency="0ms" uploadPacketLoss="0%" userAgent="" wanEmulationProfileName="Unlimited"/>
+                  </populationSplits>
+               </population>
+            </populations>
+            <virtual-user-profiles>
+               <virtual-user-profile errorPolicy="DO_NOTHING" failedAssertionPolicy="DO_NOTHING" name="VirtualUser">
+                  <thinktime-policy thinkTimeMode="MODE_SIMPLE_THINK_TIME" thinktimeFactorValue="100" thinktimePolicy="0" thinktimeRangeValue="0" thinktimeValue="5000"/>
+               </virtual-user-profile>
+            </virtual-user-profiles>
+            <debug-policy mode="0"/>
+            <rdv-collection/>
+         </scenario>
+         <sla-profiles>
+            <sla-profile name="SLAName">
+               <description>
+               </description>
+               <sla-threshold family="Per Run" identifier="Average Request Response Time" unit="sec.">
+                  <threshold-condition operator="GREATER_THAN" operator-sign="&gt;=" severity="HIGH" value="0.1"/>
+               </sla-threshold>
+               <sla-threshold family="Per Run" identifier="Average Page Response Time" unit="sec.">
+                  <threshold-condition operator="GREATER_THAN" operator-sign="&gt;=" severity="HIGH" value="0.1"/>
+               </sla-threshold>
+               <sla-threshold family="Per Run" identifier="Average Container Response Time" unit="sec.">
+                  <threshold-condition operator="GREATER_THAN" operator-sign="&gt;=" severity="HIGH" value="0.1"/>
+               </sla-threshold>
+               <sla-threshold family="Per Time Interval" identifier="Average Response Time" unit="sec.">
+                  <threshold-condition operator="GREATER_THAN" operator-sign="&gt;=" severity="HIGH" value="0.1"/>
+               </sla-threshold>
+            </sla-profile>
+         </sla-profiles>
+         <sla-profiles-details>
+            <sla-profile-details name="SLAName" severity="HIGH">
+               <description>
+               </description>
+               <sla-threshold-details family="PER_RUN" identifier="Average Request Response Time" localized-family="Per Run" severity="HIGH" unit="sec." worst-value="78.163"/>
+               <sla-threshold-details family="PER_TIME_INTERVAL" identifier="Average Response Time" localized-family="Per Time Interval" severity="HIGH" unit="sec." worst-value="78.163"/>
+            </sla-profile-details>
+         </sla-profiles-details>
+         <settings>
+            <truncatedMean centeredInterval="true" percentage="90"/>
+         </settings>
+      </project>
+      <test duration="00:00:30" end="Mar 20, 2013 3:01:26 PM" start="Mar 20, 2013 3:00:56 PM"/>
+      <statistics image="images/summary.png">
+         <statistic name="avg_hits/s" severity="none" unit="" value="0.4"/>
+         <statistic name="avg_pages/s" severity="none" unit="" value="0.0"/>
+         <statistic name="avg_reqresponsetime" severity="high" unit="s" value="60"/>
+         <statistic name="avg_pageresponsetime" severity="passed" unit="s" value="0"/>
+         <statistic name="avg_throughput" severity="none" unit=" Mb/s" value="0.00"/>
+         <statistic name="total_pages" severity="none" unit="" value="0"/>
+         <statistic name="total_hits" severity="none" unit="" value="11"/>
+         <statistic name="total_users_launched" severity="none" unit="" value="11"/>
+         <statistic name="total_throughput" severity="none" unit=" MB" value="0.01"/>
+         <statistic name="total_iterations_completed" severity="none" unit="" value="11"/>
+         <statistic name="total_errors" severity="none" unit="" value="11"/>
+         <statistic name="error_percentile" severity="none" unit="%" value="100"/>
+         <statistic name="total_logical_actions_errors" severity="none" unit="" value="0"/>
+         <statistic name="total_alerts_percentage" severity="none" unit="%" value="0"/>
+      </statistics>
+      <hotspots>
+         <toperrors/>
+         <topalerts>
+            <top count="1" duration="0" name="Average Response Time : /jpetstore/ &gt;= 0.1 sec." parentName="" severity="high" vuName=""/>
+         </topalerts>
+         <firstalerts>
+            <first date="00:00:30.062" name="Average Response Time : /jpetstore/ &gt;= 0.1 sec." severity="high"/>
+         </firstalerts>
+         <topavg/>
+         <topmax/>
+         <pushtopavg/>
+         <pushtopmax/>
+      </hotspots>
+      <requests-errors-summary>
+         <error-summary count="11" description="Service Unavailable - The server is currently unable to handle the request due to a temporary overloading or maintenance of the server." name="503"/>
+         <error-summary count="11" description="Total error count." name="Total">
+            <description>Total error count.</description>
+         </error-summary>
+      </requests-errors-summary>
+      <logical-actions-errors-summary/>
+      <alerts-summary>
+         <alert-summary counter="4" criticalCounter="0" name="/jpetstore/" warningCounter="0"/>
+         <alert-summary counter="4" criticalCounter="0" name="/jpetstore/" warningCounter="0"/>
+         <alert-summary counter="4" criticalCounter="0" name="/jpetstore/images/logo-topbar.gif" warningCounter="0"/>
+         <alert-summary counter="4" criticalCounter="0" name="/jpetstore/images/bkg-topbar.gif" warningCounter="0"/>
+         <alert-summary counter="4" criticalCounter="0" name="/jpetstore/images/search.gif" warningCounter="0"/>
+         <alert-summary counter="4" criticalCounter="0" name="/jpetstore/images/cart.gif" warningCounter="0"/>
+         <alert-summary counter="4" criticalCounter="0" name="/jpetstore/images/help.gif" warningCounter="0"/>
+         <alert-summary counter="4" criticalCounter="0" name="/jpetstore/images/sign-in.gif" warningCounter="0"/>
+         <alert-summary counter="4" criticalCounter="0" name="/jpetstore/images/poweredby.gif" warningCounter="0"/>
+         <alert-summary counter="4" criticalCounter="0" name="/jpetstore/images/separator.gif" warningCounter="0"/>
+         <alert-summary counter="4" criticalCounter="0" name="/favicon.ico" warningCounter="0"/>
+         <alert-summary counter="4" criticalCounter="0" name="/jpetstore/" warningCounter="0"/>
+         <alert-summary counter="4" criticalCounter="0" name="/jpetstore/" warningCounter="0"/>
+         <alert-summary counter="4" criticalCounter="0" name="/jpetstore/images/logo-topbar.gif" warningCounter="0"/>
+         <alert-summary counter="4" criticalCounter="0" name="/jpetstore/images/bkg-topbar.gif" warningCounter="0"/>
+         <alert-summary counter="4" criticalCounter="0" name="/jpetstore/images/search.gif" warningCounter="0"/>
+         <alert-summary counter="4" criticalCounter="0" name="/jpetstore/images/cart.gif" warningCounter="0"/>
+         <alert-summary counter="4" criticalCounter="0" name="/jpetstore/images/help.gif" warningCounter="0"/>
+         <alert-summary counter="4" criticalCounter="0" name="/jpetstore/images/sign-in.gif" warningCounter="0"/>
+         <alert-summary counter="4" criticalCounter="0" name="/jpetstore/images/poweredby.gif" warningCounter="0"/>
+         <alert-summary counter="4" criticalCounter="0" name="/jpetstore/images/separator.gif" warningCounter="0"/>
+         <alert-summary counter="4" criticalCounter="0" name="/favicon.ico" warningCounter="0"/>
+         <alert-summary counter="4" criticalCounter="0" name="/jpetstore/shop/index.shtml" warningCounter="0"/>
+         <alert-summary counter="4" criticalCounter="0" name="/jpetstore/shop/index.shtml" warningCounter="0"/>
+         <alert-summary counter="4" criticalCounter="0" name="/jpetstore/images/sm_birds.gif" warningCounter="0"/>
+         <alert-summary counter="4" criticalCounter="0" name="/jpetstore/images/sm_reptiles.gif" warningCounter="0"/>
+         <alert-summary counter="4" criticalCounter="0" name="/jpetstore/images/sm_cats.gif" warningCounter="0"/>
+         <alert-summary counter="4" criticalCounter="0" name="/jpetstore/images/sm_fish.gif" warningCounter="0"/>
+         <alert-summary counter="4" criticalCounter="0" name="/jpetstore/images/fish_icon.gif" warningCounter="0"/>
+         <alert-summary counter="4" criticalCounter="0" name="/jpetstore/images/splash.gif" warningCounter="0"/>
+         <alert-summary counter="4" criticalCounter="0" name="/jpetstore/images/dogs_icon.gif" warningCounter="0"/>
+         <alert-summary counter="4" criticalCounter="0" name="/jpetstore/images/cats_icon.gif" warningCounter="0"/>
+         <alert-summary counter="4" criticalCounter="0" name="/jpetstore/images/reptiles_icon.gif" warningCounter="0"/>
+         <alert-summary counter="4" criticalCounter="0" name="/jpetstore/images/sm_dogs.gif" warningCounter="0"/>
+         <alert-summary counter="4" criticalCounter="0" name="/jpetstore/images/birds_icon.gif" warningCounter="0"/>
+         <alert-summary counter="4" criticalCounter="0" name="/jpetstore/shop/viewCategory.shtml" warningCounter="0"/>
+         <alert-summary counter="4" criticalCounter="0" name="/jpetstore/shop/viewCategory.shtml" warningCounter="0"/>
+         <alert-summary counter="4" criticalCounter="0" name="/jpetstore/shop/viewProduct.shtml" warningCounter="0"/>
+         <alert-summary counter="4" criticalCounter="0" name="/jpetstore/shop/viewProduct.shtml" warningCounter="0"/>
+         <alert-summary counter="4" criticalCounter="0" name="/jpetstore/images/button_add_to_cart.gif" warningCounter="0"/>
+         <alert-summary counter="4" criticalCounter="0" name="/jpetstore/shop/addItemToCart.shtml" warningCounter="0"/>
+         <alert-summary counter="4" criticalCounter="0" name="/jpetstore/shop/addItemToCart.shtml" warningCounter="0"/>
+         <alert-summary counter="4" criticalCounter="0" name="/jpetstore/images/button_remove.gif" warningCounter="0"/>
+         <alert-summary counter="4" criticalCounter="0" name="/jpetstore/images/button_checkout.gif" warningCounter="0"/>
+         <alert-summary counter="4" criticalCounter="0" name="/jpetstore/images/button_update_cart.gif" warningCounter="0"/>
+         <alert-summary counter="4" criticalCounter="0" name="/jpetstore/shop/viewCategory.shtml_1" warningCounter="0"/>
+         <alert-summary counter="4" criticalCounter="0" name="/jpetstore/shop/viewCategory.shtml" warningCounter="0"/>
+         <alert-summary counter="4" criticalCounter="0" name="/jpetstore/shop/viewProduct.shtml_1" warningCounter="0"/>
+         <alert-summary counter="4" criticalCounter="0" name="/jpetstore/shop/viewProduct.shtml" warningCounter="0"/>
+         <alert-summary counter="4" criticalCounter="0" name="/jpetstore/shop/viewItem.shtml" warningCounter="0"/>
+         <alert-summary counter="4" criticalCounter="0" name="/jpetstore/shop/viewItem.shtml" warningCounter="0"/>
+         <alert-summary counter="4" criticalCounter="0" name="/jpetstore/images/cat3.gif" warningCounter="0"/>
+         <alert-summary counter="4" criticalCounter="0" name="/jpetstore/shop/addItemToCart.shtml_1" warningCounter="0"/>
+         <alert-summary counter="4" criticalCounter="0" name="/jpetstore/shop/addItemToCart.shtml" warningCounter="0"/>
+         <alert-summary counter="4" criticalCounter="0" name="/jpetstore/shop/checkout.shtml" warningCounter="0"/>
+         <alert-summary counter="4" criticalCounter="0" name="/jpetstore/shop/checkout.shtml" warningCounter="0"/>
+         <alert-summary counter="4" criticalCounter="0" name="/jpetstore/images/button_continue.gif" warningCounter="0"/>
+         <alert-summary counter="4" criticalCounter="0" name="/jpetstore/shop/newOrderForm.shtml" warningCounter="0"/>
+         <alert-summary counter="4" criticalCounter="0" name="/jpetstore/shop/newOrderForm.shtml" warningCounter="0"/>
+         <alert-summary counter="4" criticalCounter="0" name="/jpetstore/images/button_register_now.gif" warningCounter="0"/>
+         <alert-summary counter="4" criticalCounter="0" name="/jpetstore/images/button_submit.gif" warningCounter="0"/>
+         <alert-summary counter="4" criticalCounter="0" name="/jpetstore/shop/signon.shtml" warningCounter="0"/>
+         <alert-summary counter="4" criticalCounter="0" name="/jpetstore/shop/signon.shtml" warningCounter="0"/>
+         <alert-summary counter="4" criticalCounter="0" name="/jpetstore/images/banner_fish.gif" warningCounter="0"/>
+         <alert-summary counter="4" criticalCounter="0" name="/jpetstore/images/my_account.gif" warningCounter="0"/>
+         <alert-summary counter="4" criticalCounter="0" name="/jpetstore/images/sign-out.gif" warningCounter="0"/>
+         <alert-summary counter="4" criticalCounter="0" name="/jpetstore/shop/viewCart.shtml" warningCounter="0"/>
+         <alert-summary counter="4" criticalCounter="0" name="/jpetstore/shop/viewCart.shtml" warningCounter="0"/>
+         <alert-summary counter="4" criticalCounter="0" name="/jpetstore/shop/checkout.shtml_1" warningCounter="0"/>
+         <alert-summary counter="4" criticalCounter="0" name="/jpetstore/shop/checkout.shtml" warningCounter="0"/>
+         <alert-summary counter="4" criticalCounter="0" name="/jpetstore/shop/newOrderForm.shtml_1" warningCounter="0"/>
+         <alert-summary counter="4" criticalCounter="0" name="/jpetstore/shop/newOrderForm.shtml" warningCounter="0"/>
+         <alert-summary counter="4" criticalCounter="0" name="/jpetstore/shop/newOrder.shtml" warningCounter="0"/>
+         <alert-summary counter="4" criticalCounter="0" name="/jpetstore/shop/newOrder.shtml" warningCounter="0"/>
+         <alert-summary counter="4" criticalCounter="0" name="/jpetstore/shop/newOrder.shtml_1" warningCounter="0"/>
+         <alert-summary counter="4" criticalCounter="0" name="/jpetstore/shop/newOrder.shtml" warningCounter="0"/>
+         <alert-summary counter="4" criticalCounter="0" name="container1" warningCounter="0"/>
+         <alert-summary counter="4" criticalCounter="0" name="/jpetstore/" warningCounter="0"/>
+         <alert-summary counter="4" criticalCounter="0" name="/jpetstore/" warningCounter="0"/>
+         <alert-summary counter="4" criticalCounter="0" name="/jpetstore/images/logo-topbar.gif" warningCounter="0"/>
+         <alert-summary counter="4" criticalCounter="0" name="/jpetstore/images/bkg-topbar.gif" warningCounter="0"/>
+         <alert-summary counter="4" criticalCounter="0" name="/jpetstore/images/search.gif" warningCounter="0"/>
+         <alert-summary counter="4" criticalCounter="0" name="/jpetstore/images/cart.gif" warningCounter="0"/>
+         <alert-summary counter="4" criticalCounter="0" name="/jpetstore/images/help.gif" warningCounter="0"/>
+         <alert-summary counter="4" criticalCounter="0" name="/jpetstore/images/sign-in.gif" warningCounter="0"/>
+         <alert-summary counter="4" criticalCounter="0" name="/jpetstore/images/poweredby.gif" warningCounter="0"/>
+         <alert-summary counter="4" criticalCounter="0" name="/jpetstore/images/separator.gif" warningCounter="0"/>
+         <alert-summary counter="4" criticalCounter="0" name="/favicon.ico" warningCounter="0"/>
+         <alert-summary counter="4" criticalCounter="0" name="container2" warningCounter="0"/>
+         <alert-summary counter="4" criticalCounter="0" name="/jpetstore/" warningCounter="0"/>
+         <alert-summary counter="4" criticalCounter="0" name="/jpetstore/" warningCounter="0"/>
+         <alert-summary counter="4" criticalCounter="0" name="/jpetstore/images/logo-topbar.gif" warningCounter="0"/>
+         <alert-summary counter="4" criticalCounter="0" name="/jpetstore/images/bkg-topbar.gif" warningCounter="0"/>
+         <alert-summary counter="4" criticalCounter="0" name="/jpetstore/images/search.gif" warningCounter="0"/>
+         <alert-summary counter="4" criticalCounter="0" name="/jpetstore/images/cart.gif" warningCounter="0"/>
+         <alert-summary counter="4" criticalCounter="0" name="/jpetstore/images/help.gif" warningCounter="0"/>
+         <alert-summary counter="4" criticalCounter="0" name="/jpetstore/images/sign-in.gif" warningCounter="0"/>
+         <alert-summary counter="4" criticalCounter="0" name="/jpetstore/images/poweredby.gif" warningCounter="0"/>
+         <alert-summary counter="4" criticalCounter="0" name="/jpetstore/images/separator.gif" warningCounter="0"/>
+         <alert-summary counter="4" criticalCounter="0" name="/favicon.ico" warningCounter="0"/>
+         <alert-summary counter="4" criticalCounter="0" name="container3" warningCounter="0"/>
+         <alert-summary counter="4" criticalCounter="0" name="/jpetstore/" warningCounter="0"/>
+         <alert-summary counter="4" criticalCounter="1" name="/jpetstore/" warningCounter="0"/>
+         <alert-summary counter="4" criticalCounter="0" name="/jpetstore/images/logo-topbar.gif" warningCounter="0"/>
+         <alert-summary counter="4" criticalCounter="0" name="/jpetstore/images/bkg-topbar.gif" warningCounter="0"/>
+         <alert-summary counter="4" criticalCounter="0" name="/jpetstore/images/search.gif" warningCounter="0"/>
+         <alert-summary counter="4" criticalCounter="0" name="/jpetstore/images/cart.gif" warningCounter="0"/>
+         <alert-summary counter="4" criticalCounter="0" name="/jpetstore/images/help.gif" warningCounter="0"/>
+         <alert-summary counter="4" criticalCounter="0" name="/jpetstore/images/sign-in.gif" warningCounter="0"/>
+         <alert-summary counter="4" criticalCounter="0" name="/jpetstore/images/poweredby.gif" warningCounter="0"/>
+         <alert-summary counter="4" criticalCounter="0" name="/jpetstore/images/separator.gif" warningCounter="0"/>
+         <alert-summary counter="4" criticalCounter="0" name="/favicon.ico" warningCounter="0"/>
+      </alerts-summary>
+      <all-summary>
+         <statistic-item avg="60" error_rate="100" errors="11" hits="11" id="ce5c038b-c49b-3c86-a887-9ec9d0057958" max="78.2" median="64" min="16.4" name="All Virtual Users" stddev="18.2" truncatedMean="56.3" type="virtualuser"/>
+         <statistic-item avg="&lt;0.01" error_rate="0" errors="0" hits="0" id="e0dbf49a-8f90-339a-b538-dbc0b4e8401b" max="&lt;0.01" median="&lt;0.01" min="&lt;0.01" name="All containers" stddev=" - " truncatedMean="&lt;0.01" type="container"/>
+         <statistic-item avg="&lt;0.01" error_rate="0" errors="0" hits="0" id="b3b4c2e9-62ea-3b64-b964-846614544b6b" max="&lt;0.01" median="&lt;0.01" min="&lt;0.01" name="All pages" stddev=" - " truncatedMean="&lt;0.01" type="httppage"/>
+         <statistic-item avg="60" error_rate="100" errors="11" hits="11" id="a181a603-769c-3f98-ad92-7e7367c7aa51" max="78.2" median="64" min="16.4" name="All requests" stddev="18.2" truncatedMean="56.3" type="httprequest"/>
+      </all-summary>
+   </summary>
+   <shared-elements/>
+   <servers>
+      <server host="jack" port="80" spdyready="false" spdyused="false"/>
+   </servers>
+   <virtual-users>
+      <statistic-item avg="60" error_rate="100" errors="11" hits="11" id="1b1a0c1c-fb46-439e-83c1-6cdcaa72a194" max="78.2" median="64" min="16.4" name="VirtualUser" parentName="Virtual User Profiles" stddev="18.2" truncatedMean="56.3" type="virtualuser">
+         <statistic-item avg="&lt;0.01" error_rate="0" errors="0" hits="0" max="&lt;0.01" median="&lt;0.01" min="&lt;0.01" name="container1" stddev="&lt;0.01" truncatedMean="&lt;0.01" type="container">
+            <statistic-item avg="&lt;0.01" error_rate="0" errors="0" hits="0" max="&lt;0.01" median="&lt;0.01" min="&lt;0.01" name="container2" stddev="&lt;0.01" truncatedMean="&lt;0.01" type="container">
+               <statistic-item avg="&lt;0.01" error_rate="0" errors="0" hits="0" max="&lt;0.01" median="&lt;0.01" min="&lt;0.01" name="container3" stddev="&lt;0.01" truncatedMean="&lt;0.01" type="container"/>
+            </statistic-item>
+         </statistic-item>
+      </statistic-item>
+   </virtual-users>
+   <media-items>
+      <media-item name="VirtualUser"/>
+   </media-items>
+   <monitors>
+      <monitored-host name="NeoLoad">
+         <monitor name="NeoLoad">
+            <counters>
+               <statistic-item avg="8.38" error_rate="0" errors="0" hits="0" max="11" median="9" min="0" name="NeoLoad/User Load" stddev="2.89" truncatedMean="8.86" type="counter"/>
+               <statistic-item avg="0.001" error_rate="0" errors="0" hits="0" max="0.004" median="0" min="0" name="NeoLoad/Throughput" stddev="0.001" truncatedMean="0.001" type="counter"/>
+               <statistic-item avg="0" error_rate="0" errors="0" hits="0" max="0" median=" - " min="0" name="NeoLoad/Alerts" stddev=" - " truncatedMean=" - " type="counter"/>
+               <statistic-item avg="0" error_rate="0" errors="0" hits="0" max="0" median=" - " min="0" name="NeoLoad/Critical Alerts" stddev=" - " truncatedMean=" - " type="counter"/>
+               <statistic-item avg="0" error_rate="0" errors="0" hits="0" max="0" median=" - " min="0" name="NeoLoad/Warning Alerts" stddev=" - " truncatedMean=" - " type="counter"/>
+            </counters>
+            <indicators/>
+            <alerts/>
+         </monitor>
+      </monitored-host>
+      <monitored-host name="LG localhost">
+         <monitor name="LG localhost">
+            <counters>
+               <statistic-item avg="5.01" error_rate="0" errors="0" hits="0" max="22" median="5" min="0" name="LG localhost/CPU" stddev="4.56" truncatedMean="4.69" type="counter"/>
+               <statistic-item avg="14.4" error_rate="0" errors="0" hits="0" max="18" median="13" min="12" name="LG localhost/Memory" stddev="2.18" truncatedMean="14.5" type="counter"/>
+               <statistic-item avg="0.001" error_rate="0" errors="0" hits="0" max="0.004" median="0" min="0" name="LG localhost/Throughput" stddev="0.001" truncatedMean="0.001" type="counter"/>
+               <statistic-item avg="8.38" error_rate="0" errors="0" hits="0" max="11" median="9" min="0" name="LG localhost/User Load" stddev="2.89" truncatedMean="8.86" type="counter"/>
+               <statistic-item avg="172.7" error_rate="0" errors="0" hits="0" max="2,210" median="0" min="0" name="LG localhost/Network/Segments sent/sec." stddev="433.8" truncatedMean="119.6" type="counter"/>
+               <statistic-item avg="0" error_rate="0" errors="0" hits="0" max="0" median="0" min="0" name="LG localhost/Network/Segments retransmitted/sec." stddev="0" truncatedMean="0" type="counter"/>
+               <statistic-item avg="0" error_rate="0" errors="0" hits="0" max="0" median=" - " min="0" name="LG localhost/Network/net4 (Microsoft ISATAP Adapter)/Megabits received/sec." stddev=" - " truncatedMean=" - " type="counter"/>
+               <statistic-item avg="0" error_rate="0" errors="0" hits="0" max="0" median=" - " min="0" name="LG localhost/Network/net4 (Microsoft ISATAP Adapter)/Megabits sent/sec." stddev=" - " truncatedMean=" - " type="counter"/>
+               <statistic-item avg="0.043" error_rate="0" errors="0" hits="0" max="1.13" median="0.003" min="0" name="LG localhost/Network/eth3 (Intel(R) 82579LM Gigabit Network Connection)/Megabits received/sec." stddev="0.164" truncatedMean="0.022" type="counter"/>
+               <statistic-item avg="0.025" error_rate="0" errors="0" hits="0" max="0.744" median="0" min="0" name="LG localhost/Network/eth3 (Intel(R) 82579LM Gigabit Network Connection)/Megabits sent/sec." stddev="0.093" truncatedMean="0.022" type="counter"/>
+               <statistic-item avg="8.38" error_rate="0" errors="0" hits="0" max="11" median="9" min="0" name="LG localhost/Population1/User Load" stddev="2.89" truncatedMean="8.86" type="counter"/>
+               <statistic-item avg="8.38" error_rate="0" errors="0" hits="0" max="11" median="9" min="0" name="LG localhost/Population1/VirtualUser/User Load" stddev="2.89" truncatedMean="8.86" type="counter"/>
+            </counters>
+            <indicators/>
+            <alerts/>
+         </monitor>
+      </monitored-host>
+   </monitors>
+   <graphs>
+      <graph image="images/pages_avg.png" kind="predefined" name="pages.average" title="Average page response time">
+         <statistic-item avg="0" max="0" median="0" min="0" name="pages.average" stddev="0" truncatedMean="0" type="graphstatistic"/>
+         <note>Displays the average response time, in seconds, of all pages during the test.</note>
+      </graph>
+      <graph image="images/requests_avg.png" kind="predefined" name="requests.average" title="Average request response time">
+         <statistic-item avg="58.214" max="75.61" median="63.98" min="16.402" name="requests.average" stddev="18.232" truncatedMean="56.282" type="graphstatistic"/>
+         <note>Displays the average response time, in seconds, of all requests during the test.</note>
+      </graph>
+      <graph image="images/containers_avg.png" kind="predefined" name="containers.average" title="Average response time (containers)">
+         <statistic-item avg="0" max="0" median="0" min="0" name="containers.average" stddev="0" truncatedMean="0" type="graphstatistic"/>
+         <note>Displays the average response time, in seconds, of all containers during the test.</note>
+      </graph>
+      <graph image="images/hits.png" kind="predefined" name="hits" title="Hits per second">
+         <statistic-item avg="0.1" max="1" median="0" min="0" name="hits" stddev="0.3" truncatedMean="0.1" type="graphstatistic"/>
+         <note>Displays the number of hits on the server by Virtual Users.</note>
+      </graph>
+      <graph image="images/errors.png" kind="predefined" name="errors" title="Errors">
+         <statistic-item avg="0.1" max="1" median="0" min="0" name="errors" stddev="0.3" truncatedMean="0.1" type="graphstatistic"/>
+         <note>Displays the number of errors per sampling interval.</note>
+      </graph>
+      <graph image="images/throughput.png" kind="predefined" name="throughput" title="Throughput">
+         <statistic-item avg="0" max="0" median="0" min="0" name="throughput" stddev="0" truncatedMean="0" type="graphstatistic"/>
+         <note>Displays the number of megabits of data per second returned by the server.</note>
+      </graph>
+      <graph image="images/pages_avg_user.png" kind="predefined" name="pages.average.vu" title="Response time against load">
+         <statistic-item avg="0" max="0" median="0" min="0" name="pages.average.vu" stddev="0" truncatedMean="0" type="graphstatistic"/>
+         <note>Displays the average response time, in seconds, of all pages according to the number of simultaneous Virtual Users.</note>
+      </graph>
+      <graph image="images/percentile.png" kind="predefined" name="percentile" title="Distribution of Page Response Times">
+         <note>Displays the percentage of pages that were performed within a given time range. This graph helps determine the percentage of pages that meet a performance objective. For example, it may show that 90% of the pages have a response time under n seconds.</note>
+      </graph>
+      <graph image="images/alerts.png" kind="predefined" name="alerts" title="Top 10 First Alerts">
+         <note>Displays the list of alerts on the monitored counters during the test.</note>
+      </graph>
+   </graphs>
+</report>

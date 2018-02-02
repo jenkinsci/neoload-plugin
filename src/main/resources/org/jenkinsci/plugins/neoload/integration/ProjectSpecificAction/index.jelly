@@ -1,0 +1,16 @@
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define"
+         xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
+
+	<l:layout>
+		<j:if test="${it.project != null}">
+			<st:include it="${it.project}" page="sidepanel.jelly"/>
+		</j:if>
+		<l:main-panel>
+			<script src="${resURL}/plugin/neoload-jenkins-plugin/js/refresh.js"/>
+			<p>Upgrade in progress...</p>
+			${it.buildGraphs()}
+			<script>setTimeout(checklock,2000);</script>
+			<img src="${resURL}/images/spinner.gif"/>
+		</l:main-panel>
+	</l:layout>
+</j:jelly>

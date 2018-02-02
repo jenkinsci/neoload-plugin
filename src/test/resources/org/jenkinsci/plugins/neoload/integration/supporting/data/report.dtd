@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!ELEMENT report ( summary, shared-elements+, virtual-users+, monitors, graphs) >
+
+<!ELEMENT summary ( project, test, statistics, hotspots, requests-errors-summary, logical-actions-errors-summary,alerts-summary,all-summary) >
+
+<!ELEMENT project (scenario, settings) >
+<!ATTLIST project name CDATA #REQUIRED>
+
+<!ELEMENT scenario (description? , loadpolicies, loadgenerators, dataFilters, populations, virtual-user-profiles, rdv-collection) >
+<!ATTLIST scenario name CDATA #REQUIRED>
+
+<!ELEMENT settings (truncatedMean) >
+
+<!ELEMENT truncatedMean EMPTY>	
+<!ATTLIST truncatedMean
+	centeredInterval CDATA #REQUIRED
+	percentage CDATA #REQUIRED>
+
+<!ELEMENT loadpolicies (constantpolicy | rampuppolicy | peakpolicy)* >
+
+<!ELEMENT constantpolicy EMPTY>
+<!ATTLIST constantpolicy 
+	population CDATA #REQUIRED
+	iterations CDATA #IMPLIED
+	count CDATA #REQUIRED>
+
+<!ELEMENT rampuppolicy EMPTY>
+<!ATTLIST rampuppolicy 
+	population CDATA #REQUIRED
+	from CDATA #REQUIRED
+	add CDATA #REQUIRED
+	interval CDATA #REQUIRED
+	unit CDATA #REQUIRED
+	iterations CDATA #IMPLIED
+	max CDATA #IMPLIED>
+	
+<!ELEMENT peakpolicy EMPTY>
+<!ATTLIST peakpolicy 
+	population CDATA #REQUIRED
+	mincount CDATA #REQUIRED
+	minduration CDATA #REQUIRED
+	minunit CDATA #REQUIRED
+	maxcount CDATA #REQUIRED
+	maxduration CDATA #REQUIRED
+	maxunit CDATA #REQUIRED
+	iterations CDATA #IMPLIED
+	startwith (min|max) #REQUIRED>
+	
+<!ELEMENT description (#PCDATA)>
+
+<!ELEMENT dataFilters (dataFilter*)>
+
+<!ELEMENT loadgenerators (loadgenerator*)>
+<!ELEMENT loadgenerator EMPTY>
+<!ATTLIST loadgenerator name CDATA #REQUIRED>
+
+<!ELEMENT populations (population*)>
+<!ELEMENT population (populationSplits+)>
+<!ATTLIST population 
+	name CDATA #REQUIRED>
+<!ELEMENT populationSplits (populationSplit*)>
+<!ELEMENT populationSplit EMPTY>
+<!ATTLIST populationSplit 
+	name CDATA #REQUIRED
+	factor CDATA #REQUIRED
+	cache CDATA #REQUIRED
+	wanEmulationProfileName CDATA #REQUIRED
+	signalStrength CDATA #IMPLIED
+	uploadBandwidth CDATA #REQUIRED
+	downloadBandwidth CDATA #REQUIRED
+	browserProfileName CDATA #REQUIRED
+	cookies CDATA #REQUIRED
+	connectionsPerServer CDATA #REQUIRED
+	userAgent CDATA #IMPLIED>
+	
+<!ELEMENT virtual-user-profiles (virtual-user-profile*)>
+<!ELEMENT virtual-user-profile (thinktime-policy+)>
+<!ATTLIST virtual-user-profile 
+	name CDATA #REQUIRED
+	stopOnAssertion CDATA #REQUIRED
+	stopOnError CDATA #REQUIRED>
+<!ELEMENT thinktime-policy EMPTY>	
+<!ATTLIST thinktime-policy
+	thinkTimeMode CDATA #REQUIRED
+	thinktimeFactorValue CDATA #REQUIRED
+	thinktimePolicy CDATA #REQUIRED
+	thinktimeRangeValue CDATA #REQUIRED
+	thinktimeValue CDATA #REQUIRED>
+	
+<!ELEMENT rdv-collection (rendez-vous*)>
+<!ELEMENT rendez-vous EMPTY>
+<!ATTLIST rendez-vous 
+	isEnabled CDATA #REQUIRED
+	kind CDATA #REQUIRED
+	name CDATA #REQUIRED
+	value CDATA #REQUIRED
+	timeout CDATA #REQUIRED>
+	
+<!ELEMENT test EMPTY>
+<!ATTLIST test 
+	start CDATA #REQUIRED
+	end CDATA #REQUIRED
+	duration CDATA #REQUIRED>
+
+<!ELEMENT statistics (statistic*)>
+<!ATTLIST statistics image CDATA #REQUIRED>
+
+<!ELEMENT statistic EMPTY>
+<!ATTLIST statistic 
+	name CDATA #REQUIRED
+	value CDATA #REQUIRED
+	unit CDATA #IMPLIED>
+	
+<!ELEMENT hotspots (toperrors?,topalerts?,firstalerts?,topavg,topmax,pushtopavg,pushtopmax) >
+
+<!ELEMENT toperrors (top*)>
+<!ELEMENT topavg (top*)>
+<!ELEMENT topmax (top*)>
+<!ELEMENT pushtopavg (top*)>
+<!ELEMENT pushtopmax (top*)>
+<!ELEMENT topalerts (top*)>
+<!ELEMENT firstalerts (first*)>
+<!ELEMENT first EMPTY>
+<!ATTLIST first 
+	name CDATA #REQUIRED
+	date CDATA #IMPLIED
+	severity CDATA #IMPLIED>
+
+<!ELEMENT top EMPTY>
+<!ATTLIST top 
+	name CDATA #REQUIRED
+	duration CDATA #IMPLIED
+	severity CDATA #IMPLIED
+	count CDATA #IMPLIED>
+	
+<!ELEMENT errors-summary (error-summary*) >
+<!ELEMENT error-summary (description?)>
+<!ATTLIST error-summary 
+	name  CDATA #REQUIRED
+	description CDATA #IMPLIED
+	count CDATA #REQUIRED>
+	
+<!ELEMENT requests-errors-summary (error-summary*)>
+<!ELEMENT logical-actions-errors-summary (error-summary*)>
+<!ELEMENT alerts-summary (alert-summary*)>
+<!ELEMENT all-summary (statistic-item*)>
+<!ELEMENT alert-summary EMPTY>
+<!ATTLIST alert-summary
+	name CDATA #REQUIRED 
+	counter CDATA #REQUIRED
+	criticalCounter CDATA #REQUIRED
+	warningCounter CDATA #REQUIRED>
+
+<!ELEMENT shared-elements (statistic-item*)>
+	
+<!ELEMENT virtual-users (statistic-item*) >
+<!ELEMENT statistic-item (statistic-item*)>
+<!ATTLIST statistic-item 
+	name CDATA #IMPLIED
+	id CDATA #IMPLIED
+	type CDATA #IMPLIED
+	min CDATA #REQUIRED
+	avg CDATA #REQUIRED
+	max CDATA #REQUIRED
+	hits CDATA #IMPLIED
+	errors CDATA #IMPLIED
+	median CDATA #IMPLIED
+	truncatedMean CDATA #REQUIRED
+	stddev CDATA #REQUIRED>
+
+	
+<!ELEMENT monitors (monitored-host*) >
+<!ELEMENT monitored-host (monitor*) >
+<!ATTLIST monitored-host 
+	name CDATA #REQUIRED>
+<!ELEMENT monitor (counters+,indicators+,alerts+)>
+<!ATTLIST monitor 
+	name CDATA #REQUIRED>
+	
+<!ELEMENT counters (statistic-item*) >	
+<!ELEMENT indicators (indicator*) >	
+
+<!ELEMENT indicator (value*)>
+<!ATTLIST indicator 
+	display CDATA #IMPLIED>
+<!ELEMENT value EMPTY>	
+
+<!ELEMENT alerts (alert*)>
+<!ELEMENT alert EMPTY>
+<!ATTLIST alert 
+	name CDATA #REQUIRED
+	duration CDATA #REQUIRED
+	severity CDATA #REQUIRED
+	time CDATA #REQUIRED
+	weight CDATA #IMPLIED
+	comment CDATA #IMPLIED>
+
+<!ELEMENT graphs (graph*)>
+<!ELEMENT graph (statistic-item?,note?)>
+<!ATTLIST graph 
+	kind (predefined|custom) #REQUIRED
+	title CDATA #REQUIRED
+	shortname CDATA #IMPLIED
+	name CDATA #IMPLIED
+	image CDATA #REQUIRED>
+<!ELEMENT graphstatistic EMPTY>
+<!ATTLIST graphstatistic 
+	min CDATA #REQUIRED
+	avg CDATA #REQUIRED
+	max CDATA #REQUIRED
+	median CDATA #IMPLIED
+	truncatedMean CDATA #REQUIRED
+	stddev CDATA #REQUIRED>
+<!ELEMENT note (#PCDATA)>
