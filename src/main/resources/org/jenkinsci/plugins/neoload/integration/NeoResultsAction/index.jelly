@@ -39,6 +39,9 @@
 		<j:if test="${it.build != null}">
 			<st:include it="${it.build}" page="sidepanel.jelly"/>
 		</j:if>
+		<l:side-panel>
+                    <st:include page="sidepanel.jelly" it="${it.runTr}" optional="true" />
+        </l:side-panel>
 		<l:main-panel>
 			<iframe frameborder="0" id="neoReportIFrame"
 			        height="100%"

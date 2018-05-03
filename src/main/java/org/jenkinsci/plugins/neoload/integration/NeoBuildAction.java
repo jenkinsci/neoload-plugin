@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, Neotys
+ * Copyright (c) 2018, Neotys
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -26,56 +26,35 @@
  */
 package org.jenkinsci.plugins.neoload.integration;
 
-import java.io.ByteArrayOutputStream;
-import java.io.Serializable;
+import java.io.*;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
+import java.security.GeneralSecurityException;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.neotys.nls.security.tools.PasswordEncoder;
+import hudson.Extension;
+import hudson.FilePath;
+import hudson.Launcher;
 import hudson.model.*;
+
+import hudson.tasks.*;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.exec.CommandLine;
-import org.apache.commons.exec.DefaultExecuteResultHandler;
-import org.apache.commons.exec.DefaultExecutor;
-import org.apache.commons.exec.PumpStreamHandler;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.SystemUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
-import org.jenkinsci.plugins.neoload.integration.supporting.CollabServerInfo;
-import org.jenkinsci.plugins.neoload.integration.supporting.GraphOptionsInfo;
-import org.jenkinsci.plugins.neoload.integration.supporting.NTSServerInfo;
-import org.jenkinsci.plugins.neoload.integration.supporting.NeoLoadPluginOptions;
-import org.jenkinsci.plugins.neoload.integration.supporting.PluginUtils;
-import org.jenkinsci.plugins.neoload.integration.supporting.ServerInfo;
-import org.jenkinsci.remoting.RoleChecker;
+import org.jenkinsci.plugins.neoload.integration.supporting.*;
 import org.kohsuke.stapler.AncestorInPath;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
 
 import com.google.common.base.Joiner;
-import com.google.common.base.Strings;
 
-import hudson.Extension;
-import hudson.FilePath;
-import hudson.Launcher;
-import hudson.remoting.Callable;
-import hudson.tasks.BatchFile;
-import hudson.tasks.BuildStepDescriptor;
-import hudson.tasks.BuildStepMonitor;
-import hudson.tasks.Builder;
-import hudson.tasks.CommandInterpreter;
-import hudson.tasks.Shell;
 import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
 import hudson.util.ListBoxModel.Option;
@@ -88,7 +67,7 @@ import net.sf.json.JSONObject;
  * <p>
  * This class also holds the settings chosen by the user for the plugin.
  */
-public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginOptions {
+public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginOptions{
 
 	/**
 	 * Generated.
@@ -150,6 +129,12 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 	private static final Logger LOGGER = Logger.getLogger(NeoBuildAction.class.getName());
 
 	/**
+	 * replace the implementation of NeoLoadPluginOptions for pipeline
+	 * the implementation has been kept for compatibility purpose with the previous plugin
+	 */
+	private NeoLoadPluginOptions npo;
+
+	/**
 	 * This method and the annotation @DataBoundConstructor are required for jenkins 1.393 even if no params are passed in.
 	 */
 	@DataBoundConstructor
@@ -188,6 +173,9 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 		this.publishTestResults = publishTestResults;
 		this.licenseServer = updateUsingUniqueID(licenseServer);
 
+		this.npo = new SimpleBuildOption(showTrendAverageResponse, showTrendErrorRate,graphOptionsInfo,maxTrends, constructXMLReportArtifactPath(), constructHTMLReportArtifactPath());
+
+		// Because of backward compatibility we keep the following lines within the constructor
 		this.showTrendAverageResponse = showTrendAverageResponse;
 		this.showTrendErrorRate = showTrendErrorRate;
 
@@ -241,7 +229,12 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 	@Override
 	public boolean perform(final AbstractBuild<?, ?> build, final Launcher launcher, final BuildListener listener) throws InterruptedException {
 		final StringBuilder sb = prepareCommandLine(launcher);
-		build.addAction(new NeoResultsAction(build, getXMLReportArtifactPath(), getHTMLReportArtifactPath()));
+		if (npo == null){
+			build.addAction(new NeoResultsAction(build, this));
+		}else{
+			build.addAction(new NeoResultsAction(build,  npo));
+		}
+
 		return runTheCommand(sb.toString(), build, launcher, listener);
 	}
 
@@ -321,136 +314,22 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 			return map;
 		}
 
-		// this executes on the slave, not on the master.
-		final CallableForPasswordScrambler callableForPasswordScrambler = new CallableForPasswordScrambler(map, executable, isOsWindows(launcher));
-		Map<String, String> newMap;
+		Map<String,String> resultMap = new HashMap<>();
 		try {
-			newMap = launcher.getChannel().call(callableForPasswordScrambler);
-			map.putAll(newMap);
-		} catch (final Exception e) {
-			String errorMessage = "Issue executing password scrambler. ";
-			if (e.getMessage() != null) {
-				errorMessage += e.getMessage();
-			} else {
-				errorMessage += e.toString();
+			for (Map.Entry<String, String> entry : map.entrySet()) {
+				resultMap.put(entry.getKey(), PasswordEncoder.encode(entry.getKey()));
 			}
-			LOGGER.severe(errorMessage);
-			throw new RuntimeException(errorMessage);
+		} catch (UnsupportedEncodingException | GeneralSecurityException e) {
+			LOGGER.log(Level.SEVERE,"Exception during password encryption",e);
+			throw new RuntimeException(e);
 		}
 
-		return map;
+		return resultMap;
 	}
 
 	/**
 	 * Runs the password scrambler on the slave machine.
 	 */
-	static class CallableForPasswordScrambler implements Callable<Map<String, String>, Exception>, Serializable {
-
-		/**
-		 * Generated.
-		 */
-		private static final long serialVersionUID = 4462660760602753013L;
-
-		final Map<String, String> map;
-		final String executable;
-		final boolean osWindows;
-
-		public CallableForPasswordScrambler(final HashMap<String, String> map, final String executable, boolean osWindows) {
-			this.map = map;
-			this.executable = executable;
-			this.osWindows = osWindows;
-		}
-
-		@Override
-		public Map<String, String> call() throws Exception {
-			LOGGER.finest("Start password scrambler execution...");
-			// look for the password scrambler. it should be next to the executable or one directory higher.
-			final Path possibleFile = findThePasswordScrambler();
-			if (Files.exists(possibleFile)) {
-				LOGGER.finest("Path is: " + possibleFile.toString());
-			} else {
-				final String errorMessage = "Password scrambler not found : \"" + possibleFile + "\"";
-				LOGGER.severe(errorMessage);
-				throw new RuntimeException(errorMessage);
-			}
-
-			for (final String plainPassword : map.keySet()) {
-				// prepare the line to execute.
-				final String line = "\"" + possibleFile.toString() + "\" -a \"" + plainPassword + "\"";
-
-				// execute it and get the result.
-				final DefaultExecuteResultHandler resultHandler = new DefaultExecuteResultHandler();
-				final CommandLine cmdLine = CommandLine.parse(line);
-				final DefaultExecutor executor = new DefaultExecutor();
-				final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-				final PumpStreamHandler streamHandler = new PumpStreamHandler(outputStream);
-				executor.setStreamHandler(streamHandler);
-				executor.setWorkingDirectory(possibleFile.getParent().toFile());
-				executor.execute(cmdLine, resultHandler);
-				resultHandler.waitFor(60000);
-				final String result = outputStream.toString();
-				if (resultHandler.getException() != null) {
-					LOGGER.severe("Error while executing password-scrambler: " + resultHandler.getException().getMessage());
-					throw new RuntimeException(resultHandler.getException());
-				}
-				if (Strings.isNullOrEmpty(result)) {
-					final String errorMessage = "Error while executing password-scrambler: no result.";
-					LOGGER.severe(errorMessage);
-					throw new RuntimeException(errorMessage);
-				}
-				// parse the result.
-				// example: AES128 ciphering result of nluser: 6RGXo/iJAai0tGuxtAih2Q== \n Copyright (c) 2016 Neotys, PasswordScrambler v-
-				final String firstPart = result.substring(result.indexOf(plainPassword + ":"));
-				final String secondPart = firstPart.substring(firstPart.indexOf(":") + 2);
-				final String[] split = secondPart.split("\r|\n");
-				final String hashedPassword = split[0];
-				LOGGER.finest("hashedPassword : " + hashedPassword);
-
-				map.put(plainPassword, hashedPassword);
-			}
-			LOGGER.finest(map.size() + " passwords has been hashed");
-			return map;
-		}
-
-		private Path findThePasswordScrambler() {
-			Path parent = Paths.get(executable).getParent();
-			Path possibleFile = null;
-			for (int i = 0; i < 2; i++) {
-				if (parent == null) {
-					break;
-				}
-
-				if (this.osWindows) {
-					possibleFile = parent.resolve("password-scrambler.bat");
-					if (Files.exists(possibleFile)) {
-						break;
-					} else {
-						possibleFile = parent.resolve("password-scrambler.exe");
-					}
-				} else {
-					possibleFile = parent.resolve("password-scrambler");
-					if (Files.exists(possibleFile)) {
-						break;
-					} else {
-						possibleFile = parent.resolve("password-scrambler.sh");
-					}
-				}
-
-				if (Files.exists(possibleFile)) {
-					LOGGER.log(Level.FINEST, "Found password-scrambler legend at: " + possibleFile);
-					break;
-				}
-				parent = parent.getParent();
-			}
-			return possibleFile;
-		}
-
-		@Override
-		public void checkRoles(final RoleChecker roleChecker) throws SecurityException {
-
-		}
-	}
-
 	private void setupReports(final List<String> commands, final Launcher launcher) {
 		final String workspaceVariable = isOsWindows(launcher) ? "%WORKSPACE%" : "${WORKSPACE}";
 		if (isRepportCustomPath()) {
@@ -581,7 +460,7 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 		return commandInterpreter.perform(build, launcher, listener);
 	}
 
-	private static boolean isOsWindows(final Launcher launcher) {
+	public static boolean isOsWindows(final Launcher launcher) {
 		return !launcher.isUnix();
 	}
 
@@ -610,13 +489,6 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 	public boolean isRepportCustomPath() {
 		return isReportType("reportTypeCustom");
 	}
-	/*public String isReportType(final String type) {
-		if (StringUtils.trimToNull(reportType) == null) {
-			return "reportTypeDefault".equalsIgnoreCase(type) == true ? "true" : "false";
-		}
-
-		return reportType.equalsIgnoreCase(type) ? "true" : "false";
-	}*/
 
 	public String isLicenseType(final String type) {
 		if (StringUtils.trimToNull(licenseType) == null) {
@@ -626,18 +498,32 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 		return licenseType.equalsIgnoreCase(type) ? "true" : "false";
 	}
 
-	public String getXMLReportArtifactPath() {
-		if (isRepportCustomPath()) {
-			return PluginUtils.removeWorkspace(xmlReport);
+	public String getXMLReportArtifactPath(){
+		if (npo != null){
+			return npo.getXMLReportArtifactPath();
 		}
-		return "neoload-report/report.xml";
+		return constructXMLReportArtifactPath();
 	}
 
-	public String getHTMLReportArtifactPath() {
+	public String constructXMLReportArtifactPath() {
 		if (isRepportCustomPath()) {
-			return PluginUtils.removeWorkspace(htmlReport);
+			return PluginUtils.removeWorkspaceOrRelativePoint(xmlReport);
 		}
-		return "neoload-report/report.html";
+		return "/neoload-report/report.xml";
+	}
+
+	public String getHTMLReportArtifactPath(){
+		if (npo != null){
+			return npo.getHTMLReportArtifactPath();
+		}
+		return constructHTMLReportArtifactPath();
+	}
+
+	public String constructHTMLReportArtifactPath() {
+		if (isRepportCustomPath()) {
+			return PluginUtils.removeWorkspaceOrRelativePoint(htmlReport);
+		}
+		return "/neoload-report/report.html";
 	}
 
 	@Override
@@ -697,7 +583,7 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 		 * @param preselected
 		 * @return the servers for sharing projects
 		 */
-		private ListBoxModel getLicenseServerOptions(final ServerInfo preselected) {
+		public static ListBoxModel getLicenseServerOptions(final ServerInfo preselected) {
 			final NeoGlobalConfig.DescriptorImpl globalConfigDescriptor =
 					(NeoGlobalConfig.DescriptorImpl) Jenkins.getInstance().getDescriptor(NeoGlobalConfig.class);
 
@@ -780,7 +666,7 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 			return listBoxModel;
 		}
 
-		private String buildNTSDisplayNameString(final NTSServerInfo server, final boolean isSharedProjectDisplay) {
+		public static String buildNTSDisplayNameString(final NTSServerInfo server, final boolean isSharedProjectDisplay) {
 			if (StringUtils.trimToEmpty(server.getLabel()).length() > 0) {
 				return server.getLabel();
 			}
@@ -869,7 +755,7 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 		return new ShellMine().getFileExtension();
 	}
 
-	private class BatchFileMine extends BatchFile {
+	public class BatchFileMine extends BatchFile {
 		public BatchFileMine() {
 			super("command");
 		}
@@ -885,7 +771,7 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 		}
 	}
 
-	private class ShellMine extends Shell {
+	public class ShellMine extends Shell {
 		public ShellMine() {
 			super("command");
 		}
@@ -998,6 +884,9 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 	 * @return the showTrendAverageResponse
 	 */
 	public boolean isShowTrendAverageResponse() {
+		if(npo != null) {
+			return this.npo.isShowTrendAverageResponse();
+		}
 		return showTrendAverageResponse;
 	}
 
@@ -1005,15 +894,44 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 	 * @return the showTrendErrorRate
 	 */
 	public boolean isShowTrendErrorRate() {
-		return showTrendErrorRate;
+		if(npo != null) {
+			return this.npo.isShowTrendErrorRate();
+		}
+		return false;
 	}
 
 	public List<GraphOptionsInfo> getGraphOptionsInfo() {
-		return graphOptionsInfo;
+		if(npo != null) {
+			return this.npo.getGraphOptionsInfo();
+		}
+		return null;
 	}
 
-	@Override
 	public int getMaxTrends() {
-		return maxTrends;
+		if(npo != null) {
+			return this.npo.getMaxTrends();
+		}
+		return 0;
+	}
+
+	public boolean perform(Run<?,?> build, FilePath ws, Launcher launcher, TaskListener listener) throws InterruptedException {
+		final StringBuilder sb = prepareCommandLine(launcher);
+		build.addAction(new NeoResultsAction(build, npo));
+
+		boolean returnedValue = (new NeoloadRunLauncher(sb.toString(), launcher)).perform(build, ws, launcher, listener);
+
+		ArtifactArchiver archiver = new ArtifactArchiver("neoload-report/**");
+		archiver.perform(build, ws,launcher, listener);
+
+		try {
+			NeoPostBuildTask neoPostTask = new NeoPostBuildTask();
+			neoPostTask.setNpo(npo);
+			neoPostTask.perform(build, ws, launcher, listener);
+			build.addAction(new ProjectSpecificAction(build));
+		} catch (IOException e) {
+			LOGGER.log(Level.SEVERE, "error while creating graphs: " + e);
+			e.printStackTrace();
+		}
+		return returnedValue;
 	}
 }

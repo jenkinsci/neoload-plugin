@@ -1,0 +1,12 @@
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define"
+	xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
+        <f:entry field="licenceName" title="NTS Server">
+            <f:select />
+        </f:entry>
+        <f:entry title="Virtual User Count (User Path Count)" field="licenseVUCount" >
+            <f:textbox value="${licenseVUCount}" default="50" placeholder="50 (required)" />
+        </f:entry>
+        <f:entry title="Duration (in hours)" field="licenseDuration" >
+            <f:textbox value="${licenseDuration}" default="2" placeholder="2 (required)" />
+        </f:entry>
+</j:jelly>

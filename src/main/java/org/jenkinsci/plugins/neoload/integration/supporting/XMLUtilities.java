@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, Neotys
+ * Copyright (c) 2018, Neotys
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
