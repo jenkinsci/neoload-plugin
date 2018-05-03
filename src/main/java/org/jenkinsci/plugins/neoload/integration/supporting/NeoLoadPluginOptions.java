@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, Neotys
+ * Copyright (c) 2018, Neotys
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,5 +41,11 @@ public interface NeoLoadPluginOptions {
 
 	/** @return the maximum of points for each trends **/
 	int getMaxTrends();
+
+	/** @return the path of the xml report */
+	String getXMLReportArtifactPath();
+
+	/** @return the path of the html report */
+	String getHTMLReportArtifactPath();
 
 }

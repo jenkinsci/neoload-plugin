@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, Neotys
+ * Copyright (c) 2018, Neotys
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -26,6 +26,7 @@
  */
 package org.jenkinsci.plugins.neoload.integration.supporting;
 
+import hudson.model.*;
 import org.jenkinsci.plugins.neoload.integration.NeoResultsAction;
 import org.kohsuke.stapler.Stapler;
 
@@ -43,14 +44,10 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import hudson.model.Run;
 import hudson.util.RunList;
 import org.apache.commons.beanutils.Converter;
 import org.apache.commons.codec.DecoderException;
@@ -66,9 +63,6 @@ import com.google.common.base.Charsets;
 
 import hudson.EnvVars;
 import hudson.Util;
-import hudson.model.AbstractBuild;
-import hudson.model.AbstractProject;
-import hudson.model.Project;
 import hudson.tasks.Builder;
 import hudson.util.FormValidation;
 import hudson.util.FormValidation.FileValidator;
@@ -78,6 +72,10 @@ import org.w3c.dom.Node;
 
 import javax.xml.xpath.XPathExpressionException;
 
+/**
+ * In this class numerous function has been duplicated with a different prototype to work with pipelines
+ * The older methods had been kept for compatibility purpose with the old plugin
+ */
 public final class PluginUtils implements Serializable, Converter {
 
 	/**
@@ -87,6 +85,7 @@ public final class PluginUtils implements Serializable, Converter {
 
 	static {
 		Stapler.CONVERT_UTILS.register(new PluginUtils(), ServerInfo.class);
+		//Stapler.CONVERT_UTILS.register(new SharedNeoLoadLicenseConverter(), SharedNeoLoadLicense.class);
 		Stapler.CONVERT_UTILS.register(new PluginUtils(), CollabServerInfo.class);
 		Stapler.CONVERT_UTILS.register(new PluginUtils(), NTSServerInfo.class);
 	}
@@ -141,6 +140,25 @@ public final class PluginUtils implements Serializable, Converter {
 		return (NeoLoadPluginOptions) nba;
 	}
 
+	public static NeoLoadPluginOptions getPluginOptions(final Job<?, ?> project) {
+		final Job<?, ?> proj;
+		NeoLoadPluginOptions npo = null;
+		if (!(project instanceof Job)) {
+			return null;
+		}
+		proj = (Job<?, ?>) project;
+		final RunList<?> builders = proj.getBuilds();
+		for (final Run b : builders) {
+			for (Action action : b.getAllActions())
+				if (action instanceof NeoResultsAction) {
+					npo = ((NeoResultsAction) action).getNpo();
+					if (npo != null)
+						return npo;
+				}
+		}
+		return null;
+	}
+
 	/**
 	 * Get the configured instance for the plugin.
 	 *
@@ -157,10 +175,15 @@ public final class PluginUtils implements Serializable, Converter {
 				return (NeoBuildAction) b;
 			}
 		}
-
 		return null;
 	}
+
+
 	public static NeoResultsAction getNeoResultAction(final AbstractBuild<?, ?> build){
+		return build.getAction(NeoResultsAction.class);
+	}
+
+	public static NeoResultsAction getNeoResultAction(final Run<?, ?> build){
 		return build.getAction(NeoResultsAction.class);
 	}
 
@@ -177,9 +200,7 @@ public final class PluginUtils implements Serializable, Converter {
 		return cal;
 	}
 
-
-
-	public ServerInfo convert(@SuppressWarnings("rawtypes") final Class type, final Object value) {
+	public Object convert(@SuppressWarnings("rawtypes") final Class type, final Object value) {
 		// get the main config.
 		final NeoGlobalConfig.DescriptorImpl globalConfigDescriptor =
 				(NeoGlobalConfig.DescriptorImpl) Jenkins.getInstance().getDescriptor(NeoGlobalConfig.class);
@@ -234,8 +255,6 @@ public final class PluginUtils implements Serializable, Converter {
 		}
 	}
 
-
-
 	/**
 	 * removes empty strings from a list.
 	 *
@@ -256,8 +275,6 @@ public final class PluginUtils implements Serializable, Converter {
 
 		return cleanedStrings;
 	}
-
-
 
 	/**
 	 * Check if the given string points to a file on local machine.
@@ -331,6 +348,21 @@ public final class PluginUtils implements Serializable, Converter {
 		return paths;
 	}
 
+	public static List<String> getHTMLReportPaths(final Run<?, ?> build,final String firstPath) {
+		List<String> paths = new ArrayList<>();
+
+		if(firstPath != null){
+			paths.add(firstPath);
+		}
+		final NeoResultsAction neoResultAction = getNeoResultAction(build);
+		final String htmlReportPath = neoResultAction.getNpo().getHTMLReportArtifactPath();
+		if (htmlReportPath != null) {
+			paths.add(htmlReportPath);
+		}
+		paths.add("neoload-report/report.html");
+		return paths;
+	}
+
 	public static List<String> getXMLReportPaths(final AbstractBuild<?, ?> build) {
 		List<String> paths = new ArrayList<>();
 
@@ -348,16 +380,45 @@ public final class PluginUtils implements Serializable, Converter {
 		return paths;
 	}
 
-	public static String removeWorkspace(final String report) {
+	public static List<String> getXMLReportPaths(final Run<?, ?> build) {
+		List<String> paths = new ArrayList<>();
+		NeoLoadPluginOptions npo = null;
+		final NeoResultsAction neoResultAction = getNeoResultAction(build);
+		if(neoResultAction != null && neoResultAction.getStoredXmlReportPath()!=null){
+			paths.add(neoResultAction.getStoredXmlReportPath());
+		}
+		if(neoResultAction != null) {
+		    npo = neoResultAction.getNpo();
+		}
+		String xmlReportPath = null;
+		if (npo != null) {
+			xmlReportPath = npo.getXMLReportArtifactPath();
+		}else{
+			// code to keep compatibility with old plugin
+			if(build instanceof AbstractBuild){
+				final NeoBuildAction neoBuildAction = getNeoBuildAction(((AbstractBuild) build).getProject());
+				xmlReportPath = neoBuildAction.getXMLReportArtifactPath();
+			}
+		}
+
+		if (xmlReportPath != null) {
+			paths.add(xmlReportPath);
+		}
+		paths.add("neoload-report/report.xml");
+		return paths;
+	}
+
+	public static String removeWorkspaceOrRelativePoint(final String report) {
 		if (report == null) {
 			return null;
+		}
+		if (report.startsWith(".") && ! report.startsWith("..")){
+			return report.substring(1);
 		}
 		return report.replaceAll("%WORKSPACE%/|\\$\\{WORKSPACE}/", "");
 	}
 
-
 	public static Run.Artifact findArtifact(final List<String> paths, final AbstractBuild<?, ?> build) {
-
 
 		if (build == null) {
 			// This can happen when the plugin is reinstalled or simply after time passes. When the plugin is
@@ -375,7 +436,26 @@ public final class PluginUtils implements Serializable, Converter {
 				}
 			}
 		}
+		return null;
+	}
 
+	public static Run.Artifact findArtifact(final List<String> paths, final Run<?, ?> build) {
+		if (build == null) {
+			// This can happen when the plugin is reinstalled or simply after time passes. When the plugin is
+			// initialized you need to get the "project" instance, iterate over every build, and reinitialize every
+			// instance of this action (NeoResultsAction) so that the build instance won't be null.
+			LOGGER.log(Level.SEVERE, "NeoResultsAction.findHtmlReportArtifact() build is null.");
+			return null;
+		}
+
+		//To be compatible  with older
+		for (String path : paths) {
+			for (Run.Artifact artifact : build.getArtifacts()) {
+				if (artifact.relativePath.endsWith(path)) {
+					return artifact;
+				}
+			}
+		}
 		return null;
 	}
 
@@ -419,6 +499,10 @@ public final class PluginUtils implements Serializable, Converter {
 		return new File(project.getRootDir(), "neoload-trend");
 	}
 
+	public static File getPicturesFolder(Job<?, ?> project) {
+		return new File(project.getRootDir(), "neoload-trend");
+	}
+
 	public static void buildGraph(final File picturesFolder, final NeoLoadPluginOptions npo, final AbstractProject<?, ?> project) {
 		if(GRAPH_LOCK.tryLock(project)) {
 			try {
@@ -446,6 +530,33 @@ public final class PluginUtils implements Serializable, Converter {
 		}
 	}
 
+	public static void buildGraph(final File picturesFolder, final NeoLoadPluginOptions npo, final Job<?, ?> project) {
+		if(GRAPH_LOCK.tryLock(project)) {
+			try {
+				picturesFolder.mkdirs();
+
+				if (picturesFolder.isDirectory()) {
+					//Clean
+					for (File file : picturesFolder.listFiles()) {
+						file.delete();
+					}
+					NeoloadGraphsStatistics neoloadGraphsStatistics = new NeoloadGraphsStatistics(npo);
+
+					for (final Run<?, ?> build : getLimitedBuilds(npo, project)) {
+						neoloadGraphsStatistics.addBuild(build);
+					}
+					try {
+						neoloadGraphsStatistics.writePng(picturesFolder);
+					} catch (IOException e) {
+						LOGGER.log(Level.WARNING, "Exception occurs during the picture writing ", e);
+					}
+				}
+			} finally {
+				GRAPH_LOCK.unlock(project);
+			}
+		}
+	}
+
 
 	private static List<AbstractBuild> getLimitedBuilds(NeoLoadPluginOptions npo, final AbstractProject project) {
 		final int maxTrends = npo.getMaxTrends();
@@ -457,7 +568,17 @@ public final class PluginUtils implements Serializable, Converter {
 		}
 	}
 
-	public static void buildGraph(AbstractProject project) {
+	private static List<Run> getLimitedBuilds(NeoLoadPluginOptions npo, final Job project) {
+		final int maxTrends = npo.getMaxTrends();
+		final RunList<?> builds = project.getBuilds();
+		if (maxTrends > 0 && builds.size() > maxTrends) {
+			return (List<Run>) builds.subList(0, maxTrends);
+		} else {
+			return (List<Run>) builds;
+		}
+	}
+
+	public static void buildGraph(Job project) {
 		final NeoLoadPluginOptions npo = PluginUtils.getPluginOptions(project);
 		final File picturesFolder = PluginUtils.getPicturesFolder(project);
 		PluginUtils.buildGraph(picturesFolder, npo, project);

@@ -1,0 +1,14 @@
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define"
+	xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
+        <f:entry field="projectServerName" title="Shared Project Server">
+            <f:select />
+        </f:entry>
+        <f:entry field="projectName" title="Project Name">
+            <f:textbox placeholder="(required)" />
+        </f:entry>
+
+        <f:entry field="publishTestResults" title="Publish">
+            <f:checkbox name="publishTestResults" checked="${publishTestResults}"
+                title="Publish the Test Results" />
+        </f:entry>
+</j:jelly>

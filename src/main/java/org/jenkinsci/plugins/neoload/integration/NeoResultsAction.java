@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, Neotys
+ * Copyright (c) 2018, Neotys
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -26,13 +26,14 @@
  */
 package org.jenkinsci.plugins.neoload.integration;
 
-import java.io.IOException;
 import java.util.logging.Logger;
 
+import hudson.model.Action;
+import hudson.model.Run;
+import org.jenkinsci.plugins.neoload.integration.supporting.NeoLoadPluginOptions;
 import org.jenkinsci.plugins.neoload.integration.supporting.PluginUtils;
 
 import hudson.model.AbstractBuild;
-import hudson.model.Action;
 import hudson.model.Run.Artifact;
 
 /**
@@ -73,6 +74,13 @@ public class NeoResultsAction implements Action {
 	private final AbstractBuild<?, ?> build;
 
 	/**
+	 * Or the current Run
+	 */
+	private final Run<?, ?> run;
+	private final NeoLoadPluginOptions npo;
+	private transient Run runTr;
+
+	/**
 	 * True if the report file is found without any issues. This allows us to only show the link when the report file is found.
 	 */
 	private Artifact reportHTMLArtifactCache = null;
@@ -88,17 +96,44 @@ public class NeoResultsAction implements Action {
 	/**
 	 * @param target
 	 */
+	@Deprecated
 	NeoResultsAction(final AbstractBuild<?, ?> target, final String xmlReportPath, final String htmlReportPath) {
 		super();
 		this.build = target;
+		this.run = null;
 		this.storedXmlReportPath = xmlReportPath;
 		this.storedHtmlReportPath = htmlReportPath;
+		this.npo = null;
 	}
 
-
+	/**
+	 * @param target
+	 */
+	NeoResultsAction(final AbstractBuild<?, ?> target, NeoLoadPluginOptions npo) {
+		super();
+		this.build = target;
+		this.run = null;
+		this.storedXmlReportPath = npo.getXMLReportArtifactPath();
+		this.storedHtmlReportPath = npo.getHTMLReportArtifactPath();
+		this.npo = npo;
+	}
 
 	private Artifact findHtmlReportArtifact() {
-		return PluginUtils.findArtifact(PluginUtils.getHTMLReportPaths(build,getStoredHtmlReportPath()),build);
+		if (build != null) {
+			return PluginUtils.findArtifact(PluginUtils.getHTMLReportPaths(build, getStoredHtmlReportPath()), build);
+		}
+		if (run != null){
+			return PluginUtils.findArtifact(PluginUtils.getHTMLReportPaths( run, getStoredHtmlReportPath()), run);
+		}
+		return null;
+	}
+
+	public NeoResultsAction(Run<?, ?> run, final NeoLoadPluginOptions npo) {
+		this.run = run;
+		this.build = null;
+		this.storedXmlReportPath = npo.getXMLReportArtifactPath();
+		this.storedHtmlReportPath = npo.getHTMLReportArtifactPath();
+		this.npo = npo;
 	}
 
 	/**
@@ -106,10 +141,12 @@ public class NeoResultsAction implements Action {
 	 *
 	 * @return
 	 */
-	public AbstractBuild<?, ?> getBuild() {
-		return build;
+	public Run<?, ?> getBuild() {
+		if (build != null){
+			return build;
+		}
+		return run;
 	}
-
 
 	private Artifact getReportArtifact() {
 		if (reportHTMLArtifactCache == null) {
@@ -117,7 +154,6 @@ public class NeoResultsAction implements Action {
 		}
 		return reportHTMLArtifactCache;
 	}
-
 
 	public String getDisplayName() {
 
@@ -138,7 +174,6 @@ public class NeoResultsAction implements Action {
 	}
 
 	public String getUrlName() {
-
 		if (getReportArtifact() == null) {
 			return null;
 		} else {
@@ -159,5 +194,24 @@ public class NeoResultsAction implements Action {
 
 	public String getStoredHtmlReportPath() {
 		return storedHtmlReportPath;
+	}
+
+	//@Override
+	public void onAttached(Run<?, ?> r) {
+		runTr = r;
+	}
+
+	//@Override
+	public void onLoad(Run<?, ?> r) {
+		runTr = r;
+	}
+
+	public Run getRunTr() {
+		return runTr;
+	}
+
+
+	public NeoLoadPluginOptions getNpo() {
+		return npo;
 	}
 }

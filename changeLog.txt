@@ -1,6 +1,11 @@
                        **************************************
                        *  NeoLoad Jenkins Plugin ChangeLog  *
                        **************************************
+Version 2.2.0
+=============
+Add of the pipeline as code interface
+Refactoring of password scrambler to take the newer version of it
+
 Version 2.1.0
 =============
 Change version of plugin base to 1.609.1
