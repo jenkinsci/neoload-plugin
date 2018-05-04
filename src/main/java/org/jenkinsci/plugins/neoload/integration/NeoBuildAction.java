@@ -366,12 +366,16 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 			LOGGER.finest("Start password scrambler execution...");
 			// look for the password scrambler. it should be next to the executable or one directory higher.
 			final Path possibleFile = findThePasswordScrambler();
-			if (Files.exists(possibleFile)) {
+			if (possibleFile!=null && Files.exists(possibleFile)) {
 				LOGGER.finest("Path is: " + possibleFile.toString());
 			} else {
-				final String errorMessage = "Password scrambler not found : \"" + possibleFile + "\"";
-				LOGGER.severe(errorMessage);
-				throw new RuntimeException(errorMessage);
+				final StringBuilder errorMessage = new StringBuilder();
+				errorMessage.append("Password scrambler not found, check NeoLoad executable path. ");
+				if(possibleFile!=null){
+					errorMessage.append("File: \"" + possibleFile + "\".");					
+				}				
+				LOGGER.severe(errorMessage.toString());
+				throw new RuntimeException(errorMessage.toString());
 			}
 
 			for (final String plainPassword : map.keySet()) {
