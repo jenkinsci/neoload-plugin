@@ -228,7 +228,7 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 
 	@Override
 	public boolean perform(final AbstractBuild<?, ?> build, final Launcher launcher, final BuildListener listener) throws InterruptedException {
-		final StringBuilder sb = prepareCommandLine(launcher);
+		final StringBuilder sb = prepareCommandLine(launcher, null);
 		if (npo == null){
 			build.addAction(new NeoResultsAction(build, this));
 		}else{
@@ -242,7 +242,7 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 	 * @param launcher runs code on the slave machine.
 	 * @return
 	 */
-	protected StringBuilder prepareCommandLine(final Launcher launcher) {
+	protected StringBuilder prepareCommandLine(final Launcher launcher, final FilePath currentWorkspace) {
 		// update server settings from the main config.
 		sharedProjectServer = updateUsingUniqueID(sharedProjectServer);
 		licenseServer = updateUsingUniqueID(licenseServer);
@@ -263,7 +263,7 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 
 		setupLicenseInfo(commands, hashedPasswords);
 
-		setupReports(commands, launcher);
+		setupReports(commands, launcher, currentWorkspace);
 
 		if (!displayTheGUI) {
 			commands.add("-noGUI");
@@ -330,7 +330,14 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 	/**
 	 * Runs the password scrambler on the slave machine.
 	 */
-	private void setupReports(final List<String> commands, final Launcher launcher) {
+	private void setupReports(final List<String> commands, final Launcher launcher, final FilePath currentWorkspace) {
+		String workspaceVariable;
+		if (currentWorkspace == null) {
+			workspaceVariable = isOsWindows(launcher) ? "%WORKSPACE%" : "${WORKSPACE}";
+		}else{
+			//Default value for workflows
+			workspaceVariable = currentWorkspace.getRemote();
+		}
 		if (isRepportCustomPath()) {
 			final List<String> reportPaths = PluginUtils.removeAllEmpties(htmlReport, xmlReport, pdfReport);
 			final String reportFileNames = Joiner.on(",").skipNulls().join(reportPaths);
@@ -343,8 +350,8 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 			}
 
 		} else {
-			commands.add("-report \"./neoload-report/report.html,./neoload-report/report.xml\"");
-			commands.add("-SLAJUnitResults \"./neoload-report/junit-sla-results.xml\"");
+			commands.add("-report \"" + workspaceVariable + "/neoload-report/report.html," + workspaceVariable + "/neoload-report/report.xml\"");
+			commands.add("-SLAJUnitResults \"" + workspaceVariable + "/neoload-report/junit-sla-results.xml\"");
 		}
 	}
 
@@ -914,7 +921,7 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 	}
 
 	public boolean perform(Run<?,?> build, FilePath ws, Launcher launcher, TaskListener listener) throws InterruptedException {
-		final StringBuilder sb = prepareCommandLine(launcher);
+		final StringBuilder sb = prepareCommandLine(launcher, ws);
 		build.addAction(new NeoResultsAction(build, npo));
 
 		boolean returnedValue = (new NeoloadRunLauncher(sb.toString(), launcher)).perform(build, ws, launcher, listener);

@@ -57,7 +57,7 @@ public class NeoBuildActionTest extends HudsonTestCase {
 						30); // graph info
 
 		Launcher launcher = Mockito.mock(Launcher.class);
-		final String cl = neoBuildAction.prepareCommandLine(launcher).toString();
+		final String cl = neoBuildAction.prepareCommandLine(launcher,null).toString();
 
 		// "executable" -checkoutProject "SharedProjectName" -NTS "http://url.com:8080" -NTSLogin "loginUser:PASSWORD" 
 		// -NTSCollabPath "collabPath" -publishTestResult -launch "ScenarioName" -testResultName "test result name" 
@@ -100,7 +100,7 @@ public class NeoBuildActionTest extends HudsonTestCase {
 				,30); // graph info
 
 		Launcher launcher = Mockito.mock(Launcher.class);
-		final String cl = neoBuildAction.prepareCommandLine(launcher).toString();
+		final String cl = neoBuildAction.prepareCommandLine(launcher,null).toString();
 
 		assertTrue("The third party server should be used for checking out the project, not NTS.",
 				cl.contains(csi.getUrl()));
@@ -136,7 +136,7 @@ public class NeoBuildActionTest extends HudsonTestCase {
 						30); // graph info
 
 		Launcher launcher = Mockito.mock(Launcher.class);
-		final String cl = neoBuildAction.prepareCommandLine(launcher).toString();
+		final String cl = neoBuildAction.prepareCommandLine(launcher,null).toString();
 
 		assertTrue("we used a LOCAL license type so this shouldn't be there.", !cl.contains(ntssi.getLicenseID()));
 	}
@@ -168,7 +168,7 @@ public class NeoBuildActionTest extends HudsonTestCase {
 						30); // graph info
 
 		Launcher launcher = Mockito.mock(Launcher.class);
-		final String cl = neoBuildAction.prepareCommandLine(launcher).toString();
+		final String cl = neoBuildAction.prepareCommandLine(launcher,null).toString();
 
 		assertTrue("there must be a reference to the local project file", cl.contains(neoBuildAction.getLocalProjectFile()));
 		assertTrue("the shared project name must not be there for a local project",
