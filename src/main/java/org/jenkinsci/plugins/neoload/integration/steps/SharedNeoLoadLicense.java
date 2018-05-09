@@ -86,7 +86,7 @@ public class SharedNeoLoadLicense extends AbstractStepImpl implements Serializab
 		}
 
 		public String getFunctionName() {
-			return "SharedNeoLoadLicense";
+			return "sharedNeoLoadLicense";
 		}
 
 		public String getDisplayName() {

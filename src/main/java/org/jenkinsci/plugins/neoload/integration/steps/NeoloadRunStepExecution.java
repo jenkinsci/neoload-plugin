@@ -72,9 +72,9 @@ public class NeoloadRunStepExecution extends AbstractSynchronousNonBlockingStepE
 				step.setProjectType(NeoloadRunStep.DescriptorImpl.defaultProjectType);
 			}else if (projectServerFilled != null){
 				step.setProjectType(NeoloadRunStep.DescriptorImpl.sharedProjectType);
+			}else{
+				listener.getLogger().println("No project has be defined (shared or local). The execution can not run");
 			}
-		}else{
-			listener.getLogger().println("No project has be defined (shared or local). The execution can not run");
 		}
 
 		NeoBuildAction neoBuildAction = new NeoBuildAction(step.getExecutable(), step.getProjectType(), step.getReportType(),

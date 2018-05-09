@@ -29,13 +29,10 @@ package org.jenkinsci.plugins.neoload.integration.supporting;
 import java.io.Serializable;
 import java.util.Comparator;
 
-import hudson.Extension;
 import org.apache.commons.lang.builder.CompareToBuilder;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
-import org.jenkinsci.plugins.neoload.integration.steps.NeoloadRunStepExecution;
-import org.jenkinsci.plugins.workflow.steps.AbstractStepDescriptorImpl;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 public class NTSServerInfo extends ServerInfo implements Serializable, Comparable<NTSServerInfo>, Comparator<NTSServerInfo> {
@@ -93,20 +90,4 @@ public class NTSServerInfo extends ServerInfo implements Serializable, Comparabl
 		return HashCodeBuilder.reflectionHashCode(this);
 	}
 
-
-	@Extension
-	public static class DescriptorImpl extends AbstractStepDescriptorImpl {
-		public DescriptorImpl() {
-			super(NeoloadRunStepExecution.class);
-		}
-
-		@Override
-		public String getFunctionName() {
-			return "NTSServerInfo";
-		}
-
-		public String getDisplayName() {
-			return "NTSServerInfo";
-		}
-	}
 }

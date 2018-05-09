@@ -77,7 +77,7 @@ public class SharedNeoLoadProject  extends AbstractStepImpl implements Serializa
 		}
 
 		public String getFunctionName() {
-			return "SharedNeoLoadProject";
+			return "sharedNeoLoadProject";
 		}
 
 		public String getDisplayName() {
