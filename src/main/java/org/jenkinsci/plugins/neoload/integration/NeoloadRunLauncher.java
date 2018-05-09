@@ -56,7 +56,7 @@ public class NeoloadRunLauncher extends CommandInterpreter {
 
 	public NeoloadRunLauncher(String command, Launcher launcher) {
 		super(command);
-		isUnix = !isOsWindows(launcher);
+		isUnix = launcher.isUnix();
 	}
 
 	@Override
@@ -135,17 +135,7 @@ public class NeoloadRunLauncher extends CommandInterpreter {
 	 * a leading line feed works around this problem.
 	 */
 	public String[] shellCommandLine(FilePath script) {
-		if(command.startsWith("#!")) {
-			// interpreter override
-			int end = command.indexOf('\n');
-			if(end<0)   end=command.length();
-			List<String> args = new ArrayList<String>();
-			args.addAll(Arrays.asList(Util.tokenize(command.substring(0,end).trim())));
-			args.add(script.getRemote());
-			args.set(0,args.get(0).substring(2));   // trim off "#!"
-			return args.toArray(new String[args.size()]);
-		} else
-			return new String[] { ((Shell.DescriptorImpl)super.getDescriptor()).getShellOrDefault(script.getChannel()), "-xe", script.getRemote()};
+		return new Shell(command).buildCommandLine(script);
 	}
 
 	private static String addLineFeedForNonASCII(String s) {
