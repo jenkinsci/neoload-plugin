@@ -331,7 +331,6 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 	 * Runs the password scrambler on the slave machine.
 	 */
 	private void setupReports(final List<String> commands, final Launcher launcher) {
-		final String workspaceVariable = isOsWindows(launcher) ? "%WORKSPACE%" : "${WORKSPACE}";
 		if (isRepportCustomPath()) {
 			final List<String> reportPaths = PluginUtils.removeAllEmpties(htmlReport, xmlReport, pdfReport);
 			final String reportFileNames = Joiner.on(",").skipNulls().join(reportPaths);
@@ -344,8 +343,8 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 			}
 
 		} else {
-			commands.add("-report \"" + workspaceVariable + "/neoload-report/report.html," + workspaceVariable + "/neoload-report/report.xml\"");
-			commands.add("-SLAJUnitResults \"" + workspaceVariable + "/neoload-report/junit-sla-results.xml\"");
+			commands.add("-report \"./neoload-report/report.html,./neoload-report/report.xml\"");
+			commands.add("-SLAJUnitResults \"./neoload-report/junit-sla-results.xml\"");
 		}
 	}
 
