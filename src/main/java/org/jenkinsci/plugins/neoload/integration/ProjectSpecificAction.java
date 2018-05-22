@@ -28,8 +28,10 @@ package org.jenkinsci.plugins.neoload.integration;
 
 import com.google.common.collect.Lists;
 import hudson.Functions;
+import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
 import hudson.model.ProminentProjectAction;
+import hudson.model.Run;
 import hudson.util.IOUtils;
 import jenkins.model.Jenkins;
 import jenkins.model.JenkinsLocationConfiguration;
@@ -108,11 +110,26 @@ public class ProjectSpecificAction implements ProminentProjectAction {
 	}
 
 
+
+	public void scanBuildReport(){
+		if(npo == null || !npo.isScanAllBuilds()){
+			return;
+		}
+		for(Run run : project.getBuilds()){
+			if(run.getAction(NeoResultsAction.class)==null){
+				if(run instanceof AbstractBuild) {
+					run.addAction(new NeoResultsAction((AbstractBuild<?, ?>) run,null,null));
+				}
+			}
+		}
+	}
+
 	/**
 	 * @return list of trends inside neoload-trend directory
 	 */
 
 	public List<String> getChartsName() {
+		scanBuildReport();
 		if (PluginUtils.GRAPH_LOCK.tryLock(project)) {
 			try {
 				List<String> chartName = new ArrayList<>();

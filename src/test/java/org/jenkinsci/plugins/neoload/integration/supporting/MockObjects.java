@@ -140,6 +140,7 @@ public class MockObjects {
 						"c:/xmlReport.xml",
 						"c:/pdfReport.pdf",
 						"c:/junitReport.xml",
+						false,
 						false, // display the GUI
 						"test result name", "test description",
 						"shared-license-type", // license type - local or shared.
