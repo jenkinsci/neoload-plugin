@@ -101,7 +101,14 @@
 				
 			</f:nested>
 		</f:radioBlock>
+
+		<f:entry  field="scanAllBuilds" >
+			<f:checkbox name="scanAllBuilds" checked="${scanAllBuilds}"
+			            default="false"
+			            title="Scan all build to find NeoLoad reports (for job created with old version of this plugin)" />
+		</f:entry>
 	</f:section>
+
 		
 	
 	<!-- choose a file or remote license - - - - - - - - - - - - - - - - - - - - - - - - - - - -  -->

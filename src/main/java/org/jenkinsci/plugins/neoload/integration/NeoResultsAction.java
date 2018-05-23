@@ -29,6 +29,7 @@ package org.jenkinsci.plugins.neoload.integration;
 import java.io.IOException;
 import java.util.logging.Logger;
 
+import hudson.model.Run;
 import org.jenkinsci.plugins.neoload.integration.supporting.PluginUtils;
 
 import hudson.model.AbstractBuild;
@@ -106,7 +107,7 @@ public class NeoResultsAction implements Action {
 	 *
 	 * @return
 	 */
-	public AbstractBuild<?, ?> getBuild() {
+	public Run<?, ?> getBuild() {
 		return build;
 	}
 

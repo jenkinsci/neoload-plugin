@@ -137,6 +137,8 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 	 */
 	private final boolean showTrendErrorRate;
 
+	private final boolean scanAllBuilds;
+
 	private final List<GraphOptionsInfo> graphOptionsInfo;
 
 	/**
@@ -153,14 +155,29 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 	 * This method and the annotation @DataBoundConstructor are required for jenkins 1.393 even if no params are passed in.
 	 */
 	@DataBoundConstructor
-	public NeoBuildAction(final String executable, final String projectType, final String reportType, final String localProjectFile,
-	                      final String sharedProjectName, final String scenarioName,
-	                      final String htmlReport, final String xmlReport, final String pdfReport, final String junitReport,
-	                      final boolean displayTheGUI, final String testResultName,
-	                      final String testDescription, final String licenseType,
-	                      final String licenseVUCount, final String licenseDuration, final String customCommandLineOptions,
-	                      final boolean publishTestResults, final ServerInfo sharedProjectServer, final NTSServerInfo licenseServer,
-	                      final boolean showTrendAverageResponse, final boolean showTrendErrorRate,
+	public NeoBuildAction(final String executable,
+	                      final String projectType,
+	                      final String reportType,
+	                      final String localProjectFile,
+	                      final String sharedProjectName,
+	                      final String scenarioName,
+	                      final String htmlReport,
+	                      final String xmlReport,
+	                      final String pdfReport,
+	                      final String junitReport,
+	                      final boolean scanAllBuilds,
+	                      final boolean displayTheGUI,
+	                      final String testResultName,
+	                      final String testDescription,
+	                      final String licenseType,
+	                      final String licenseVUCount,
+	                      final String licenseDuration,
+	                      final String customCommandLineOptions,
+	                      final boolean publishTestResults,
+	                      final ServerInfo sharedProjectServer,
+	                      final NTSServerInfo licenseServer,
+	                      final boolean showTrendAverageResponse,
+	                      final boolean showTrendErrorRate,
 	                      final List<GraphOptionsInfo> graphOptionsInfo,
 	                      final int maxTrends) {
 		super(NeoBuildAction.class.getName() + " (command)");
@@ -193,6 +210,7 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 
 		this.graphOptionsInfo = graphOptionsInfo;
 		this.maxTrends = maxTrends;
+		this.scanAllBuilds = scanAllBuilds;
 	}
 
 	/**
@@ -987,6 +1005,10 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 
 	public ServerInfo getSharedProjectServer() {
 		return sharedProjectServer;
+	}
+
+	public boolean isScanAllBuilds() {
+		return scanAllBuilds;
 	}
 
 	public void setSharedProjectServer(final ServerInfo sharedProjectServer) {

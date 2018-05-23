@@ -44,6 +44,7 @@ public class NeoBuildActionTest extends HudsonTestCase {
 						"Shared_Project_Name", "Scenario_Name",
 						"c:/htmlReport.html", "c:/xmlReport.xml", "c:/pdfReport.pdf", "c:/junitReport.xml",
 						false, // display the GUI
+						false, // display the GUI
 						"test result name", "test description",
 						"shared-license-type", // license type - local or shared.
 						"50", // VU count for license
@@ -87,7 +88,9 @@ public class NeoBuildActionTest extends HudsonTestCase {
 						"Shared_Project_Name", "Scenario_Name",
 						"c:/htmlReport.html", "c:/xmlReport.xml", "c:/pdfReport.pdf", "c:/junitReport.xml",
 						false, // display the GUI
+						false, // display the GUI
 						"test result name", "test description",
+
 						"shared-license-type", // license type - local or shared.
 						"50", // VU count for license
 						"1", // license hours
@@ -123,6 +126,7 @@ public class NeoBuildActionTest extends HudsonTestCase {
 						"Shared_Project_Name", "Scenario_Name",
 						"c:/htmlReport.html", "c:/xmlReport.xml", "c:/pdfReport.pdf", "c:/junitReport.xml",
 						false, // display the GUI
+						false, // display the GUI
 						"test result name", "test description",
 						"local", // license type - local or shared.
 						"50", // VU count for license
@@ -154,6 +158,7 @@ public class NeoBuildActionTest extends HudsonTestCase {
 						"c:/local_Project_File.prj",
 						"Shared_Project_Name", "Scenario_Name",
 						"c:/htmlReport.html", "c:/xmlReport.xml", "c:/pdfReport.pdf", "c:/junitReport.xml",
+						false,
 						false, // display the GUI
 						"test result name", "test description",
 						"shared-license-type", // license type - local or shared.
@@ -188,6 +193,7 @@ public class NeoBuildActionTest extends HudsonTestCase {
 						"c:/local_Project_File.prj",
 						"Shared_Project_Name", "Scenario_Name",
 						"c:/htmlReport.html", "c:/xmlReport.xml", "c:/pdfReport.pdf", "c:/junitReport.xml",
+						false,
 						false, // display the GUI
 						"test result name", "test description",
 						"shared-license-type", // license type - local or shared.

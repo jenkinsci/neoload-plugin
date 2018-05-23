@@ -42,4 +42,12 @@ public interface NeoLoadPluginOptions {
 	/** @return the maximum of points for each trends **/
 	int getMaxTrends();
 
+	boolean isScanAllBuilds();
+
+	String getHtmlReport();
+
+	String getXmlReport();
+
+	String getPdfReport();
+
 }
