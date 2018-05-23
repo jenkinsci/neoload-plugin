@@ -40,7 +40,9 @@ import hudson.model.Descriptor;
 import hudson.model.TransientProjectActionFactory;
 import net.sf.json.JSONObject;
 
-/** Without this class the two trend graphs are not displayed. */
+/**
+ * Without this class the two trend graphs are not displayed.
+ */
 @Extension(optional = true)
 public class ProjectSpecificActionFactory extends TransientProjectActionFactory
 implements Describable<ProjectSpecificActionFactory>, Serializable {
@@ -48,41 +50,86 @@ implements Describable<ProjectSpecificActionFactory>, Serializable {
 	/** Generated. */
 	private static final long serialVersionUID = -1955069445418117473L;
 
+	/**
+	 * Create for collection.
+	 *
+	 * @param job the job
+	 * @return the collection
+	 */
 	@Override
 	public Collection<? extends Action> createFor(final AbstractProject job) {
 		return Collections.singleton(new ProjectSpecificAction(job));
 	}
 
+	/**
+	 * Gets descriptor.
+	 *
+	 * @return the descriptor
+	 */
 	public Descriptor<ProjectSpecificActionFactory> getDescriptor() {
 		return DESCRIPTOR;
 	}
 
+	/**
+	 * The constant DESCRIPTOR.
+	 */
 	@Extension(optional = true)
 	public static final DescriptorImplPSA DESCRIPTOR = new DescriptorImplPSA();
 
+	/**
+	 * The type Descriptor impl psa.
+	 */
 	public static final class DescriptorImplPSA extends Descriptor<ProjectSpecificActionFactory> implements Serializable {
 
 		/** Generated. */
 		private static final long serialVersionUID = 7549069766029770042L;
 
+		/**
+		 * Instantiates a new Descriptor impl psa.
+		 */
 		public DescriptorImplPSA() {
 		}
 
+		/**
+		 * Gets display name.
+		 *
+		 * @return the display name
+		 */
 		@Override
 		public String getDisplayName() {
 			return "!" + this.getClass().getSimpleName() + "!";
 		}
 
+		/**
+		 * New instance project specific action factory.
+		 *
+		 * @param req      the req
+		 * @param formData the form data
+		 * @return the project specific action factory
+		 */
 		@Override
 		public ProjectSpecificActionFactory newInstance(final StaplerRequest req, final JSONObject formData) {
 			return new ProjectSpecificActionFactory();
 		}
 
+		/**
+		 * Configure boolean.
+		 *
+		 * @param req      the req
+		 * @param formData the form data
+		 * @return the boolean
+		 * @throws FormException the form exception
+		 */
 		@Override
 		public boolean configure(final StaplerRequest req, final JSONObject formData) throws FormException {
 			return super.configure(req, formData);
 		}
 
+		/**
+		 * Is show graph boolean.
+		 *
+		 * @return the boolean
+		 */
 		public static boolean isShowGraph() {
 			return true;
 		}

@@ -87,7 +87,11 @@ public class NeoResultsAction implements Action {
 	private static final Logger LOGGER = Logger.getLogger(NeoResultsAction.class.getName());
 
 	/**
-	 * @param target
+	 * Instantiates a new Neo results action.
+	 *
+	 * @param target         the target
+	 * @param xmlReportPath  the xml report path
+	 * @param htmlReportPath the html report path
 	 */
 	NeoResultsAction(final AbstractBuild<?, ?> target, final String xmlReportPath, final String htmlReportPath) {
 		super();
@@ -105,7 +109,7 @@ public class NeoResultsAction implements Action {
 	/**
 	 * Allows access to sidepanel.jelly from index.jelly.
 	 *
-	 * @return
+	 * @return build
 	 */
 	public Run<?, ?> getBuild() {
 		return build;
@@ -120,6 +124,11 @@ public class NeoResultsAction implements Action {
 	}
 
 
+	/**
+	 * Gets display name.
+	 *
+	 * @return the display name
+	 */
 	public String getDisplayName() {
 
 		if (getReportArtifact() == null) {
@@ -129,6 +138,11 @@ public class NeoResultsAction implements Action {
 		}
 	}
 
+	/**
+	 * Gets icon file name.
+	 *
+	 * @return the icon file name
+	 */
 	public String getIconFileName() {
 
 		if (getReportArtifact() == null) {
@@ -138,6 +152,11 @@ public class NeoResultsAction implements Action {
 		}
 	}
 
+	/**
+	 * Gets url name.
+	 *
+	 * @return the url name
+	 */
 	public String getUrlName() {
 
 		if (getReportArtifact() == null) {
@@ -147,6 +166,11 @@ public class NeoResultsAction implements Action {
 		}
 	}
 
+	/**
+	 * Gets html report file path.
+	 *
+	 * @return the html report file path
+	 */
 	public String getHtmlReportFilePath() {
 		if (getReportArtifact() == null) {
 			return null;
@@ -154,10 +178,20 @@ public class NeoResultsAction implements Action {
 		return getReportArtifact().getHref();
 	}
 
+	/**
+	 * Gets stored xml report path.
+	 *
+	 * @return the stored xml report path
+	 */
 	public String getStoredXmlReportPath() {
 		return storedXmlReportPath;
 	}
 
+	/**
+	 * Gets stored html report path.
+	 *
+	 * @return the stored html report path
+	 */
 	public String getStoredHtmlReportPath() {
 		return storedHtmlReportPath;
 	}

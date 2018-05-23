@@ -55,6 +55,9 @@ import org.xml.sax.SAXException;
 
 import com.google.gson.Gson;
 
+/**
+ * The type Xml utilities.
+ */
 public final class XMLUtilities implements Serializable {
 
 	/** Generated. */
@@ -74,6 +77,12 @@ public final class XMLUtilities implements Serializable {
 		throw new IllegalAccessError();
 	}
 
+	/**
+	 * To xml escaped string.
+	 *
+	 * @param obj the obj
+	 * @return the string
+	 */
 	public static String toXMLEscaped(final Object obj) {
 		final StringBuilder sb = new StringBuilder();
 		sb.append(obj.getClass().getName()).append(";");
@@ -84,6 +93,12 @@ public final class XMLUtilities implements Serializable {
 		//		XSTREAM.toXML(obj);
 	}
 
+	/**
+	 * From xml escaped object.
+	 *
+	 * @param xml the xml
+	 * @return the object
+	 */
 	public static Object fromXMLEscaped(final String xml) {
 		final String dataArray[] = xml.split(";", 2);
 		final String className = dataArray[0];
@@ -103,12 +118,14 @@ public final class XMLUtilities implements Serializable {
 		//		return XSTREAM.fromXML(xml);
 	}
 
-	/** Create an xml Node using the passed in text. Use getOwnerDocument() to get the document.
-	 * @param xmlText
-	 * @return
-	 * @throws ParserConfigurationException
-	 * @throws SAXException
-	 * @throws IOException
+	/**
+	 * Create an xml Node using the passed in text. Use getOwnerDocument() to get the document.
+	 *
+	 * @param xmlText xml
+	 * @return node node from text
+	 * @throws ParserConfigurationException the parser configuration exception
+	 * @throws SAXException                 the sax exception
+	 * @throws IOException                  the io exception
 	 */
 	public static Node createNodeFromText(final String xmlText) throws ParserConfigurationException, SAXException, IOException {
 		final DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
@@ -121,44 +138,21 @@ public final class XMLUtilities implements Serializable {
 		return doc.getFirstChild();
 	}
 
-	/** Return all nodes matching the passed in expression. Useful legend expressions are listed below:<br/>
-	 * <table class="reference">
-	 * <tbody>
-	 * <tr>
-	 * <th align="left" valign="top" width="25%">Expression</th>
-	 * <th align="left" valign="top">Description</th>
-	 * </tr>
-	 * <tr>
-	 * <td valign="top"><i>nodename</i></td>
-	 * <td valign="top">Selects all nodes with the name "<i>nodename</i>"</td>
-	 * </tr>
-	 * <tr>
-	 * <td valign="top">/</td>
-	 * <td valign="top">Selects from the root node</td>
-	 * </tr>
-	 * <tr>
-	 * <td valign="top">//</td>
-	 *          <td valign="top">Selects nodes in the document from the current node that match the selection no matter where they are </td>
-	 * </tr>
-	 * <tr>
-	 * <td valign="top">.</td>
-	 * <td valign="top">Selects the current node</td>
-	 * </tr>
-	 * <tr>
-	 * <td valign="top">..</td>
-	 * <td valign="top">Selects the parent of the current node</td>
-	 * </tr>
-	 * <tr>
-	 * <td valign="top">@</td>
-	 * <td valign="top">Selects attributes</td>
-	 * </tr>
-	 * </tbody>
-	 * </table>
-	 * 
+	/**
+	 * Return all nodes matching the passed in expression. Useful legend expressions are listed below:
+	 *
+	 * Expression	Description
+	 * nodename	Selects all nodes with the name "nodename"
+	 * /	Selects from the root node
+	 * //	Selects nodes in the document from the current node that match the selection no matter where they are
+	 * .	Selects the current node
+	 * ..	Selects the parent of the current node
+	 * {@literal @}	Selects attributes
+	 *
 	 * @param expression search for this expression
-	 * @param nodes search this and all child nodes
-	 * @return
-	 * @throws XPathExpressionException
+	 * @param searchNode search this and all child nodes
+	 * @return list
+	 * @throws XPathExpressionException the x path expression exception
 	 */
 	public static List<Node> findByExpression(final String expression, final Node searchNode) throws XPathExpressionException {
 		final XPathExpression expr = XPATH.compile(expression);
@@ -167,11 +161,13 @@ public final class XMLUtilities implements Serializable {
 		return toList(nl);
 	}
 
-	/** Return the first node matching the passed in expression or null if none was found.
-	 * @param expression
-	 * @param searchNode
-	 * @return
-	 * @throws XPathExpressionException
+	/**
+	 * Return the first node matching the passed in expression or null if none was found.
+	 *
+	 * @param expression the expression
+	 * @param searchNode the search node
+	 * @return node
+	 * @throws XPathExpressionException the x path expression exception
 	 */
 	public static Node findFirstByExpression(final String expression, final Node searchNode) throws XPathExpressionException {
 		final List<Node> results = findByExpression(expression, searchNode);
@@ -184,7 +180,9 @@ public final class XMLUtilities implements Serializable {
 	}
 
 	/**
-	 * @param attributes
+	 * Gets map.
+	 *
+	 * @param attributes the attributes
 	 * @return a map where the attribute is the key and the value is the value.
 	 */
 	public static Map<String, String> getMap(final NamedNodeMap attributes) {
@@ -199,9 +197,11 @@ public final class XMLUtilities implements Serializable {
 		return map;
 	}
 
-	/** Turns a NodeList into a list.
-	 * @param nodeList
-	 * @return
+	/**
+	 * Turns a NodeList into a list.
+	 *
+	 * @param nodeList the node list
+	 * @return list
 	 */
 	public static List<Node> toList(final NodeList nodeList) {
 		final List<Node> list = new ArrayList<Node>(nodeList.getLength());
@@ -213,12 +213,14 @@ public final class XMLUtilities implements Serializable {
 		return list;
 	}
 
-	/** Read an xml file.
-	 * @param srcFile
+	/**
+	 * Read an xml file.
+	 *
+	 * @param srcFile the src file
 	 * @return a document created from the passed in file legend
-	 * @throws ParserConfigurationException
-	 * @throws SAXException
-	 * @throws IOException
+	 * @throws ParserConfigurationException the parser configuration exception
+	 * @throws SAXException                 the sax exception
+	 * @throws IOException                  the io exception
 	 */
 	public static Document readXmlFile(final String srcFile) throws ParserConfigurationException, SAXException, IOException {
 		final DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();

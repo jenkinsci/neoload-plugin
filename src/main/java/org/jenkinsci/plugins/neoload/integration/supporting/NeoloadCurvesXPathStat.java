@@ -10,6 +10,9 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * The type Neoload curves x path stat.
+ */
 public class NeoloadCurvesXPathStat {
 	private static final Logger LOGGER = Logger.getLogger(ProjectSpecificAction.class.getName());
 
@@ -19,6 +22,13 @@ public class NeoloadCurvesXPathStat {
 	private final Color color;
 	private final Map<Integer, Float> buildToValue = new TreeMap<>();
 
+	/**
+	 * Instantiates a new Neoload curves x path stat.
+	 *
+	 * @param legend the legend
+	 * @param color  the color
+	 * @param xPaths the x paths
+	 */
 	public NeoloadCurvesXPathStat(final String legend, Color color, final String... xPaths) {
 		this.legend = legend;
 		this.xPaths = Arrays.asList(xPaths);
@@ -26,6 +36,12 @@ public class NeoloadCurvesXPathStat {
 	}
 
 
+	/**
+	 * Add build.
+	 *
+	 * @param buildNumber the build number
+	 * @param document    the document
+	 */
 	public void addBuild(final int buildNumber, final Document document) {
 		for (String xPath: xPaths){
 			try {
@@ -41,22 +57,47 @@ public class NeoloadCurvesXPathStat {
 	}
 
 
+	/**
+	 * Gets legend.
+	 *
+	 * @return the legend
+	 */
 	public String getLegend() {
 		return legend;
 	}
 
+	/**
+	 * Gets paths.
+	 *
+	 * @return the paths
+	 */
 	public List<String> getxPaths() {
 		return xPaths;
 	}
 
+	/**
+	 * Gets color.
+	 *
+	 * @return the color
+	 */
 	public Color getColor() {
 		return color;
 	}
 
+	/**
+	 * Gets build to value.
+	 *
+	 * @return the build to value
+	 */
 	public Map<Integer, Float> getBuildToValue() {
 		return buildToValue;
 	}
 
+	/**
+	 * Get builds number int.
+	 *
+	 * @return the int
+	 */
 	public int getBuildsNumber(){
 		return buildToValue.size();
 	}

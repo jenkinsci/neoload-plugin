@@ -78,6 +78,9 @@ import org.w3c.dom.Node;
 
 import javax.xml.xpath.XPathExpressionException;
 
+/**
+ * The type Plugin utils.
+ */
 public final class PluginUtils implements Serializable, Converter {
 
 	/**
@@ -90,6 +93,10 @@ public final class PluginUtils implements Serializable, Converter {
 		Stapler.CONVERT_UTILS.register(new PluginUtils(), CollabServerInfo.class);
 		Stapler.CONVERT_UTILS.register(new PluginUtils(), NTSServerInfo.class);
 	}
+
+	/**
+	 * The constant GRAPH_LOCK.
+	 */
 	public static final LockManager GRAPH_LOCK = new LockManager();
 
 
@@ -109,10 +116,24 @@ public final class PluginUtils implements Serializable, Converter {
 	private PluginUtils() {
 	}
 
+	/**
+	 * Encode string.
+	 *
+	 * @param text the text
+	 * @return the string
+	 * @throws EncoderException the encoder exception
+	 */
 	public static String encode(final String text) throws EncoderException {
 		return BCODEC.encode(text, Charsets.UTF_8.name());
 	}
 
+	/**
+	 * Decode string.
+	 *
+	 * @param text the text
+	 * @return the string
+	 * @throws DecoderException the decoder exception
+	 */
 	public static String decode(final String text) throws DecoderException {
 		return BCODEC.decode(text);
 	}
@@ -120,8 +141,8 @@ public final class PluginUtils implements Serializable, Converter {
 	/**
 	 * Get the configured instance for the plugin.
 	 *
-	 * @param project
-	 * @return
+	 * @param project the project
+	 * @return plugin options
 	 */
 	public static NeoLoadPluginOptions getPluginOptions(final AbstractProject<?, ?> project) {
 		final Project<?, ?> proj;
@@ -144,8 +165,8 @@ public final class PluginUtils implements Serializable, Converter {
 	/**
 	 * Get the configured instance for the plugin.
 	 *
-	 * @param project
-	 * @return
+	 * @param project the project
+	 * @return neo build action
 	 */
 	public static NeoBuildAction getNeoBuildAction(final AbstractProject<?, ?> project) {
 
@@ -160,6 +181,13 @@ public final class PluginUtils implements Serializable, Converter {
 
 		return null;
 	}
+
+	/**
+	 * Get neo result action neo results action.
+	 *
+	 * @param build the build
+	 * @return the neo results action
+	 */
 	public static NeoResultsAction getNeoResultAction(final AbstractBuild<?, ?> build){
 		return build.getAction(NeoResultsAction.class);
 	}
@@ -167,8 +195,8 @@ public final class PluginUtils implements Serializable, Converter {
 	/**
 	 * This could be DateUtils.toCalendar instead but then I would have to deal with maven dependencies again.
 	 *
-	 * @param date
-	 * @return
+	 * @param date the date
+	 * @return calendar
 	 */
 	public static Calendar toCalendar(final Date date) {
 		final Calendar cal = Calendar.getInstance();
@@ -178,7 +206,13 @@ public final class PluginUtils implements Serializable, Converter {
 	}
 
 
-
+	/**
+	 * Convert server info.
+	 *
+	 * @param type  the type
+	 * @param value the value
+	 * @return the server info
+	 */
 	public ServerInfo convert(@SuppressWarnings("rawtypes") final Class type, final Object value) {
 		// get the main config.
 		final NeoGlobalConfig.DescriptorImpl globalConfigDescriptor =
@@ -201,6 +235,13 @@ public final class PluginUtils implements Serializable, Converter {
 		return null;
 	}
 
+	/**
+	 * Validate warn if empty form validation.
+	 *
+	 * @param fieldValue  the field value
+	 * @param displayName the display name
+	 * @return the form validation
+	 */
 	public static FormValidation validateWarnIfEmpty(final String fieldValue, final String displayName) {
 		if (StringUtils.trimToNull(fieldValue) == null) {
 			return FormValidation.warning("Don't forget to include the " + displayName + ".");
@@ -209,7 +250,9 @@ public final class PluginUtils implements Serializable, Converter {
 	}
 
 	/**
-	 * @param formValidation
+	 * Form validation error to warning form validation.
+	 *
+	 * @param formValidation the form validation
 	 * @return the same message but an error becomes a warning. "Ok" remains "Ok"
 	 */
 	public static FormValidation formValidationErrorToWarning(final FormValidation formValidation) {
@@ -219,6 +262,12 @@ public final class PluginUtils implements Serializable, Converter {
 		return formValidation;
 	}
 
+	/**
+	 * Validate url form validation.
+	 *
+	 * @param url the url
+	 * @return the form validation
+	 */
 	public static FormValidation validateURL(final String url) {
 		if (StringUtils.trimToNull(url) == null) {
 			return FormValidation.warning("Don't forget to include the URL.");
@@ -235,12 +284,11 @@ public final class PluginUtils implements Serializable, Converter {
 	}
 
 
-
 	/**
 	 * removes empty strings from a list.
 	 *
-	 * @param originalStrings
-	 * @return
+	 * @param originalStrings the original strings
+	 * @return list
 	 */
 	public static List<String> removeAllEmpties(final String... originalStrings) {
 		final List<String> cleanedStrings = new ArrayList<String>(Arrays.asList(originalStrings));
@@ -258,11 +306,16 @@ public final class PluginUtils implements Serializable, Converter {
 	}
 
 
-
 	/**
 	 * Check if the given string points to a file on local machine.
 	 * If it's not the case, just display an info message, not a warning because
 	 * it might be executed on a remote host.
+	 *
+	 * @param file           the file
+	 * @param extension      the extension
+	 * @param checkExtension the check extension
+	 * @param checkInPath    the check in path
+	 * @return the form validation
 	 */
 	public static FormValidation validateFileExists(String file, final String extension, final boolean checkExtension, final boolean checkInPath) {
 		// If file is null or empty, return an error
@@ -316,6 +369,13 @@ public final class PluginUtils implements Serializable, Converter {
 		return FormValidation.ok("There is no such file on local host. You can ignore this message if the job is executed on a remote slave.");
 	}
 
+	/**
+	 * Gets html report paths.
+	 *
+	 * @param build     the build
+	 * @param firstPath the first path
+	 * @return the html report paths
+	 */
 	public static List<String> getHTMLReportPaths(final AbstractBuild<?, ?> build,final String firstPath) {
 		List<String> paths = new ArrayList<>();
 
@@ -331,6 +391,12 @@ public final class PluginUtils implements Serializable, Converter {
 		return paths;
 	}
 
+	/**
+	 * Gets xml report paths.
+	 *
+	 * @param build the build
+	 * @return the xml report paths
+	 */
 	public static List<String> getXMLReportPaths(final AbstractBuild<?, ?> build) {
 		List<String> paths = new ArrayList<>();
 
@@ -348,6 +414,12 @@ public final class PluginUtils implements Serializable, Converter {
 		return paths;
 	}
 
+	/**
+	 * Remove workspace string.
+	 *
+	 * @param report the report
+	 * @return the string
+	 */
 	public static String removeWorkspace(final String report) {
 		if (report == null) {
 			return null;
@@ -356,6 +428,13 @@ public final class PluginUtils implements Serializable, Converter {
 	}
 
 
+	/**
+	 * Find artifact run . artifact.
+	 *
+	 * @param paths the paths
+	 * @param build the build
+	 * @return the run . artifact
+	 */
 	public static Run.Artifact findArtifact(final List<String> paths, final AbstractBuild<?, ?> build) {
 
 
@@ -379,6 +458,14 @@ public final class PluginUtils implements Serializable, Converter {
 		return null;
 	}
 
+	/**
+	 * Gets custom.
+	 *
+	 * @param path the path
+	 * @param doc  the doc
+	 * @return the custom
+	 * @throws XPathExpressionException the x path expression exception
+	 */
 	public static Float getCustom(final String path, final Document doc) throws XPathExpressionException {
 		if (path == null) return null;
 		final Node node = XMLUtilities.findFirstByExpression(path, doc);
@@ -415,10 +502,23 @@ public final class PluginUtils implements Serializable, Converter {
 		return null;
 	}
 
+	/**
+	 * Gets pictures folder.
+	 *
+	 * @param project the project
+	 * @return the pictures folder
+	 */
 	public static File getPicturesFolder(AbstractProject<?, ?> project) {
 		return new File(project.getRootDir(), "neoload-trend");
 	}
 
+	/**
+	 * Build graph.
+	 *
+	 * @param picturesFolder the pictures folder
+	 * @param npo            the npo
+	 * @param project        the project
+	 */
 	public static void buildGraph(final File picturesFolder, final NeoLoadPluginOptions npo, final AbstractProject<?, ?> project) {
 		if(GRAPH_LOCK.tryLock(project)) {
 			try {
@@ -457,6 +557,11 @@ public final class PluginUtils implements Serializable, Converter {
 		}
 	}
 
+	/**
+	 * Build graph.
+	 *
+	 * @param project the project
+	 */
 	public static void buildGraph(AbstractProject project) {
 		final NeoLoadPluginOptions npo = PluginUtils.getPluginOptions(project);
 		final File picturesFolder = PluginUtils.getPicturesFolder(project);

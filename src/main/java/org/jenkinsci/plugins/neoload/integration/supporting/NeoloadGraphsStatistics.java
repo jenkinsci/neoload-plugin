@@ -13,6 +13,9 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * The type Neoload graphs statistics.
+ */
 public class NeoloadGraphsStatistics {
 	private static final Logger LOGGER = Logger.getLogger(NeoloadGraphsStatistics.class.getName());
 
@@ -38,6 +41,11 @@ public class NeoloadGraphsStatistics {
 	}
 
 
+	/**
+	 * Instantiates a new Neoload graphs statistics.
+	 *
+	 * @param neoLoadPluginOptions the neo load plugin options
+	 */
 	public NeoloadGraphsStatistics(NeoLoadPluginOptions neoLoadPluginOptions) {
 		if (neoLoadPluginOptions.isShowTrendAverageResponse()) {
 
@@ -95,6 +103,12 @@ public class NeoloadGraphsStatistics {
 		return curves;
 	}
 
+	/**
+	 * Add report.
+	 *
+	 * @param xmlFilePath the xml file path
+	 * @param buildNumber the build number
+	 */
 	public void addReport(final File xmlFilePath, final int buildNumber) {
 		if (xmlFilePath != null) {
 			try {
@@ -108,6 +122,11 @@ public class NeoloadGraphsStatistics {
 		}
 	}
 
+	/**
+	 * Add build.
+	 *
+	 * @param build the build
+	 */
 	public void addBuild(final AbstractBuild<?, ?> build) {
 		addReport(getReportArtifactXML(build), build.getNumber());
 	}
@@ -117,6 +136,12 @@ public class NeoloadGraphsStatistics {
 		return artifact == null ? null : artifact.getFile();
 	}
 
+	/**
+	 * Write png.
+	 *
+	 * @param path the path
+	 * @throws IOException the io exception
+	 */
 	public void writePng(File path) throws IOException {
 		int i = 0;
 		for (NeoloadGraphXPathStat neoloadGraphXPathStat : neoloadGraphXPathStats) {
@@ -126,7 +151,8 @@ public class NeoloadGraphsStatistics {
 
 	/**
 	 * get List stat for tests
-	 * @return
+	 *
+	 * @return neoload graph x path stats
 	 */
 	List<NeoloadGraphXPathStat> getNeoloadGraphXPathStats() {
 		return neoloadGraphXPathStats;

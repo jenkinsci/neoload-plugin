@@ -28,26 +28,65 @@ package org.jenkinsci.plugins.neoload.integration.supporting;
 
 import java.util.List;
 
+/**
+ * The interface Neo load plugin options.
+ */
 public interface NeoLoadPluginOptions {
 
-	/** @return the showTrendAverageResponse */
+	/**
+	 * Is show trend average response boolean.
+	 *
+	 * @return the showTrendAverageResponse
+	 */
 	boolean isShowTrendAverageResponse();
 
-	/** @return the showTrendErrorRate */
+	/**
+	 * Is show trend error rate boolean.
+	 *
+	 * @return the showTrendErrorRate
+	 */
 	boolean isShowTrendErrorRate();
-	
-	/** @return the graphOptionsInfo */
+
+	/**
+	 * Gets graph options info.
+	 *
+	 * @return the graphOptionsInfo
+	 */
 	List<GraphOptionsInfo> getGraphOptionsInfo();
 
-	/** @return the maximum of points for each trends **/
+	/**
+	 * Gets max trends.
+	 *
+	 * @return the maximum of points for each trends
+	 */
 	int getMaxTrends();
 
+	/**
+	 * Is scan all builds boolean.
+	 *
+	 * @return the boolean
+	 */
 	boolean isScanAllBuilds();
 
+	/**
+	 * Gets html report.
+	 *
+	 * @return the html report
+	 */
 	String getHtmlReport();
 
+	/**
+	 * Gets xml report.
+	 *
+	 * @return the xml report
+	 */
 	String getXmlReport();
 
+	/**
+	 * Gets pdf report.
+	 *
+	 * @return the pdf report
+	 */
 	String getPdfReport();
 
 }

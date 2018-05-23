@@ -65,17 +65,32 @@ public class ProjectSpecificAction implements ProminentProjectAction {
 	private final File picturesFolder;
 
 
+	/**
+	 * Instantiates a new Project specific action.
+	 *
+	 * @param project the project
+	 */
 	public ProjectSpecificAction(final AbstractProject<?, ?> project) {
 		this.project = project;
 		npo = PluginUtils.getPluginOptions(project);
 		picturesFolder = PluginUtils.getPicturesFolder(project);
 	}
 
+	/**
+	 * Gets icon file name.
+	 *
+	 * @return the icon file name
+	 */
 	@Override
 	public String getIconFileName() {
 		return hasGraph() ? "/plugin/neoload-jenkins-plugin/images/refresh.png" : null;
 	}
 
+	/**
+	 * Gets display name.
+	 *
+	 * @return the display name
+	 */
 	@Override
 	public String getDisplayName() {
 		return hasGraph() ? "Refresh NeoLoad trends" : null;
@@ -103,14 +118,17 @@ public class ProjectSpecificAction implements ProminentProjectAction {
 	/**
 	 * This corresponds to the url of the image files displayed on the job page.
 	 *
-	 * @see hudson.model.Action#getUrlName()
+	 * @return the url name
+	 * @see hudson.model.Action#getUrlName() hudson.model.Action#getUrlName()
 	 */
 	public String getUrlName() {
 		return "neoload";
 	}
 
 
-
+	/**
+	 * Scan build report.
+	 */
 	public void scanBuildReport(){
 		if(npo == null || !npo.isScanAllBuilds()){
 			return;
@@ -125,9 +143,10 @@ public class ProjectSpecificAction implements ProminentProjectAction {
 	}
 
 	/**
+	 * Gets charts name.
+	 *
 	 * @return list of trends inside neoload-trend directory
 	 */
-
 	public List<String> getChartsName() {
 		scanBuildReport();
 		if (PluginUtils.GRAPH_LOCK.tryLock(project)) {
@@ -157,6 +176,9 @@ public class ProjectSpecificAction implements ProminentProjectAction {
 		}
 	}
 
+	/**
+	 * Build graphs.
+	 */
 	public void buildGraphs() {
 		new Thread(new Runnable() {
 			@Override
@@ -169,18 +191,30 @@ public class ProjectSpecificAction implements ProminentProjectAction {
 
 
 	/**
+	 * Gets graph options info.
+	 *
 	 * @return the graphOptionsInfo
 	 */
 	public List<GraphOptionsInfo> getGraphOptionsInfo() {
 		return npo.getGraphOptionsInfo();
 	}
 
-	//Detect if neoload plugin is added
+	/**
+	 * Is neoload build job boolean.
+	 *
+	 * @return the boolean
+	 */
+//Detect if neoload plugin is added
 	public boolean isNeoloadBuildJob() {
 		return npo != null;
 
 	}
 
+	/**
+	 * Gets project.
+	 *
+	 * @return the project
+	 */
 	public AbstractProject<?, ?> getProject() {
 		return project;
 	}
@@ -188,9 +222,9 @@ public class ProjectSpecificAction implements ProminentProjectAction {
 	/**
 	 * Used from javascript to check lock state.
 	 *
-	 * @param req
-	 * @param rsp
-	 * @throws IOException
+	 * @param req the req
+	 * @param rsp the rsp
+	 * @throws IOException the io exception
 	 */
 	public void doChecklock(final StaplerRequest req, final StaplerResponse rsp) throws IOException {
 		final ServletOutputStream outputStream = rsp.getOutputStream();
@@ -203,16 +237,24 @@ public class ProjectSpecificAction implements ProminentProjectAction {
 	/**
 	 * This is the method Hudson uses when a dynamic png is referenced in a jelly file.
 	 *
-	 * @param imageName
-	 * @return
+	 * @param imageName the image name
+	 * @return img
 	 */
 	public Png getImg(String imageName) {
 		return new Png(new File(picturesFolder, imageName));
 	}
 
+	/**
+	 * The type Png.
+	 */
 	public static class Png {
 		private final File file;
 
+		/**
+		 * Instantiates a new Png.
+		 *
+		 * @param file the file
+		 */
 		Png(File file) {
 			this.file = file;
 		}
@@ -220,9 +262,9 @@ public class ProjectSpecificAction implements ProminentProjectAction {
 		/**
 		 * This is the method Hudson uses when a dynamic png is referenced in a jelly file.
 		 *
-		 * @param req
-		 * @param rsp
-		 * @throws IOException
+		 * @param req the req
+		 * @param rsp the rsp
+		 * @throws IOException the io exception
 		 */
 		public void doIndex(final StaplerRequest req, final StaplerResponse rsp) throws IOException {
 			rsp.setContentType("image/png");

@@ -39,6 +39,7 @@ public class NeoLoadReportDoc {
 	private NeoLoadReportDoc(){
 
 	}
+
 	/**
 	 * String for the average type.
 	 */
@@ -65,12 +66,10 @@ public class NeoLoadReportDoc {
 	public static final String PERCENTILE3 = "/@percentile3";
 
 
-
-
-
 	/**
-	 * @param litePath the legend of the request to get the information.<br />
-	 *                 <i>Exemple : "UserPath/Actions/(Transaction or Page)/..."</i>
+	 * Gets x path for custom graph.
+	 *
+	 * @param litePath the legend of the request to get the information. Exemple : "UserPath/Actions/(Transaction or Page)/..."
 	 * @param type     the type of value search.
 	 * @return the xpath.
 	 */
@@ -89,8 +88,9 @@ public class NeoLoadReportDoc {
 	}
 
 	/**
-	 * @param litePath the legend of the request to get the information.<br />
-	 *                 <i>Exemple : "UserPath/Actions/(Transaction or Page)/..."</i>
+	 * Gets x path for custom monitor or lg graph.
+	 *
+	 * @param litePath the legend of the request to get the information. Exemple : "UserPath/Actions/(Transaction or Page)/..."
 	 * @param type     the type of value search.
 	 * @return the xpath.
 	 */

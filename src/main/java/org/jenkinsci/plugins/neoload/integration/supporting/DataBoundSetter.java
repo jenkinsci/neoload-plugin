@@ -7,6 +7,9 @@ import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
+/**
+ * The interface Data bound setter.
+ */
 @Retention(RUNTIME)
 @Target(METHOD)
 @Documented

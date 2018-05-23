@@ -10,6 +10,9 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.time.DateFormatUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
 
+/**
+ * The type Server info.
+ */
 public class ServerInfo implements Serializable {
 
 	/** Log various messages. */
@@ -24,9 +27,21 @@ public class ServerInfo implements Serializable {
 	private String loginPassword;
 	private String label;
 
+	/**
+	 * Instantiates a new Server info.
+	 */
 	public ServerInfo() {
 	}
 
+	/**
+	 * Instantiates a new Server info.
+	 *
+	 * @param uniqueID      the unique id
+	 * @param url           the url
+	 * @param loginUser     the login user
+	 * @param loginPassword the login password
+	 * @param label         the label
+	 */
 	@DataBoundConstructor
 	public ServerInfo(final String uniqueID, final String url, final String loginUser, final String loginPassword, final String label) {
 		this.uniqueID = uniqueID;
@@ -41,18 +56,47 @@ public class ServerInfo implements Serializable {
 		}
 	}
 
+	/**
+	 * Gets url.
+	 *
+	 * @return the url
+	 */
 	public String getUrl() {
 		return url;
 	}
+
+	/**
+	 * Sets url.
+	 *
+	 * @param url the url
+	 */
 	public void setUrl(final String url) {
 		this.url = url;
 	}
+
+	/**
+	 * Gets login user.
+	 *
+	 * @return the login user
+	 */
 	public String getLoginUser() {
 		return loginUser;
 	}
+
+	/**
+	 * Sets login user.
+	 *
+	 * @param loginUser the login user
+	 */
 	public void setLoginUser(final String loginUser) {
 		this.loginUser = loginUser;
 	}
+
+	/**
+	 * Gets login password.
+	 *
+	 * @return the login password
+	 */
 	public String getLoginPassword() {
 		// try to decode the password.
 		try {
@@ -67,18 +111,40 @@ public class ServerInfo implements Serializable {
 
 		return loginPassword;
 	}
+
+	/**
+	 * Sets login password.
+	 *
+	 * @param loginPassword the login password
+	 */
 	public void setLoginPassword(final String loginPassword) {
 		this.loginPassword = loginPassword;
 	}
 
+	/**
+	 * To string string.
+	 *
+	 * @return the string
+	 */
 	@Override
 	public String toString() {
 		return ToStringBuilder.reflectionToString(this);
 	}
 
+	/**
+	 * Sets unique id.
+	 *
+	 * @param uniqueID the unique id
+	 */
 	public void setUniqueID(final String uniqueID) {
 		this.uniqueID = uniqueID;
 	}
+
+	/**
+	 * Gets unique id.
+	 *
+	 * @return the unique id
+	 */
 	public String getUniqueID() {
 		if (StringUtils.trimToEmpty(uniqueID).length() == 0) {
 			synchronized (ServerInfo.class) {
@@ -89,14 +155,29 @@ public class ServerInfo implements Serializable {
 		return uniqueID;
 	}
 
+	/**
+	 * Gets unique id do not generate.
+	 *
+	 * @return the unique id do not generate
+	 */
 	public String getUniqueIDDoNotGenerate() {
 		return uniqueID;
 	}
 
+	/**
+	 * Gets label.
+	 *
+	 * @return the label
+	 */
 	public String getLabel() {
 		return label;
 	}
 
+	/**
+	 * Sets label.
+	 *
+	 * @param label the label
+	 */
 	public void setLabel(final String label) {
 		this.label = label;
 	}

@@ -25,6 +25,9 @@ import java.util.*;
 import java.util.List;
 
 
+/**
+ * The type Neoload graph x path stat.
+ */
 public class NeoloadGraphXPathStat {
 
 
@@ -51,6 +54,13 @@ public class NeoloadGraphXPathStat {
 	private final String yLabel;
 	private final boolean legend;
 
+	/**
+	 * Instantiates a new Neoload graph x path stat.
+	 *
+	 * @param title  the title
+	 * @param yLabel the y label
+	 * @param curves the curves
+	 */
 	public NeoloadGraphXPathStat(final String title, final String yLabel, final NeoloadCurvesXPathStat... curves) {
 		this.title = title;
 		this.curves = Arrays.asList(curves);
@@ -58,6 +68,13 @@ public class NeoloadGraphXPathStat {
 		this.legend = false;
 	}
 
+	/**
+	 * Instantiates a new Neoload graph x path stat.
+	 *
+	 * @param title  the title
+	 * @param yLabel the y label
+	 * @param curves the curves
+	 */
 	public NeoloadGraphXPathStat(final String title, final String yLabel, final List<NeoloadCurvesXPathStat> curves) {
 		this.title = title;
 		this.curves = curves;
@@ -65,18 +82,39 @@ public class NeoloadGraphXPathStat {
 		this.legend = true;
 	}
 
+	/**
+	 * Gets title.
+	 *
+	 * @return the title
+	 */
 	public String getTitle() {
 		return title;
 	}
 
+	/**
+	 * Gets curves.
+	 *
+	 * @return the curves
+	 */
 	public List<NeoloadCurvesXPathStat> getCurves() {
 		return curves;
 	}
 
+	/**
+	 * Gets label.
+	 *
+	 * @return the label
+	 */
 	public String getyLabel() {
 		return yLabel;
 	}
 
+	/**
+	 * Add build.
+	 *
+	 * @param buildNumber the build number
+	 * @param document    the document
+	 */
 	public void addBuild(final int buildNumber, final Document document) {
 		for (NeoloadCurvesXPathStat neoloadCurvesXPathStat : curves) {
 			neoloadCurvesXPathStat.addBuild(buildNumber, document);
@@ -140,6 +178,11 @@ public class NeoloadGraphXPathStat {
 		return chart;
 	}
 
+	/**
+	 * Number of builds int.
+	 *
+	 * @return the int
+	 */
 	int numberOfBuilds() {
 		int nbOfBuild = 0;
 		for (NeoloadCurvesXPathStat curve : curves) {
@@ -148,10 +191,21 @@ public class NeoloadGraphXPathStat {
 		return nbOfBuild;
 	}
 
+	/**
+	 * Compute width int.
+	 *
+	 * @return the int
+	 */
 	int computeWidth() {
 		return Math.max(IMAGE_WIDTH, numberOfBuilds() * 15);
 	}
 
+	/**
+	 * Write png.
+	 *
+	 * @param file the file
+	 * @throws IOException the io exception
+	 */
 	public void writePng(final File file) throws IOException {
 		final int width = computeWidth();
 		final JFreeChart chart = createChart();
@@ -187,15 +241,15 @@ public class NeoloadGraphXPathStat {
 
 	/**
 	 * Creates the standard tick units.
-	 * <P>
+	 *
 	 * If you don't like these defaults, create your own instance of TickUnits
 	 * and then pass it to the setStandardTickUnits() method in the
 	 * NumberAxis class.
+	 *	 see setStandardTickUnits(TickUnitSource)
+	 * 	 see createIntegerTickUnits()
+	 *
 	 *
 	 * @return The standard tick units.
-	 *
-	 * @link #setStandardTickUnits(TickUnitSource)
-	 * @link #createIntegerTickUnits()
 	 */
 	public static TickUnitSource createStandardTickUnits() {
 

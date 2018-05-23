@@ -153,6 +153,32 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 
 	/**
 	 * This method and the annotation @DataBoundConstructor are required for jenkins 1.393 even if no params are passed in.
+	 *
+	 * @param executable               the executable
+	 * @param projectType              the project type
+	 * @param reportType               the report type
+	 * @param localProjectFile         the local project file
+	 * @param sharedProjectName        the shared project name
+	 * @param scenarioName             the scenario name
+	 * @param htmlReport               the html report
+	 * @param xmlReport                the xml report
+	 * @param pdfReport                the pdf report
+	 * @param junitReport              the junit report
+	 * @param scanAllBuilds            the scan all builds
+	 * @param displayTheGUI            the display the gui
+	 * @param testResultName           the test result name
+	 * @param testDescription          the test description
+	 * @param licenseType              the license type
+	 * @param licenseVUCount           the license vu count
+	 * @param licenseDuration          the license duration
+	 * @param customCommandLineOptions the custom command line options
+	 * @param publishTestResults       the publish test results
+	 * @param sharedProjectServer      the shared project server
+	 * @param licenseServer            the license server
+	 * @param showTrendAverageResponse the show trend average response
+	 * @param showTrendErrorRate       the show trend error rate
+	 * @param graphOptionsInfo         the graph options info
+	 * @param maxTrends                the max trends
 	 */
 	@DataBoundConstructor
 	public NeoBuildAction(final String executable,
@@ -218,8 +244,9 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 	 * settings instead of our own because they are more up to date. This is because all server info is stored and duplicated here.
 	 * We don't ONLY store the uniqueID because we don't want the project to break if someone deletes the global config.
 	 *
-	 * @param serverInfo
-	 * @return
+	 * @param <T>        the type parameter
+	 * @param serverInfo the server info
+	 * @return t
 	 */
 	@SuppressWarnings("unchecked")
 	<T extends ServerInfo> T updateUsingUniqueID(final T serverInfo) {
@@ -251,11 +278,25 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 		return serverInfo;
 	}
 
+	/**
+	 * Gets required monitor service.
+	 *
+	 * @return the required monitor service
+	 */
 	@Override
 	public BuildStepMonitor getRequiredMonitorService() {
 		return BuildStepMonitor.NONE;
 	}
 
+	/**
+	 * Perform boolean.
+	 *
+	 * @param build    the build
+	 * @param launcher the launcher
+	 * @param listener the listener
+	 * @return the boolean
+	 * @throws InterruptedException the interrupted exception
+	 */
 	@Override
 	public boolean perform(final AbstractBuild<?, ?> build, final Launcher launcher, final BuildListener listener) throws InterruptedException {
 		final StringBuilder sb = prepareCommandLine(launcher);
@@ -264,8 +305,10 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 	}
 
 	/**
+	 * Prepare command line string builder.
+	 *
 	 * @param launcher runs code on the slave machine.
-	 * @return
+	 * @return string builder
 	 */
 	protected StringBuilder prepareCommandLine(final Launcher launcher) {
 		// update server settings from the main config.
@@ -369,16 +412,38 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 		 */
 		private static final long serialVersionUID = 4462660760602753013L;
 
+		/**
+		 * The Map.
+		 */
 		final Map<String, String> map;
+		/**
+		 * The Executable.
+		 */
 		final String executable;
+		/**
+		 * The Os windows.
+		 */
 		final boolean osWindows;
 
+		/**
+		 * Instantiates a new Callable for password scrambler.
+		 *
+		 * @param map        the map
+		 * @param executable the executable
+		 * @param osWindows  the os windows
+		 */
 		public CallableForPasswordScrambler(final HashMap<String, String> map, final String executable, boolean osWindows) {
 			this.map = map;
 			this.executable = executable;
 			this.osWindows = osWindows;
 		}
 
+		/**
+		 * Call map.
+		 *
+		 * @return the map
+		 * @throws Exception the exception
+		 */
 		@Override
 		public Map<String, String> call() throws Exception {
 			LOGGER.finest("Start password scrambler execution...");
@@ -467,6 +532,12 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 			return possibleFile;
 		}
 
+		/**
+		 * Check roles.
+		 *
+		 * @param roleChecker the role checker
+		 * @throws SecurityException the security exception
+		 */
 		@Override
 		public void checkRoles(final RoleChecker roleChecker) throws SecurityException {
 
@@ -558,6 +629,13 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 		}
 	}
 
+	/**
+	 * Sets collab login.
+	 *
+	 * @param hashedPasswords the hashed passwords
+	 * @param csi             the csi
+	 * @return the collab login
+	 */
 	StringBuilder setupCollabLogin(final Map<String, String> hashedPasswords, final CollabServerInfo csi) {
 		final StringBuilder sb = new StringBuilder();
 		// -CollabLogin "<login>:<hashed password>", or
@@ -613,6 +691,12 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 				hashedPasswords.get(n.getLoginPassword()) + "\"");
 	}
 
+	/**
+	 * Is project type string.
+	 *
+	 * @param type the type
+	 * @return the string
+	 */
 	public String isProjectType(final String type) {
 		if (StringUtils.trimToNull(projectType) == null) {
 			return "projectTypeLocal".equalsIgnoreCase(type) == true ? "true" : "false";
@@ -621,6 +705,12 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 		return projectType.equalsIgnoreCase(type) ? "true" : "false";
 	}
 
+	/**
+	 * Is report type boolean.
+	 *
+	 * @param type the type
+	 * @return the boolean
+	 */
 	public boolean isReportType(final String type) {
 		if (StringUtils.trimToNull(reportType) == null) {
 			return "reportTypeDefault".equalsIgnoreCase(type);
@@ -629,6 +719,11 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 		return reportType.equalsIgnoreCase(type);
 	}
 
+	/**
+	 * Is repport custom path boolean.
+	 *
+	 * @return the boolean
+	 */
 	public boolean isRepportCustomPath() {
 		return isReportType("reportTypeCustom");
 	}
@@ -640,6 +735,12 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 		return reportType.equalsIgnoreCase(type) ? "true" : "false";
 	}*/
 
+	/**
+	 * Is license type string.
+	 *
+	 * @param type the type
+	 * @return the string
+	 */
 	public String isLicenseType(final String type) {
 		if (StringUtils.trimToNull(licenseType) == null) {
 			return "licenseTypeLocal".equalsIgnoreCase(type) == true ? "true" : "false";
@@ -648,6 +749,11 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 		return licenseType.equalsIgnoreCase(type) ? "true" : "false";
 	}
 
+	/**
+	 * Gets xml report artifact path.
+	 *
+	 * @return the xml report artifact path
+	 */
 	public String getXMLReportArtifactPath() {
 		if (isRepportCustomPath()) {
 			return PluginUtils.removeWorkspace(xmlReport);
@@ -655,6 +761,11 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 		return "neoload-report/report.xml";
 	}
 
+	/**
+	 * Gets html report artifact path.
+	 *
+	 * @return the html report artifact path
+	 */
 	public String getHTMLReportArtifactPath() {
 		if (isRepportCustomPath()) {
 			return PluginUtils.removeWorkspace(htmlReport);
@@ -662,6 +773,11 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 		return "neoload-report/report.html";
 	}
 
+	/**
+	 * Gets descriptor.
+	 *
+	 * @return the descriptor
+	 */
 	@Override
 	public Descriptor<Builder> getDescriptor() {
 		final DescriptorImpl descriptor = (DescriptorImpl) super.getDescriptor();
@@ -672,30 +788,60 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 		return descriptor;
 	}
 
+	/**
+	 * The type Descriptor.
+	 */
 	@Extension(optional = true)
 	public static final class DescriptorImpl extends BuildStepDescriptor<Builder> {
 		private NeoBuildAction neoBuildAction = null;
 
+		/**
+		 * Instantiates a new Descriptor.
+		 */
 		public DescriptorImpl() {
 			super(NeoBuildAction.class);
 			load();
 		}
 
+		/**
+		 * Sets neo build action.
+		 *
+		 * @param action the action
+		 */
 		public void setNeoBuildAction(final NeoBuildAction action) {
 			this.neoBuildAction = action;
 		}
 
+		/**
+		 * Gets display name.
+		 *
+		 * @return the display name
+		 */
 		@Override
 		public String getDisplayName() {
 			return "Execute a NeoLoad Scenario";
 		}
 
+		/**
+		 * Configure boolean.
+		 *
+		 * @param req  the req
+		 * @param json the json
+		 * @return the boolean
+		 * @throws FormException the form exception
+		 */
 		@Override
 		public boolean configure(StaplerRequest req, JSONObject json) throws hudson.model.Descriptor.FormException {
 			save();
 			return super.configure(req, json);
 		}
 
+		/**
+		 * Do fill shared project server items list box model.
+		 *
+		 * @param project the project
+		 * @return the list box model
+		 */
 		public ListBoxModel doFillSharedProjectServerItems(@AncestorInPath final Item project) {
 			ServerInfo preselected = null;
 			if (neoBuildAction != null && neoBuildAction.sharedProjectServer != null) {
@@ -706,6 +852,12 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 		}
 
 
+		/**
+		 * Do fill license server items list box model.
+		 *
+		 * @param project the project
+		 * @return the list box model
+		 */
 		public ListBoxModel doFillLicenseServerItems(@AncestorInPath final Item project) {
 			ServerInfo preselected = null;
 			if (neoBuildAction != null && neoBuildAction.licenseServer != null) {
@@ -819,44 +971,104 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 			return displayName.toString();
 		}
 
+		/**
+		 * Is applicable boolean.
+		 *
+		 * @param jobType the job type
+		 * @return the boolean
+		 */
 		@Override
 		public boolean isApplicable(
 				@SuppressWarnings("rawtypes") final Class<? extends AbstractProject> jobType) {
 			return true;
 		}
 
+		/**
+		 * Do check local project file form validation.
+		 *
+		 * @param localProjectFile the local project file
+		 * @return the form validation
+		 */
 		public FormValidation doCheckLocalProjectFile(@QueryParameter("localProjectFile") final String localProjectFile) {
 			return PluginUtils.validateFileExists(localProjectFile, ".nlp", true, false);
 		}
 
+		/**
+		 * Do check executable form validation.
+		 *
+		 * @param executable the executable
+		 * @return the form validation
+		 */
 		public FormValidation doCheckExecutable(@QueryParameter final String executable) {
 			return PluginUtils.validateFileExists(executable, ".exe", false, true);
 		}
 
+		/**
+		 * Do check license vu count form validation.
+		 *
+		 * @param licenseVUCount the license vu count
+		 * @return the form validation
+		 */
 		public FormValidation doCheckLicenseVUCount(@QueryParameter final String licenseVUCount) {
 			return PluginUtils.formValidationErrorToWarning(FormValidation.validatePositiveInteger(licenseVUCount));
 		}
 
+		/**
+		 * Do check license duration form validation.
+		 *
+		 * @param licenseDuration the license duration
+		 * @return the form validation
+		 */
 		public FormValidation doCheckLicenseDuration(@QueryParameter final String licenseDuration) {
 			return PluginUtils.formValidationErrorToWarning(FormValidation.validatePositiveInteger(licenseDuration));
 		}
 
+		/**
+		 * Do check license id form validation.
+		 *
+		 * @param licenseID the license id
+		 * @return the form validation
+		 */
 		public FormValidation doCheckLicenseID(@QueryParameter final String licenseID) {
 			return PluginUtils.formValidationErrorToWarning(FormValidation.validateRequired(licenseID));
 		}
 
+		/**
+		 * Do check shared project name form validation.
+		 *
+		 * @param sharedProjectName the shared project name
+		 * @return the form validation
+		 */
 		public FormValidation doCheckSharedProjectName(@QueryParameter final String sharedProjectName) {
 			return PluginUtils.formValidationErrorToWarning(FormValidation.validateRequired(sharedProjectName));
 		}
 
+		/**
+		 * Do check xml report form validation.
+		 *
+		 * @param xmlReport the xml report
+		 * @return the form validation
+		 */
 		public FormValidation doCheckXmlReport(@QueryParameter final String xmlReport) {
 			return PluginUtils.formValidationErrorToWarning(FormValidation.validateRequired(xmlReport));
 		}
 
+		/**
+		 * Do check scenario name form validation.
+		 *
+		 * @param scenarioName the scenario name
+		 * @return the form validation
+		 */
 		public FormValidation doCheckScenarioName(@QueryParameter final String scenarioName) {
 			return PluginUtils.formValidationErrorToWarning(FormValidation.validateRequired(scenarioName));
 		}
 
+		/**
+		 * Do check display the gui form validation.
+		 *
+		 * @param displayTheGUI the display the gui
+		 * @return the form validation
+		 */
 		public FormValidation doCheckDisplayTheGUI(@QueryParameter final String displayTheGUI) {
 			if (Boolean.valueOf(displayTheGUI)) {
 				return FormValidation.warning("The user launching the process must be able to display a user interface "
@@ -868,11 +1080,22 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 		}
 	}
 
+	/**
+	 * Build command line string [ ].
+	 *
+	 * @param script the script
+	 * @return the string [ ]
+	 */
 	@Override
 	public String[] buildCommandLine(final FilePath script) {
 		return commandInterpreter.buildCommandLine(script);
 	}
 
+	/**
+	 * Gets contents.
+	 *
+	 * @return the contents
+	 */
 	@Override
 	protected String getContents() {
 		if (SystemUtils.IS_OS_WINDOWS) {
@@ -882,6 +1105,11 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 		return new ShellMine().getContents();
 	}
 
+	/**
+	 * Gets file extension.
+	 *
+	 * @return the file extension
+	 */
 	@Override
 	protected String getFileExtension() {
 		if (SystemUtils.IS_OS_WINDOWS) {
@@ -892,15 +1120,28 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 	}
 
 	private class BatchFileMine extends BatchFile {
+		/**
+		 * Instantiates a new Batch file mine.
+		 */
 		public BatchFileMine() {
 			super("command");
 		}
 
+		/**
+		 * Gets contents.
+		 *
+		 * @return the contents
+		 */
 		@Override
 		public String getContents() {
 			return super.getContents();
 		}
 
+		/**
+		 * Gets file extension.
+		 *
+		 * @return the file extension
+		 */
 		@Override
 		public String getFileExtension() {
 			return super.getFileExtension();
@@ -908,29 +1149,57 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 	}
 
 	private class ShellMine extends Shell {
+		/**
+		 * Instantiates a new Shell mine.
+		 */
 		public ShellMine() {
 			super("command");
 		}
 
+		/**
+		 * Gets contents.
+		 *
+		 * @return the contents
+		 */
 		@Override
 		public String getContents() {
 			return super.getContents();
 		}
 
+		/**
+		 * Gets file extension.
+		 *
+		 * @return the file extension
+		 */
 		@Override
 		public String getFileExtension() {
 			return super.getFileExtension();
 		}
 	}
 
+	/**
+	 * Gets executable.
+	 *
+	 * @return the executable
+	 */
 	public String getExecutable() {
 		return executable;
 	}
 
+	/**
+	 * Gets shared project name.
+	 *
+	 * @return the shared project name
+	 */
 	public String getSharedProjectName() {
 		return sharedProjectName;
 	}
 
+	/**
+	 * Gets scenario name.
+	 *
+	 * @return the scenario name
+	 */
 	public String getScenarioName() {
 		return scenarioName;
 	}
@@ -947,62 +1216,137 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 		return pdfReport;
 	}
 
+	/**
+	 * Gets junit report.
+	 *
+	 * @return the junit report
+	 */
 	public String getJunitReport() {
 		return junitReport;
 	}
 
+	/**
+	 * Is display the gui boolean.
+	 *
+	 * @return the boolean
+	 */
 	public boolean isDisplayTheGUI() {
 		return displayTheGUI;
 	}
 
+	/**
+	 * Gets test result name.
+	 *
+	 * @return the test result name
+	 */
 	public String getTestResultName() {
 		return testResultName;
 	}
 
+	/**
+	 * Gets test description.
+	 *
+	 * @return the test description
+	 */
 	public String getTestDescription() {
 		return testDescription;
 	}
 
+	/**
+	 * Gets license type.
+	 *
+	 * @return the license type
+	 */
 	public String getLicenseType() {
 		return licenseType;
 	}
 
+	/**
+	 * Gets license vu count.
+	 *
+	 * @return the license vu count
+	 */
 	public String getLicenseVUCount() {
 		return licenseVUCount;
 	}
 
+	/**
+	 * Gets license duration.
+	 *
+	 * @return the license duration
+	 */
 	public String getLicenseDuration() {
 		return licenseDuration;
 	}
 
+	/**
+	 * Gets custom command line options.
+	 *
+	 * @return the custom command line options
+	 */
 	public String getCustomCommandLineOptions() {
 		return customCommandLineOptions;
 	}
 
+	/**
+	 * Gets local project file.
+	 *
+	 * @return the local project file
+	 */
 	public String getLocalProjectFile() {
 		return localProjectFile;
 	}
 
+	/**
+	 * Gets project type.
+	 *
+	 * @return the project type
+	 */
 	public String getProjectType() {
 		return projectType;
 	}
 
+	/**
+	 * Gets report type.
+	 *
+	 * @return the report type
+	 */
 	public String getReportType() {
 		return reportType;
 	}
 
+	/**
+	 * Gets publish test results.
+	 *
+	 * @return the publish test results
+	 */
 	public boolean getPublishTestResults() {
 		return publishTestResults;
 	}
 
+	/**
+	 * Gets license server.
+	 *
+	 * @return the license server
+	 */
 	public ServerInfo getLicenseServer() {
 		return licenseServer;
 	}
 
+	/**
+	 * Sets license server.
+	 *
+	 * @param licenseServer the license server
+	 */
 	public void setLicenseServer(final NTSServerInfo licenseServer) {
 		this.licenseServer = licenseServer;
 	}
 
+	/**
+	 * Gets shared project server.
+	 *
+	 * @return the shared project server
+	 */
 	public ServerInfo getSharedProjectServer() {
 		return sharedProjectServer;
 	}
@@ -1011,10 +1355,20 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 		return scanAllBuilds;
 	}
 
+	/**
+	 * Sets shared project server.
+	 *
+	 * @param sharedProjectServer the shared project server
+	 */
 	public void setSharedProjectServer(final ServerInfo sharedProjectServer) {
 		this.sharedProjectServer = sharedProjectServer;
 	}
 
+	/**
+	 * To string string.
+	 *
+	 * @return the string
+	 */
 	@Override
 	public String toString() {
 		return ToStringBuilder.reflectionToString(this);
