@@ -5,6 +5,7 @@
 		<j:if test="${it.project != null}">
 			<st:include it="${it.project}" page="sidepanel.jelly"/>
 		</j:if>
+
 		<l:main-panel>
 			<script src="${resURL}/plugin/neoload-jenkins-plugin/js/refresh.js"/>
 			<p>Upgrade in progress...</p>

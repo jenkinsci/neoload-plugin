@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, Neotys
+ * Copyright (c) 2018, Neotys
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -26,61 +26,39 @@
  */
 package org.jenkinsci.plugins.neoload.integration;
 
-import java.io.ByteArrayOutputStream;
-import java.io.Serializable;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import hudson.model.*;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.exec.CommandLine;
-import org.apache.commons.exec.DefaultExecuteResultHandler;
-import org.apache.commons.exec.DefaultExecutor;
-import org.apache.commons.exec.PumpStreamHandler;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.SystemUtils;
-import org.apache.commons.lang.builder.ToStringBuilder;
-import org.jenkinsci.plugins.neoload.integration.supporting.CollabServerInfo;
-import org.jenkinsci.plugins.neoload.integration.supporting.GraphOptionsInfo;
-import org.jenkinsci.plugins.neoload.integration.supporting.NTSServerInfo;
-import org.jenkinsci.plugins.neoload.integration.supporting.NeoLoadPluginOptions;
-import org.jenkinsci.plugins.neoload.integration.supporting.PluginUtils;
-import org.jenkinsci.plugins.neoload.integration.supporting.ServerInfo;
-import org.jenkinsci.remoting.RoleChecker;
-import org.kohsuke.stapler.AncestorInPath;
-import org.kohsuke.stapler.DataBoundConstructor;
-import org.kohsuke.stapler.QueryParameter;
-import org.kohsuke.stapler.StaplerRequest;
-
 import com.google.common.base.Joiner;
-import com.google.common.base.Strings;
-
+import com.neotys.nls.security.tools.PasswordEncoder;
 import hudson.Extension;
 import hudson.FilePath;
 import hudson.Launcher;
-import hudson.remoting.Callable;
-import hudson.tasks.BatchFile;
-import hudson.tasks.BuildStepDescriptor;
-import hudson.tasks.BuildStepMonitor;
-import hudson.tasks.Builder;
-import hudson.tasks.CommandInterpreter;
-import hudson.tasks.Shell;
+import hudson.model.*;
+import hudson.tasks.*;
 import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
 import hudson.util.ListBoxModel.Option;
 import jenkins.model.Jenkins;
 import net.sf.json.JSONObject;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.SystemUtils;
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.jenkinsci.plugins.neoload.integration.steps.NeoloadRunStep;
+import org.jenkinsci.plugins.neoload.integration.supporting.*;
+import org.kohsuke.stapler.AncestorInPath;
+import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.QueryParameter;
+import org.kohsuke.stapler.StaplerRequest;
+
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.security.GeneralSecurityException;
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * This class adds the link to the html report to a build after the build has
@@ -94,15 +72,18 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 	 * Generated.
 	 */
 	private static final long serialVersionUID = 4651315889891892765L;
-
+	/**
+	 * Log various messages.
+	 */
+	private static final Logger LOGGER = Logger.getLogger(NeoBuildAction.class.getName());
+	public static final String PROJECT_LOCAL = "local";
+	public static final String PROJECT_SHARED = "shared";
 	// settings
 	private final String executable;
-
 	/**
 	 * a local project or a shared/remote project.
 	 */
 	private final String projectType;
-
 	/**
 	 * Default report file names or custom report file names.
 	 */
@@ -121,13 +102,8 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 	private final String licenseVUCount;
 	private final String licenseDuration;
 	private final String customCommandLineOptions;
-
 	private final int maxTrends;
-
 	private final boolean publishTestResults;
-	private NTSServerInfo licenseServer;
-	private ServerInfo sharedProjectServer;
-
 	/**
 	 * User option presented in the GUI. Show the average response time.
 	 */
@@ -136,20 +112,16 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 	 * User option presented in the GUI. Show the average response time.
 	 */
 	private final boolean showTrendErrorRate;
-
 	private final boolean scanAllBuilds;
-
 	private final List<GraphOptionsInfo> graphOptionsInfo;
-
+	private NTSServerInfo licenseServer;
+	private ServerInfo sharedProjectServer;
 	/**
 	 * This executes NeoLoad. It's an instance of a jenkins object for Windows or Linux.
 	 */
 	private CommandInterpreter commandInterpreter = null;
+	private boolean archiveAndBuildTrends;
 
-	/**
-	 * Log various messages.
-	 */
-	private static final Logger LOGGER = Logger.getLogger(NeoBuildAction.class.getName());
 
 	/**
 	 * This method and the annotation @DataBoundConstructor are required for jenkins 1.393 even if no params are passed in.
@@ -208,7 +180,11 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 	                      final int maxTrends) {
 		super(NeoBuildAction.class.getName() + " (command)");
 
-		this.executable = executable;
+		if (StringUtils.isEmpty(executable)) {
+			this.executable = PluginUtils.getNeoGlobalConfig().getDefaultExecutable();
+		} else {
+			this.executable = executable;
+		}
 		this.projectType = StringUtils.trimToEmpty(projectType);
 		this.reportType = StringUtils.trimToEmpty(reportType);
 		this.localProjectFile = localProjectFile;
@@ -231,6 +207,8 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 		this.publishTestResults = publishTestResults;
 		this.licenseServer = updateUsingUniqueID(licenseServer);
 
+
+		// Because of backward compatibility we keep the following lines within the constructor
 		this.showTrendAverageResponse = showTrendAverageResponse;
 		this.showTrendErrorRate = showTrendErrorRate;
 
@@ -239,6 +217,55 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 		this.scanAllBuilds = scanAllBuilds;
 	}
 
+
+	public NeoBuildAction(NeoloadRunStep step) {
+		this(
+				step.getExecutable(),
+				step.getProjectType(),
+				step.getReportType(),
+				step.getLocalProjectFile(),
+				step.getSharedProjectName(),
+				step.getScenarioName(),
+				step.getHtmlReport(),
+				step.getXmlReport(),
+				step.getPdfReport(),
+				step.getJunitReport(),
+				false,
+				step.isDisplayGUI(),
+				step.getTestResultName(),
+				step.getTestDescription(),
+				step.getLicenseType(),
+				step.getLicenseVUCount(),
+				step.getLicenseDuration(),
+				step.getCustomCommandLineOptions(),
+				step.isPublishTestResults(),
+				step.getSharedProjectServer(),
+				step.getLicenseServer(),
+				step.isShowTrendAverageResponse(),
+				step.isShowTrendErrorRate(),
+				step.getGraphOptionsInfo(),
+				step.getMaxTrends()
+		);
+		this.setArchiveAndBuildTrends(step.isAutoArchive());
+	}
+
+	/**
+	 * Is os windows boolean.
+	 *
+	 * @param launcher the launcher
+	 * @return the boolean
+	 */
+	public static boolean isOsWindows(final Launcher launcher) {
+		return !launcher.isUnix();
+	}
+
+	private static void addNTSArguments(final List<String> commands, final NTSServerInfo n, final Map<String, String> hashedPasswords) {
+		commands.add("-NTS \"" + n.getUrl() + "\"");
+		commands.add("-NTSLogin \"" + n.getLoginUser() + ":" +
+				hashedPasswords.get(n.getLoginPassword()) + "\"");
+	}
+
+
 	/**
 	 * Here we search the global config for settings that have the same uniqueID. If the same uniqueID is found then we use those
 	 * settings instead of our own because they are more up to date. This is because all server info is stored and duplicated here.
@@ -246,7 +273,7 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 	 *
 	 * @param <T>        the type parameter
 	 * @param serverInfo the server info
-	 * @return t
+	 * @return t t
 	 */
 	@SuppressWarnings("unchecked")
 	<T extends ServerInfo> T updateUsingUniqueID(final T serverInfo) {
@@ -257,8 +284,7 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 		if (Jenkins.getInstance() == null) {
 			return serverInfo;
 		}
-		final NeoGlobalConfig.DescriptorImpl globalConfigDescriptor =
-				(NeoGlobalConfig.DescriptorImpl) Jenkins.getInstance().getDescriptor(NeoGlobalConfig.class);
+		final NeoGlobalConfig.DescriptorImpl globalConfigDescriptor = PluginUtils.getNeoGlobalConfig();
 
 		if (globalConfigDescriptor == null) {
 			// no change necessary.
@@ -299,7 +325,7 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 	 */
 	@Override
 	public boolean perform(final AbstractBuild<?, ?> build, final Launcher launcher, final BuildListener listener) throws InterruptedException {
-		final StringBuilder sb = prepareCommandLine(launcher);
+		final StringBuilder sb = prepareCommandLine(launcher, null);
 		build.addAction(new NeoResultsAction(build, getXMLReportArtifactPath(), getHTMLReportArtifactPath()));
 		return runTheCommand(sb.toString(), build, launcher, listener);
 	}
@@ -307,10 +333,11 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 	/**
 	 * Prepare command line string builder.
 	 *
-	 * @param launcher runs code on the slave machine.
+	 * @param launcher         runs code on the slave machine.
+	 * @param currentWorkspace the current workspace
 	 * @return string builder
 	 */
-	protected StringBuilder prepareCommandLine(final Launcher launcher) {
+	protected StringBuilder prepareCommandLine(final Launcher launcher, final FilePath currentWorkspace) {
 		// update server settings from the main config.
 		sharedProjectServer = updateUsingUniqueID(sharedProjectServer);
 		licenseServer = updateUsingUniqueID(licenseServer);
@@ -318,6 +345,7 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 		final Map<String, String> hashedPasswords = getHashedPasswords(launcher);
 
 		// verify that the executable exists
+		final String executable = getExecutable();
 		if (Files.isDirectory(Paths.get(executable)) || !Files.exists(Paths.get(executable))) {
 			LOGGER.log(Level.WARNING, "Can't find NeoLoad executable: " + executable);
 		}
@@ -331,7 +359,7 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 
 		setupLicenseInfo(commands, hashedPasswords);
 
-		setupReports(commands, launcher);
+		setupReports(commands, launcher, currentWorkspace);
 
 		if (!displayTheGUI) {
 			commands.add("-noGUI");
@@ -342,7 +370,7 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 		// additional user options
 		commands.add(customCommandLineOptions);
 
-		// remove duplicate commands. this is for the -NTS argument to make sure it doesn't appear twice when checking out 
+		// remove duplicate commands. this is for the -NTS argument to make sure it doesn't appear twice when checking out
 		// a project and leasing a license.
 		final ArrayList<String> cleanedCommands = new ArrayList<>(new LinkedHashSet<>(commands));
 
@@ -382,170 +410,30 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 			return map;
 		}
 
-		// this executes on the slave, not on the master.
-		final CallableForPasswordScrambler callableForPasswordScrambler = new CallableForPasswordScrambler(map, executable, isOsWindows(launcher));
-		Map<String, String> newMap;
+		Map<String, String> resultMap = new HashMap<>();
 		try {
-			newMap = launcher.getChannel().call(callableForPasswordScrambler);
-			map.putAll(newMap);
-		} catch (final Exception e) {
-			String errorMessage = "Issue executing password scrambler. ";
-			if (e.getMessage() != null) {
-				errorMessage += e.getMessage();
-			} else {
-				errorMessage += e.toString();
+			for (Map.Entry<String, String> entry : map.entrySet()) {
+				resultMap.put(entry.getKey(), PasswordEncoder.encode(entry.getKey()));
 			}
-			LOGGER.severe(errorMessage);
-			throw new RuntimeException(errorMessage);
+		} catch (UnsupportedEncodingException | GeneralSecurityException e) {
+			LOGGER.log(Level.SEVERE, "Exception during password encryption", e);
+			throw new RuntimeException(e);
 		}
 
-		return map;
+		return resultMap;
 	}
 
 	/**
 	 * Runs the password scrambler on the slave machine.
 	 */
-	static class CallableForPasswordScrambler implements Callable<Map<String, String>, Exception>, Serializable {
-
-		/**
-		 * Generated.
-		 */
-		private static final long serialVersionUID = 4462660760602753013L;
-
-		/**
-		 * The Map.
-		 */
-		final Map<String, String> map;
-		/**
-		 * The Executable.
-		 */
-		final String executable;
-		/**
-		 * The Os windows.
-		 */
-		final boolean osWindows;
-
-		/**
-		 * Instantiates a new Callable for password scrambler.
-		 *
-		 * @param map        the map
-		 * @param executable the executable
-		 * @param osWindows  the os windows
-		 */
-		public CallableForPasswordScrambler(final HashMap<String, String> map, final String executable, boolean osWindows) {
-			this.map = map;
-			this.executable = executable;
-			this.osWindows = osWindows;
+	private void setupReports(final List<String> commands, final Launcher launcher, final FilePath currentWorkspace) {
+		String workspaceVariable;
+		if (currentWorkspace == null) {
+			workspaceVariable = isOsWindows(launcher) ? "%WORKSPACE%" : "${WORKSPACE}";
+		} else {
+			//Default value for workflows
+			workspaceVariable = currentWorkspace.getRemote();
 		}
-
-		/**
-		 * Call map.
-		 *
-		 * @return the map
-		 * @throws Exception the exception
-		 */
-		@Override
-		public Map<String, String> call() throws Exception {
-			LOGGER.finest("Start password scrambler execution...");
-			// look for the password scrambler. it should be next to the executable or one directory higher.
-			final Path possibleFile = findThePasswordScrambler();
-			if (possibleFile!=null && Files.exists(possibleFile)) {
-				LOGGER.finest("Path is: " + possibleFile.toString());
-			} else {
-				final StringBuilder errorMessage = new StringBuilder();
-				errorMessage.append("Password scrambler not found, check NeoLoad executable path. ");
-				if(possibleFile!=null){
-					errorMessage.append("File: \"" + possibleFile + "\".");					
-				}				
-				LOGGER.severe(errorMessage.toString());
-				throw new RuntimeException(errorMessage.toString());
-			}
-
-			for (final String plainPassword : map.keySet()) {
-				// prepare the line to execute.
-				final String line = "\"" + possibleFile.toString() + "\" -a \"" + plainPassword + "\"";
-
-				// execute it and get the result.
-				final DefaultExecuteResultHandler resultHandler = new DefaultExecuteResultHandler();
-				final CommandLine cmdLine = CommandLine.parse(line);
-				final DefaultExecutor executor = new DefaultExecutor();
-				final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-				final PumpStreamHandler streamHandler = new PumpStreamHandler(outputStream);
-				executor.setStreamHandler(streamHandler);
-				executor.setWorkingDirectory(possibleFile.getParent().toFile());
-				executor.execute(cmdLine, resultHandler);
-				resultHandler.waitFor(60000);
-				final String result = outputStream.toString();
-				if (resultHandler.getException() != null) {
-					LOGGER.severe("Error while executing password-scrambler: " + resultHandler.getException().getMessage());
-					throw new RuntimeException(resultHandler.getException());
-				}
-				if (Strings.isNullOrEmpty(result)) {
-					final String errorMessage = "Error while executing password-scrambler: no result.";
-					LOGGER.severe(errorMessage);
-					throw new RuntimeException(errorMessage);
-				}
-				// parse the result.
-				// example: AES128 ciphering result of nluser: 6RGXo/iJAai0tGuxtAih2Q== \n Copyright (c) 2016 Neotys, PasswordScrambler v-
-				final String firstPart = result.substring(result.indexOf(plainPassword + ":"));
-				final String secondPart = firstPart.substring(firstPart.indexOf(":") + 2);
-				final String[] split = secondPart.split("\r|\n");
-				final String hashedPassword = split[0];
-				LOGGER.finest("hashedPassword : " + hashedPassword);
-
-				map.put(plainPassword, hashedPassword);
-			}
-			LOGGER.finest(map.size() + " passwords has been hashed");
-			return map;
-		}
-
-		private Path findThePasswordScrambler() {
-			Path parent = Paths.get(executable).getParent();
-			Path possibleFile = null;
-			for (int i = 0; i < 2; i++) {
-				if (parent == null) {
-					break;
-				}
-
-				if (this.osWindows) {
-					possibleFile = parent.resolve("password-scrambler.bat");
-					if (Files.exists(possibleFile)) {
-						break;
-					} else {
-						possibleFile = parent.resolve("password-scrambler.exe");
-					}
-				} else {
-					possibleFile = parent.resolve("password-scrambler");
-					if (Files.exists(possibleFile)) {
-						break;
-					} else {
-						possibleFile = parent.resolve("password-scrambler.sh");
-					}
-				}
-
-				if (Files.exists(possibleFile)) {
-					LOGGER.log(Level.FINEST, "Found password-scrambler legend at: " + possibleFile);
-					break;
-				}
-				parent = parent.getParent();
-			}
-			return possibleFile;
-		}
-
-		/**
-		 * Check roles.
-		 *
-		 * @param roleChecker the role checker
-		 * @throws SecurityException the security exception
-		 */
-		@Override
-		public void checkRoles(final RoleChecker roleChecker) throws SecurityException {
-
-		}
-	}
-
-	private void setupReports(final List<String> commands, final Launcher launcher) {
-		final String workspaceVariable = isOsWindows(launcher) ? "%WORKSPACE%" : "${WORKSPACE}";
 		if (isRepportCustomPath()) {
 			final List<String> reportPaths = PluginUtils.removeAllEmpties(htmlReport, xmlReport, pdfReport);
 			final String reportFileNames = Joiner.on(",").skipNulls().join(reportPaths);
@@ -564,9 +452,9 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 	}
 
 	private void setupLicenseInfo(final List<String> commands, final Map<String, String> hashedPasswords) {
-		if (licenseType.toLowerCase().contains("local")) {
+		if (licenseType.toLowerCase().contains(PROJECT_LOCAL)) {
 			// nothing to do
-		} else if (licenseType.toLowerCase().contains("shared")) {
+		} else if (licenseType.toLowerCase().contains(PROJECT_SHARED)) {
 			// -NTS "http://10.0.5.11:18080" -NTSLogin "noure:QuM36humHJWA5uAvgKinWw=="
 			addNTSArguments(commands, licenseServer, hashedPasswords);
 
@@ -599,10 +487,10 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 	}
 
 	private void setupProjectType(final List<String> commands, final Map<String, String> hashedPasswords) {
-		if (projectType.toLowerCase().contains("local")) {
+		if (projectType.toLowerCase().contains(PROJECT_LOCAL)) {
 			commands.add("-project \"" + localProjectFile + "\"");
 
-		} else if (projectType.toLowerCase().contains("shared")) {
+		} else if (projectType.toLowerCase().contains(PROJECT_SHARED)) {
 			commands.add("-checkoutProject \"" + sharedProjectName + "\"");
 			if (sharedProjectServer instanceof NTSServerInfo) {
 				// -NTS "http://10.0.5.11:18080" -NTSLogin "noure:QuM36humHJWA5uAvgKinWw=="
@@ -681,16 +569,6 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 		return commandInterpreter.perform(build, launcher, listener);
 	}
 
-	private static boolean isOsWindows(final Launcher launcher) {
-		return !launcher.isUnix();
-	}
-
-	private static void addNTSArguments(final List<String> commands, final NTSServerInfo n, final Map<String, String> hashedPasswords) {
-		commands.add("-NTS \"" + n.getUrl() + "\"");
-		commands.add("-NTSLogin \"" + n.getLoginUser() + ":" +
-				hashedPasswords.get(n.getLoginPassword()) + "\"");
-	}
-
 	/**
 	 * Is project type string.
 	 *
@@ -727,13 +605,6 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 	public boolean isRepportCustomPath() {
 		return isReportType("reportTypeCustom");
 	}
-	/*public String isReportType(final String type) {
-		if (StringUtils.trimToNull(reportType) == null) {
-			return "reportTypeDefault".equalsIgnoreCase(type) == true ? "true" : "false";
-		}
-
-		return reportType.equalsIgnoreCase(type) ? "true" : "false";
-	}*/
 
 	/**
 	 * Is license type string.
@@ -749,28 +620,36 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 		return licenseType.equalsIgnoreCase(type) ? "true" : "false";
 	}
 
-	/**
-	 * Gets xml report artifact path.
-	 *
-	 * @return the xml report artifact path
-	 */
 	public String getXMLReportArtifactPath() {
-		if (isRepportCustomPath()) {
-			return PluginUtils.removeWorkspace(xmlReport);
-		}
-		return "neoload-report/report.xml";
+		return constructXMLReportArtifactPath();
 	}
 
 	/**
-	 * Gets html report artifact path.
+	 * Construct xml report artifact path string.
 	 *
-	 * @return the html report artifact path
+	 * @return the string
 	 */
-	public String getHTMLReportArtifactPath() {
+	public String constructXMLReportArtifactPath() {
 		if (isRepportCustomPath()) {
-			return PluginUtils.removeWorkspace(htmlReport);
+			return PluginUtils.removeWorkspaceOrRelativePoint(xmlReport);
 		}
-		return "neoload-report/report.html";
+		return "/neoload-report/report.xml";
+	}
+
+	public String getHTMLReportArtifactPath() {
+		return constructHTMLReportArtifactPath();
+	}
+
+	/**
+	 * Construct html report artifact path string.
+	 *
+	 * @return the string
+	 */
+	public String constructHTMLReportArtifactPath() {
+		if (isRepportCustomPath()) {
+			return PluginUtils.removeWorkspaceOrRelativePoint(htmlReport);
+		}
+		return "/neoload-report/report.html";
 	}
 
 	/**
@@ -786,298 +665,6 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 		descriptor.setNeoBuildAction(this);
 
 		return descriptor;
-	}
-
-	/**
-	 * The type Descriptor.
-	 */
-	@Extension(optional = true)
-	public static final class DescriptorImpl extends BuildStepDescriptor<Builder> {
-		private NeoBuildAction neoBuildAction = null;
-
-		/**
-		 * Instantiates a new Descriptor.
-		 */
-		public DescriptorImpl() {
-			super(NeoBuildAction.class);
-			load();
-		}
-
-		/**
-		 * Sets neo build action.
-		 *
-		 * @param action the action
-		 */
-		public void setNeoBuildAction(final NeoBuildAction action) {
-			this.neoBuildAction = action;
-		}
-
-		/**
-		 * Gets display name.
-		 *
-		 * @return the display name
-		 */
-		@Override
-		public String getDisplayName() {
-			return "Execute a NeoLoad Scenario";
-		}
-
-		/**
-		 * Configure boolean.
-		 *
-		 * @param req  the req
-		 * @param json the json
-		 * @return the boolean
-		 * @throws FormException the form exception
-		 */
-		@Override
-		public boolean configure(StaplerRequest req, JSONObject json) throws hudson.model.Descriptor.FormException {
-			save();
-			return super.configure(req, json);
-		}
-
-		/**
-		 * Do fill shared project server items list box model.
-		 *
-		 * @param project the project
-		 * @return the list box model
-		 */
-		public ListBoxModel doFillSharedProjectServerItems(@AncestorInPath final Item project) {
-			ServerInfo preselected = null;
-			if (neoBuildAction != null && neoBuildAction.sharedProjectServer != null) {
-				preselected = neoBuildAction.sharedProjectServer;
-			}
-
-			return getProjectServerOptions(preselected);
-		}
-
-
-		/**
-		 * Do fill license server items list box model.
-		 *
-		 * @param project the project
-		 * @return the list box model
-		 */
-		public ListBoxModel doFillLicenseServerItems(@AncestorInPath final Item project) {
-			ServerInfo preselected = null;
-			if (neoBuildAction != null && neoBuildAction.licenseServer != null) {
-				preselected = neoBuildAction.licenseServer;
-			}
-
-			return getLicenseServerOptions(preselected);
-		}
-
-		/**
-		 * @param preselected
-		 * @return the servers for sharing projects
-		 */
-		private ListBoxModel getLicenseServerOptions(final ServerInfo preselected) {
-			final NeoGlobalConfig.DescriptorImpl globalConfigDescriptor =
-					(NeoGlobalConfig.DescriptorImpl) Jenkins.getInstance().getDescriptor(NeoGlobalConfig.class);
-
-			final ListBoxModel listBoxModel = new ListBoxModel();
-
-			if (globalConfigDescriptor == null) {
-				LOGGER.log(Level.FINEST, "No NeoLoad server settings found. Please add servers before configuring jobs. (getLicenseServerOptions)");
-
-			} else {
-				for (final NTSServerInfo server : globalConfigDescriptor.getNtsInfo()) {
-					final String displayName = buildNTSDisplayNameString(server, false);
-					final String optionValue = server.getUniqueID();
-					final Option option = new Option(displayName, optionValue);
-
-					if (server.equals(preselected)) {
-						option.selected = true;
-					}
-
-					listBoxModel.add(option);
-				}
-			}
-
-			if (listBoxModel.isEmpty()) {
-				LOGGER.finest("There is no NTS Server configured !");
-				listBoxModel.add(new Option("Please configure Jenkins System Settings for NeoLoad to add an NTS server.",
-						null));
-			}
-			return listBoxModel;
-		}
-
-		/**
-		 * @param preselected
-		 * @return the servers for sharing projects
-		 */
-		private ListBoxModel getProjectServerOptions(final ServerInfo preselected) {
-			final NeoGlobalConfig.DescriptorImpl globalConfigDescriptor =
-					(org.jenkinsci.plugins.neoload.integration.NeoGlobalConfig.DescriptorImpl) Jenkins.getInstance().getDescriptor(NeoGlobalConfig.class);
-
-			final ListBoxModel listBoxModel = new ListBoxModel();
-
-			if (globalConfigDescriptor == null) {
-				LOGGER.log(Level.FINEST, "No NeoLoad server settings found. Please add servers before configuring jobs. (getProjectServerOptions)");
-
-			} else {
-				for (final NTSServerInfo server : globalConfigDescriptor.getNtsInfo()) {
-					final String displayName = buildNTSDisplayNameString(server, true);
-					final String optionValue = server.getUniqueID();
-					final Option option = new Option(displayName, optionValue);
-
-					if (server.equals(preselected)) {
-						option.selected = true;
-					}
-
-					listBoxModel.add(option);
-				}
-			}
-
-			for (final CollabServerInfo server : globalConfigDescriptor.getCollabInfo()) {
-				final String displayName;
-				if (StringUtils.trimToEmpty(server.getLabel()).length() > 0) {
-					displayName = server.getLabel();
-				} else {
-					displayName = server.getUrl() + ", User: " + server.getLoginUser();
-				}
-				final String optionValue = server.getUniqueID();
-				final Option option = new Option(displayName, optionValue);
-
-				if (server.equals(preselected)) {
-					option.selected = true;
-				}
-
-				listBoxModel.add(option);
-			}
-
-			if (listBoxModel.isEmpty()) {
-				LOGGER.finest("There is no Server configured !");
-				listBoxModel.add(new Option("Please configure Jenkins System Settings for NeoLoad to add a server.",
-						null));
-			}
-			return listBoxModel;
-		}
-
-		private String buildNTSDisplayNameString(final NTSServerInfo server, final boolean isSharedProjectDisplay) {
-			if (StringUtils.trimToEmpty(server.getLabel()).length() > 0) {
-				return server.getLabel();
-			}
-			final StringBuilder displayName = new StringBuilder(server.getUrl());
-			if (isSharedProjectDisplay) {
-				displayName.append(", Repository: " + server.getCollabPath());
-			} else {
-				if (StringUtils.trimToNull(server.getLicenseID()) != null) {
-					displayName.append(", LicenseID: " + StringUtils.left(server.getLicenseID(), 4) + "..." +
-							StringUtils.right(server.getLicenseID(), 4));
-					displayName.append(" (NTS)");
-				}
-			}
-			return displayName.toString();
-		}
-
-		/**
-		 * Is applicable boolean.
-		 *
-		 * @param jobType the job type
-		 * @return the boolean
-		 */
-		@Override
-		public boolean isApplicable(
-				@SuppressWarnings("rawtypes") final Class<? extends AbstractProject> jobType) {
-			return true;
-		}
-
-		/**
-		 * Do check local project file form validation.
-		 *
-		 * @param localProjectFile the local project file
-		 * @return the form validation
-		 */
-		public FormValidation doCheckLocalProjectFile(@QueryParameter("localProjectFile") final String localProjectFile) {
-			return PluginUtils.validateFileExists(localProjectFile, ".nlp", true, false);
-		}
-
-		/**
-		 * Do check executable form validation.
-		 *
-		 * @param executable the executable
-		 * @return the form validation
-		 */
-		public FormValidation doCheckExecutable(@QueryParameter final String executable) {
-			return PluginUtils.validateFileExists(executable, ".exe", false, true);
-		}
-
-		/**
-		 * Do check license vu count form validation.
-		 *
-		 * @param licenseVUCount the license vu count
-		 * @return the form validation
-		 */
-		public FormValidation doCheckLicenseVUCount(@QueryParameter final String licenseVUCount) {
-			return PluginUtils.formValidationErrorToWarning(FormValidation.validatePositiveInteger(licenseVUCount));
-		}
-
-		/**
-		 * Do check license duration form validation.
-		 *
-		 * @param licenseDuration the license duration
-		 * @return the form validation
-		 */
-		public FormValidation doCheckLicenseDuration(@QueryParameter final String licenseDuration) {
-			return PluginUtils.formValidationErrorToWarning(FormValidation.validatePositiveInteger(licenseDuration));
-		}
-
-		/**
-		 * Do check license id form validation.
-		 *
-		 * @param licenseID the license id
-		 * @return the form validation
-		 */
-		public FormValidation doCheckLicenseID(@QueryParameter final String licenseID) {
-			return PluginUtils.formValidationErrorToWarning(FormValidation.validateRequired(licenseID));
-		}
-
-		/**
-		 * Do check shared project name form validation.
-		 *
-		 * @param sharedProjectName the shared project name
-		 * @return the form validation
-		 */
-		public FormValidation doCheckSharedProjectName(@QueryParameter final String sharedProjectName) {
-			return PluginUtils.formValidationErrorToWarning(FormValidation.validateRequired(sharedProjectName));
-		}
-
-		/**
-		 * Do check xml report form validation.
-		 *
-		 * @param xmlReport the xml report
-		 * @return the form validation
-		 */
-		public FormValidation doCheckXmlReport(@QueryParameter final String xmlReport) {
-			return PluginUtils.formValidationErrorToWarning(FormValidation.validateRequired(xmlReport));
-		}
-
-		/**
-		 * Do check scenario name form validation.
-		 *
-		 * @param scenarioName the scenario name
-		 * @return the form validation
-		 */
-		public FormValidation doCheckScenarioName(@QueryParameter final String scenarioName) {
-			return PluginUtils.formValidationErrorToWarning(FormValidation.validateRequired(scenarioName));
-		}
-
-		/**
-		 * Do check display the gui form validation.
-		 *
-		 * @param displayTheGUI the display the gui
-		 * @return the form validation
-		 */
-		public FormValidation doCheckDisplayTheGUI(@QueryParameter final String displayTheGUI) {
-			if (Boolean.valueOf(displayTheGUI)) {
-				return FormValidation.warning("The user launching the process must be able to display a user interface "
-						+ "(which is not always the case for the Jenkins user). Some errors or warning messages may prevent NeoLoad "
-						+ "from closing automatically at the end of a test run. Thus this should only be used for testing purposes.");
-			}
-
-			return FormValidation.ok();
-		}
 	}
 
 	/**
@@ -1119,64 +706,6 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 		return new ShellMine().getFileExtension();
 	}
 
-	private class BatchFileMine extends BatchFile {
-		/**
-		 * Instantiates a new Batch file mine.
-		 */
-		public BatchFileMine() {
-			super("command");
-		}
-
-		/**
-		 * Gets contents.
-		 *
-		 * @return the contents
-		 */
-		@Override
-		public String getContents() {
-			return super.getContents();
-		}
-
-		/**
-		 * Gets file extension.
-		 *
-		 * @return the file extension
-		 */
-		@Override
-		public String getFileExtension() {
-			return super.getFileExtension();
-		}
-	}
-
-	private class ShellMine extends Shell {
-		/**
-		 * Instantiates a new Shell mine.
-		 */
-		public ShellMine() {
-			super("command");
-		}
-
-		/**
-		 * Gets contents.
-		 *
-		 * @return the contents
-		 */
-		@Override
-		public String getContents() {
-			return super.getContents();
-		}
-
-		/**
-		 * Gets file extension.
-		 *
-		 * @return the file extension
-		 */
-		@Override
-		public String getFileExtension() {
-			return super.getFileExtension();
-		}
-	}
-
 	/**
 	 * Gets executable.
 	 *
@@ -1204,10 +733,20 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 		return scenarioName;
 	}
 
+	/**
+	 * Gets html report.
+	 *
+	 * @return the html report
+	 */
 	public String getHtmlReport() {
 		return htmlReport;
 	}
 
+	/**
+	 * Gets xml report.
+	 *
+	 * @return the xml report
+	 */
 	public String getXmlReport() {
 		return xmlReport;
 	}
@@ -1351,10 +890,6 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 		return sharedProjectServer;
 	}
 
-	public boolean isScanAllBuilds() {
-		return scanAllBuilds;
-	}
-
 	/**
 	 * Sets shared project server.
 	 *
@@ -1362,6 +897,10 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 	 */
 	public void setSharedProjectServer(final ServerInfo sharedProjectServer) {
 		this.sharedProjectServer = sharedProjectServer;
+	}
+
+	public boolean isScanAllBuilds() {
+		return scanAllBuilds;
 	}
 
 	/**
@@ -1392,8 +931,406 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 		return graphOptionsInfo;
 	}
 
-	@Override
 	public int getMaxTrends() {
 		return maxTrends;
+	}
+
+	/**
+	 * Perform boolean.
+	 *
+	 * @param build    the build
+	 * @param ws       the ws
+	 * @param launcher the launcher
+	 * @param listener the listener
+	 * @return the boolean
+	 * @throws InterruptedException the interrupted exception
+	 */
+	public void perform(Run<?, ?> build, FilePath ws, Launcher launcher, TaskListener listener) throws InterruptedException, IOException, NeoloadException {
+		final StringBuilder sb = prepareCommandLine(launcher, ws);
+		final SimpleBuildOption jobProp = SimpleBuildOption.fromNPO(this);
+		build.getParent().removeProperty(SimpleBuildOption.class);
+		build.getParent().addProperty(jobProp);
+		build.addAction(new NeoResultsAction(build, xmlReport, htmlReport));
+
+
+		boolean returnedValue = (new NeoloadRunLauncher(sb.toString(), launcher)).perform(build, ws, launcher, listener);
+		build.addAction(new ProjectSpecificAction(build));
+
+		if (this.isArchiveAndBuildTrends()) {
+			final String artifact = PluginUtils.forgeArtifactoryPath(this);
+			listener.getLogger().println("Archiving " + artifact);
+			ArtifactArchiver archiver = new ArtifactArchiver(artifact);
+
+			archiver.perform(build, ws, launcher, listener);
+
+			listener.getLogger().println("Building trends...");
+			PluginUtils.buildGraph(build.getParent());
+		}
+		if(!returnedValue){
+			throw new NeoloadException("Error occurred during the test.");
+		}
+	}
+
+
+	public boolean isArchiveAndBuildTrends() {
+		return archiveAndBuildTrends;
+	}
+
+	public void setArchiveAndBuildTrends(final boolean archiveAndBuildTrends) {
+		this.archiveAndBuildTrends = archiveAndBuildTrends;
+	}
+
+	/**
+	 * The type Descriptor.
+	 */
+	@Extension(optional = true)
+	public static final class DescriptorImpl extends BuildStepDescriptor<Builder> {
+		private NeoBuildAction neoBuildAction = null;
+
+		/**
+		 * Instantiates a new Descriptor.
+		 */
+		public DescriptorImpl() {
+			super(NeoBuildAction.class);
+			load();
+		}
+
+		/**
+		 * Gets license server options.
+		 *
+		 * @param preselected the preselected
+		 * @return the servers for sharing projects
+		 */
+		public static ListBoxModel getLicenseServerOptions(final ServerInfo preselected) {
+			final NeoGlobalConfig.DescriptorImpl globalConfigDescriptor = PluginUtils.getNeoGlobalConfig();
+
+			final ListBoxModel listBoxModel = new ListBoxModel();
+
+			if (globalConfigDescriptor == null) {
+				LOGGER.log(Level.FINEST, "No NeoLoad server settings found. Please add servers before configuring jobs. (getLicenseServerOptions)");
+
+			} else {
+				for (final NTSServerInfo server : globalConfigDescriptor.getNtsInfo()) {
+					final String displayName = buildNTSDisplayNameString(server, false);
+					final String optionValue = server.getUniqueID();
+					final Option option = new Option(displayName, optionValue);
+
+					if (server.equals(preselected)) {
+						option.selected = true;
+					}
+
+					listBoxModel.add(option);
+				}
+			}
+
+			if (listBoxModel.isEmpty()) {
+				LOGGER.finest("There is no NTS Server configured !");
+				listBoxModel.add(new Option("Please configure Jenkins System Settings for NeoLoad to add an NTS server.",
+						null));
+			}
+			return listBoxModel;
+		}
+
+		/**
+		 * Build nts display name string string.
+		 *
+		 * @param server                 the server
+		 * @param isSharedProjectDisplay the is shared project display
+		 * @return the string
+		 */
+		public static String buildNTSDisplayNameString(final NTSServerInfo server, final boolean isSharedProjectDisplay) {
+			if (StringUtils.trimToEmpty(server.getLabel()).length() > 0) {
+				return server.getLabel();
+			}
+			final StringBuilder displayName = new StringBuilder(server.getUrl());
+			if (isSharedProjectDisplay) {
+				displayName.append(", Repository: " + server.getCollabPath());
+			} else {
+				if (StringUtils.trimToNull(server.getLicenseID()) != null) {
+					displayName.append(", LicenseID: " + StringUtils.left(server.getLicenseID(), 4) + "..." +
+							StringUtils.right(server.getLicenseID(), 4));
+					displayName.append(" (NTS)");
+				}
+			}
+			return displayName.toString();
+		}
+
+		/**
+		 * Sets neo build action.
+		 *
+		 * @param action the action
+		 */
+		public void setNeoBuildAction(final NeoBuildAction action) {
+			this.neoBuildAction = action;
+		}
+
+		/**
+		 * Gets display name.
+		 *
+		 * @return the display name
+		 */
+		@Override
+		public String getDisplayName() {
+			return "Execute a NeoLoad Scenario";
+		}
+
+		/**
+		 * Configure boolean.
+		 *
+		 * @param req  the req
+		 * @param json the json
+		 * @return the boolean
+		 * @throws FormException the form exception
+		 */
+		@Override
+		public boolean configure(StaplerRequest req, JSONObject json) throws hudson.model.Descriptor.FormException {
+			save();
+			return super.configure(req, json);
+		}
+
+		/**
+		 * Do fill shared project server items list box model.
+		 *
+		 * @param project the project
+		 * @return the list box model
+		 */
+		public ListBoxModel doFillSharedProjectServerItems(@AncestorInPath final Item project) {
+			ServerInfo preselected = null;
+			if (neoBuildAction != null && neoBuildAction.sharedProjectServer != null) {
+				preselected = neoBuildAction.sharedProjectServer;
+			}
+
+			return getProjectServerOptions(preselected);
+		}
+
+		/**
+		 * Do fill license server items list box model.
+		 *
+		 * @param project the project
+		 * @return the list box model
+		 */
+		public ListBoxModel doFillLicenseServerItems(@AncestorInPath final Item project) {
+			ServerInfo preselected = null;
+			if (neoBuildAction != null && neoBuildAction.licenseServer != null) {
+				preselected = neoBuildAction.licenseServer;
+			}
+
+			return getLicenseServerOptions(preselected);
+		}
+
+		/**
+		 * @param preselected
+		 * @return the servers for sharing projects
+		 */
+		private ListBoxModel getProjectServerOptions(final ServerInfo preselected) {
+			final NeoGlobalConfig.DescriptorImpl globalConfigDescriptor = PluginUtils.getNeoGlobalConfig();
+
+			final ListBoxModel listBoxModel = new ListBoxModel();
+
+			if (globalConfigDescriptor == null) {
+				LOGGER.log(Level.FINEST, "No NeoLoad server settings found. Please add servers before configuring jobs. (getProjectServerOptions)");
+
+			} else {
+				for (final NTSServerInfo server : globalConfigDescriptor.getNtsInfo()) {
+					final String displayName = buildNTSDisplayNameString(server, true);
+					final String optionValue = server.getUniqueID();
+					final Option option = new Option(displayName, optionValue);
+
+					if (server.equals(preselected)) {
+						option.selected = true;
+					}
+
+					listBoxModel.add(option);
+				}
+			}
+
+			for (final CollabServerInfo server : globalConfigDescriptor.getCollabInfo()) {
+				final String displayName = server.getNonEmptyLabel(true);
+				final String optionValue = server.getUniqueID();
+				final Option option = new Option(displayName, optionValue);
+
+				if (server.equals(preselected)) {
+					option.selected = true;
+				}
+
+				listBoxModel.add(option);
+			}
+
+			if (listBoxModel.isEmpty()) {
+				LOGGER.finest("There is no Server configured !");
+				listBoxModel.add(new Option("Please configure Jenkins System Settings for NeoLoad to add a server.",
+						null));
+			}
+			return listBoxModel;
+		}
+
+		/**
+		 * Is applicable boolean.
+		 *
+		 * @param jobType the job type
+		 * @return the boolean
+		 */
+		@Override
+		public boolean isApplicable(
+				@SuppressWarnings("rawtypes") final Class<? extends AbstractProject> jobType) {
+			return true;
+		}
+
+		/**
+		 * Do check local project file form validation.
+		 *
+		 * @param localProjectFile the local project file
+		 * @return the form validation
+		 */
+		public FormValidation doCheckLocalProjectFile(@QueryParameter("localProjectFile") final String localProjectFile) {
+			return PluginUtils.validateFileExists(localProjectFile, ".nlp", true, false);
+		}
+
+		/**
+		 * Do check executable form validation.
+		 *
+		 * @param executable the executable
+		 * @return the form validation
+		 */
+		public FormValidation doCheckExecutable(@QueryParameter final String executable) {
+			return PluginUtils.validateFileExists(executable, ".exe", false, true);
+		}
+
+		/**
+		 * Do check license vu count form validation.
+		 *
+		 * @param licenseVUCount the license vu count
+		 * @return the form validation
+		 */
+		public FormValidation doCheckLicenseVUCount(@QueryParameter final String licenseVUCount) {
+			return PluginUtils.formValidationErrorToWarning(FormValidation.validatePositiveInteger(licenseVUCount));
+		}
+
+		/**
+		 * Do check license duration form validation.
+		 *
+		 * @param licenseDuration the license duration
+		 * @return the form validation
+		 */
+		public FormValidation doCheckLicenseDuration(@QueryParameter final String licenseDuration) {
+			return PluginUtils.formValidationErrorToWarning(FormValidation.validatePositiveInteger(licenseDuration));
+		}
+
+		/**
+		 * Do check license id form validation.
+		 *
+		 * @param licenseID the license id
+		 * @return the form validation
+		 */
+		public FormValidation doCheckLicenseID(@QueryParameter final String licenseID) {
+			return PluginUtils.formValidationErrorToWarning(FormValidation.validateRequired(licenseID));
+		}
+
+		/**
+		 * Do check shared project name form validation.
+		 *
+		 * @param sharedProjectName the shared project name
+		 * @return the form validation
+		 */
+		public FormValidation doCheckSharedProjectName(@QueryParameter final String sharedProjectName) {
+			return PluginUtils.formValidationErrorToWarning(FormValidation.validateRequired(sharedProjectName));
+		}
+
+		/**
+		 * Do check xml report form validation.
+		 *
+		 * @param xmlReport the xml report
+		 * @return the form validation
+		 */
+		public FormValidation doCheckXmlReport(@QueryParameter final String xmlReport) {
+			return PluginUtils.formValidationErrorToWarning(FormValidation.validateRequired(xmlReport));
+		}
+
+		/**
+		 * Do check scenario name form validation.
+		 *
+		 * @param scenarioName the scenario name
+		 * @return the form validation
+		 */
+		public FormValidation doCheckScenarioName(@QueryParameter final String scenarioName) {
+			return PluginUtils.formValidationErrorToWarning(FormValidation.validateRequired(scenarioName));
+		}
+
+		/**
+		 * Do check display the gui form validation.
+		 *
+		 * @param displayTheGUI the display the gui
+		 * @return the form validation
+		 */
+		public FormValidation doCheckDisplayTheGUI(@QueryParameter final String displayTheGUI) {
+			if (Boolean.valueOf(displayTheGUI)) {
+				return FormValidation.warning("The user launching the process must be able to display a user interface "
+						+ "(which is not always the case for the Jenkins user). Some errors or warning messages may prevent NeoLoad "
+						+ "from closing automatically at the end of a test run. Thus this should only be used for testing purposes.");
+			}
+
+			return FormValidation.ok();
+		}
+	}
+
+	private class BatchFileMine extends BatchFile {
+		/**
+		 * Instantiates a new Batch file mine.
+		 */
+		public BatchFileMine() {
+			super("command");
+		}
+
+		/**
+		 * Gets contents.
+		 *
+		 * @return the contents
+		 */
+		@Override
+		public String getContents() {
+			return super.getContents();
+		}
+
+		/**
+		 * Gets file extension.
+		 *
+		 * @return the file extension
+		 */
+		@Override
+		public String getFileExtension() {
+			return super.getFileExtension();
+		}
+	}
+
+	/**
+	 * The type Shell mine.
+	 */
+	public class ShellMine extends Shell {
+		/**
+		 * Instantiates a new Shell mine.
+		 */
+		public ShellMine() {
+			super("command");
+		}
+
+		/**
+		 * Gets contents.
+		 *
+		 * @return the contents
+		 */
+		@Override
+		public String getContents() {
+			return super.getContents();
+		}
+
+		/**
+		 * Gets file extension.
+		 *
+		 * @return the file extension
+		 */
+		@Override
+		public String getFileExtension() {
+			return super.getFileExtension();
+		}
 	}
 }

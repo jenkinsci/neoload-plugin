@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, Neotys
+ * Copyright (c) 2018, Neotys
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,14 +27,10 @@
 package org.jenkinsci.plugins.neoload.integration;
 
 import com.google.common.collect.Lists;
-import hudson.Functions;
-import hudson.model.AbstractBuild;
-import hudson.model.AbstractProject;
-import hudson.model.ProminentProjectAction;
-import hudson.model.Run;
+import hudson.model.*;
 import hudson.util.IOUtils;
 import jenkins.model.Jenkins;
-import jenkins.model.JenkinsLocationConfiguration;
+import jenkins.tasks.SimpleBuildStep;
 import org.jenkinsci.plugins.neoload.integration.supporting.GraphOptionsInfo;
 import org.jenkinsci.plugins.neoload.integration.supporting.NeoLoadPluginOptions;
 import org.jenkinsci.plugins.neoload.integration.supporting.PluginUtils;
@@ -47,18 +43,20 @@ import java.io.FileFilter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
-import java.util.logging.Logger;
 
 /**
  * Along with the jelly file and the Factory class, this class adds the two trend graphs to a job page.
  */
-public class ProjectSpecificAction implements ProminentProjectAction {
+public class ProjectSpecificAction implements ProminentProjectAction, SimpleBuildStep.LastBuildAction {
 
 	/**
 	 * A link to the Jenkins job.
 	 */
 	private final AbstractProject<?, ?> project;
+
+	private final Run<?, ?> run;
 
 	private final NeoLoadPluginOptions npo;
 
@@ -74,6 +72,19 @@ public class ProjectSpecificAction implements ProminentProjectAction {
 		this.project = project;
 		npo = PluginUtils.getPluginOptions(project);
 		picturesFolder = PluginUtils.getPicturesFolder(project);
+		this.run = null;
+	}
+
+	/**
+	 * Instantiates a new Project specific action.
+	 *
+	 * @param run the run
+	 */
+	public ProjectSpecificAction(final Run<?, ?> run) {
+		this.run = run;
+		npo = PluginUtils.getPluginOptions(run.getParent());
+		picturesFolder = PluginUtils.getPicturesFolder(run.getParent());
+		this.project = null;
 	}
 
 	/**
@@ -83,7 +94,10 @@ public class ProjectSpecificAction implements ProminentProjectAction {
 	 */
 	@Override
 	public String getIconFileName() {
-		return hasGraph() ? "/plugin/neoload-jenkins-plugin/images/refresh.png" : null;
+		if (project != null) {
+			return hasGraph() ? "/plugin/neoload-jenkins-plugin/images/refresh.png" : null;
+		}
+		return null;
 	}
 
 	/**
@@ -93,9 +107,12 @@ public class ProjectSpecificAction implements ProminentProjectAction {
 	 */
 	@Override
 	public String getDisplayName() {
-		return hasGraph() ? "Refresh NeoLoad trends" : null;
+		if (project != null) {
+			return hasGraph() ? "Refresh NeoLoad trends" : null;
+		}
+		//return hasGraph() ? "NeoLoad trends" : null;
+		return null;
 	}
-
 
 	private boolean hasGraph() {
 		if (npo == null) {
@@ -114,7 +131,6 @@ public class ProjectSpecificAction implements ProminentProjectAction {
 				npo.isShowTrendErrorRate();
 	}
 
-
 	/**
 	 * This corresponds to the url of the image files displayed on the job page.
 	 *
@@ -125,18 +141,17 @@ public class ProjectSpecificAction implements ProminentProjectAction {
 		return "neoload";
 	}
 
-
 	/**
 	 * Scan build report.
 	 */
-	public void scanBuildReport(){
-		if(npo == null || !npo.isScanAllBuilds()){
+	public void scanBuildReport() {
+		if (npo == null || !npo.isScanAllBuilds()) {
 			return;
 		}
-		for(Run run : project.getBuilds()){
-			if(run.getAction(NeoResultsAction.class)==null){
-				if(run instanceof AbstractBuild) {
-					run.addAction(new NeoResultsAction((AbstractBuild<?, ?>) run,null,null));
+		for (Run run : project.getBuilds()) {
+			if (run.getAction(NeoResultsAction.class) == null) {
+				if (run instanceof AbstractBuild) {
+					run.addAction(new NeoResultsAction((AbstractBuild<?, ?>) run, null, null));
 				}
 			}
 		}
@@ -149,7 +164,8 @@ public class ProjectSpecificAction implements ProminentProjectAction {
 	 */
 	public List<String> getChartsName() {
 		scanBuildReport();
-		if (PluginUtils.GRAPH_LOCK.tryLock(project)) {
+		//Be careful this is an optimised test
+		if ((project != null && PluginUtils.GRAPH_LOCK.tryLock(project)) || (run != null && PluginUtils.GRAPH_LOCK.tryLock(run.getParent()))) {
 			try {
 				List<String> chartName = new ArrayList<>();
 
@@ -169,7 +185,11 @@ public class ProjectSpecificAction implements ProminentProjectAction {
 				}
 				return chartName;
 			} finally {
-				PluginUtils.GRAPH_LOCK.unlock(project);
+				if (project != null) {
+					PluginUtils.GRAPH_LOCK.unlock(project);
+				} else {
+					PluginUtils.GRAPH_LOCK.unlock(run.getParent());
+				}
 			}
 		} else {
 			return Lists.newArrayList(Jenkins.getInstance().getRootUrl() + Jenkins.RESOURCE_PATH + "/images/spinner.gif");
@@ -188,7 +208,6 @@ public class ProjectSpecificAction implements ProminentProjectAction {
 		}).start();
 
 	}
-
 
 	/**
 	 * Gets graph options info.
@@ -233,15 +252,21 @@ public class ProjectSpecificAction implements ProminentProjectAction {
 		outputStream.close();
 	}
 
-
 	/**
 	 * This is the method Hudson uses when a dynamic png is referenced in a jelly file.
 	 *
 	 * @param imageName the image name
-	 * @return img
+	 * @return img img
 	 */
 	public Png getImg(String imageName) {
 		return new Png(new File(picturesFolder, imageName));
+	}
+
+	@Override
+	public Collection<? extends Action> getProjectActions() {
+		List<ProjectSpecificAction> projectActions = new ArrayList<>();
+		projectActions.add(this);
+		return projectActions;
 	}
 
 	/**

@@ -3,7 +3,7 @@
 
 	<!-- note that the "field" attribute must be in the outer-most tags for the help file to be associated with it. -->
 	<f:entry title="NeoLoad Executable" field="executable" >
-		<f:textbox value="${executable}" placeholder="C:\Program Files\NeoLoad 5.2\bin\NeoLoadCmd.exe (required)"/>
+		<f:textbox value="${executable}" placeholder="/opt/NeoLoad 6.5/bin/NeoLoadCmd"/>
 	</f:entry>
 
 	<!-- choose a local or remote (shared) project - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  -->

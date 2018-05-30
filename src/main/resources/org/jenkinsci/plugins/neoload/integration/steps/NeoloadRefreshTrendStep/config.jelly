@@ -1,0 +1,69 @@
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
+	<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+
+	<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  -->
+	<f:section title="Default NeoLoad Trend Graphs" name="incorporateNeoLoadResults" >
+	</f:section>
+
+	<f:entry title="Avg" field="showTrendAverageResponse" >
+		<f:checkbox name="showTrendAverageResponse" checked="${showTrendAverageResponse}"
+		            default="true"
+		            title="Display Trend Graph: Average Response Time (all pages)" />
+	</f:entry>
+
+	<f:entry title="Errors" field="showTrendErrorRate" >
+		<f:checkbox name="showTrendErrorRate" checked="${showTrendErrorRate}"
+		            default="true"
+		            title="Display Trend Graph: Error Rate %" />
+	</f:entry>
+
+	<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+
+	<f:section title="Define NeoLoad Trend Graphs" name="graphs" >
+	</f:section>
+
+
+	<f:entry title="Graphs" >
+		<f:repeatable field="graphOptionsInfo" minimum="0" add="Add Graph">
+			<table width="100%">
+				<f:entry title="Name" field="name" placeholder="(optional)">
+					<f:textbox />
+				</f:entry>
+
+
+				<f:entry title="Curve(s)" >
+
+					<f:repeatable name="curveName" field="curve" add="Add a Curve" minimum="1">
+
+						<table width="100%">
+							<f:entry title="Curve" field="path" >
+								<f:textbox value="${curveVar.path}" placeholder="UserPath>Actions>(Transaction or Page) OR Controller/User Load OR LG localhost:7100/CPU Load (required)" />
+							</f:entry>
+
+							<f:entry title="">
+								<div align="right">
+									<f:repeatableDeleteButton value="Delete Curve" />
+								</div>
+							</f:entry>
+						</table>
+
+					</f:repeatable>
+				</f:entry>
+
+
+				<f:entry title="Statistic" field="statistic">
+					<f:select />
+				</f:entry>
+
+				<div align="right">
+					<f:repeatableDeleteButton value="Delete Graph" />
+				</div>
+
+			</table>
+		</f:repeatable>
+	</f:entry>
+	<f:entry title="Limit the number of points in trend charts" field="maxTrends"
+	         help="/descriptor/org.jenkinsci.plugins.neoload.integration.NeoBuildAction/help/maxTrends">
+		<f:textbox value="${maxTrends}" default="" placeholder="0 for unlimited"	/>
+	</f:entry>
+</j:jelly>

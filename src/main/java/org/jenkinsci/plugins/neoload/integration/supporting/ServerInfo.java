@@ -1,24 +1,57 @@
+/*
+ * Copyright (c) 2018, Neotys
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *     * Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above copyright
+ *       notice, this list of conditions and the following disclaimer in the
+ *       documentation and/or other materials provided with the distribution.
+ *     * Neither the name of Neotys nor the
+ *       names of its contributors may be used to endorse or promote products
+ *       derived from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL NEOTYS BE LIABLE FOR ANY
+ * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 package org.jenkinsci.plugins.neoload.integration.supporting;
 
-import java.io.Serializable;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
+import hudson.Extension;
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.time.DateFormatUtils;
+import org.jenkinsci.plugins.workflow.steps.AbstractStepImpl;
 import org.kohsuke.stapler.DataBoundConstructor;
+
+import java.io.Serializable;
+import java.util.UUID;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * The type Server info.
  */
-public class ServerInfo implements Serializable {
+public class ServerInfo extends AbstractStepImpl implements Serializable {
 
-	/** Log various messages. */
+	/**
+	 * Log various messages.
+	 */
 	private static final Logger LOGGER = Logger.getLogger(ServerInfo.class.getName());
 
-	/** Generated. */
+	/**
+	 * Generated.
+	 */
 	private static final long serialVersionUID = 460155244760235756L;
 
 	private String uniqueID = "";
@@ -105,7 +138,7 @@ public class ServerInfo implements Serializable {
 
 		} catch (final DecoderException e) {
 			// this happens during normal usage when saving the password on the config page.
-			LOGGER.log(Level.FINEST, "Issue decoding password for server. URL: " + url + ", user: " + loginUser + 
+			LOGGER.log(Level.FINEST, "Issue decoding password for server. URL: " + url + ", user: " + loginUser +
 					", message: " + e.getMessage());
 		}
 
@@ -132,15 +165,6 @@ public class ServerInfo implements Serializable {
 	}
 
 	/**
-	 * Sets unique id.
-	 *
-	 * @param uniqueID the unique id
-	 */
-	public void setUniqueID(final String uniqueID) {
-		this.uniqueID = uniqueID;
-	}
-
-	/**
 	 * Gets unique id.
 	 *
 	 * @return the unique id
@@ -148,11 +172,27 @@ public class ServerInfo implements Serializable {
 	public String getUniqueID() {
 		if (StringUtils.trimToEmpty(uniqueID).length() == 0) {
 			synchronized (ServerInfo.class) {
-				return DateFormatUtils.format(System.currentTimeMillis(), "yyyy-MM-dd kk:mm:ss.SSS (Z)");
+				return UUID.randomUUID().toString();
 			}
 		}
-
 		return uniqueID;
+	}
+
+
+	public String getNonEmptyLabel(boolean forCollab){
+		if(getLabel().trim().isEmpty()) {
+			return getUrl() + ", User: " + getLoginUser();
+		}else{
+			return getLabel();
+		}
+	}
+	/**
+	 * Sets unique id.
+	 *
+	 * @param uniqueID the unique id
+	 */
+	public void setUniqueID(final String uniqueID) {
+		this.uniqueID = uniqueID;
 	}
 
 	/**
@@ -173,6 +213,7 @@ public class ServerInfo implements Serializable {
 		return label;
 	}
 
+
 	/**
 	 * Sets label.
 	 *
@@ -180,5 +221,21 @@ public class ServerInfo implements Serializable {
 	 */
 	public void setLabel(final String label) {
 		this.label = label;
+	}
+
+	/**
+	 * The type Descriptor.
+	 */
+	@Extension
+	public static class DescriptorImpl {
+
+		/**
+		 * Gets display name.
+		 *
+		 * @return the display name
+		 */
+		public String getDisplayName() {
+			return "ServerInfo";
+		}
 	}
 }

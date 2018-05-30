@@ -1,3 +1,29 @@
+/*
+ * Copyright (c) 2018, Neotys
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *     * Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above copyright
+ *       notice, this list of conditions and the following disclaimer in the
+ *       documentation and/or other materials provided with the distribution.
+ *     * Neither the name of Neotys nor the
+ *       names of its contributors may be used to endorse or promote products
+ *       derived from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL NEOTYS BE LIABLE FOR ANY
+ * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 package org.jenkinsci.plugins.neoload.integration.supporting;
 
 import org.jfree.chart.ChartFactory;
@@ -21,17 +47,15 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.text.DecimalFormat;
-import java.util.*;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 
 /**
  * The type Neoload graph x path stat.
  */
 public class NeoloadGraphXPathStat {
-
-
-
 
 	/**
 	 * We use the same size as the default junit trend graph.
@@ -80,6 +104,84 @@ public class NeoloadGraphXPathStat {
 		this.curves = curves;
 		this.yLabel = yLabel;
 		this.legend = true;
+	}
+
+	/**
+	 * Creates the standard tick units.
+	 * <p>
+	 * If you don't like these defaults, create your own instance of TickUnits
+	 * and then pass it to the setStandardTickUnits() method in the
+	 * NumberAxis class.
+	 * see setStandardTickUnits(TickUnitSource)
+	 * see createIntegerTickUnits()
+	 *
+	 * @return The standard tick units.
+	 */
+	public static TickUnitSource createStandardTickUnits() {
+
+		TickUnits units = new TickUnits();
+
+		DecimalFormat df5 = new DecimalFormat("0.000");
+		DecimalFormat df6 = new DecimalFormat("0.00");
+		DecimalFormat df7 = new DecimalFormat("0.0");
+		DecimalFormat df8 = new DecimalFormat("#,##0");
+		DecimalFormat df9 = new DecimalFormat("#,###,##0");
+		DecimalFormat df10 = new DecimalFormat("#,###,###,##0");
+
+		// we can add the units in any order, the TickUnits collection will
+		// sort them...
+
+		units.add(new NumberTickUnit(0.001, df5));
+		units.add(new NumberTickUnit(0.01, df6));
+		units.add(new NumberTickUnit(0.1, df7));
+		units.add(new NumberTickUnit(1, df8));
+		units.add(new NumberTickUnit(10, df8));
+		units.add(new NumberTickUnit(100, df8));
+		units.add(new NumberTickUnit(1000, df8));
+		units.add(new NumberTickUnit(10000, df8));
+		units.add(new NumberTickUnit(100000, df8));
+		units.add(new NumberTickUnit(1000000, df9));
+		units.add(new NumberTickUnit(10000000, df9));
+		units.add(new NumberTickUnit(100000000, df9));
+		units.add(new NumberTickUnit(1000000000, df10));
+		units.add(new NumberTickUnit(10000000000.0, df10));
+		units.add(new NumberTickUnit(100000000000.0, df10));
+
+
+		units.add(new NumberTickUnit(0.025, df5));
+		units.add(new NumberTickUnit(0.25, df6));
+		units.add(new NumberTickUnit(2.5, df7));
+		units.add(new NumberTickUnit(25, df8));
+		units.add(new NumberTickUnit(250, df8));
+		units.add(new NumberTickUnit(2500, df8));
+		units.add(new NumberTickUnit(25000, df8));
+		units.add(new NumberTickUnit(250000, df8));
+		units.add(new NumberTickUnit(2500000, df9));
+		units.add(new NumberTickUnit(25000000, df9));
+		units.add(new NumberTickUnit(250000000, df9));
+		units.add(new NumberTickUnit(2500000000.0, df10));
+		units.add(new NumberTickUnit(25000000000.0, df10));
+		units.add(new NumberTickUnit(250000000000.0, df10));
+
+
+		units.add(new NumberTickUnit(0.005, df5));
+		units.add(new NumberTickUnit(0.05, df6));
+		units.add(new NumberTickUnit(0.5, df7));
+		units.add(new NumberTickUnit(5L, df8));
+		units.add(new NumberTickUnit(50L, df8));
+		units.add(new NumberTickUnit(500L, df8));
+		units.add(new NumberTickUnit(5000L, df8));
+		units.add(new NumberTickUnit(50000L, df8));
+		units.add(new NumberTickUnit(500000L, df8));
+		units.add(new NumberTickUnit(5000000L, df9));
+		units.add(new NumberTickUnit(50000000L, df9));
+		units.add(new NumberTickUnit(500000000L, df9));
+		units.add(new NumberTickUnit(5000000000L, df10));
+		units.add(new NumberTickUnit(50000000000L, df10));
+		units.add(new NumberTickUnit(500000000000L, df10));
+
+		return units;
+
 	}
 
 	/**
@@ -209,7 +311,7 @@ public class NeoloadGraphXPathStat {
 	public void writePng(final File file) throws IOException {
 		final int width = computeWidth();
 		final JFreeChart chart = createChart();
-		final int height = computeHeight(chart,width);
+		final int height = computeHeight(chart, width);
 		ChartUtilities.saveChartAsPNG(file, chart, width, height);
 
 	}
@@ -236,86 +338,6 @@ public class NeoloadGraphXPathStat {
 			height += arrange.getHeight();
 		}
 		return height;
-	}
-
-
-	/**
-	 * Creates the standard tick units.
-	 *
-	 * If you don't like these defaults, create your own instance of TickUnits
-	 * and then pass it to the setStandardTickUnits() method in the
-	 * NumberAxis class.
-	 *	 see setStandardTickUnits(TickUnitSource)
-	 * 	 see createIntegerTickUnits()
-	 *
-	 *
-	 * @return The standard tick units.
-	 */
-	public static TickUnitSource createStandardTickUnits() {
-
-		TickUnits units = new TickUnits();
-
-		DecimalFormat df5 = new DecimalFormat("0.000");
-		DecimalFormat df6 = new DecimalFormat("0.00");
-		DecimalFormat df7 = new DecimalFormat("0.0");
-		DecimalFormat df8 = new DecimalFormat("#,##0");
-		DecimalFormat df9 = new DecimalFormat("#,###,##0");
-		DecimalFormat df10 = new DecimalFormat("#,###,###,##0");
-
-		// we can add the units in any order, the TickUnits collection will
-		// sort them...
-
-		units.add(new NumberTickUnit(0.001, df5));
-		units.add(new NumberTickUnit(0.01, df6));
-		units.add(new NumberTickUnit(0.1, df7));
-		units.add(new NumberTickUnit(1, df8));
-		units.add(new NumberTickUnit(10, df8));
-		units.add(new NumberTickUnit(100, df8));
-		units.add(new NumberTickUnit(1000, df8));
-		units.add(new NumberTickUnit(10000, df8));
-		units.add(new NumberTickUnit(100000, df8));
-		units.add(new NumberTickUnit(1000000, df9));
-		units.add(new NumberTickUnit(10000000, df9));
-		units.add(new NumberTickUnit(100000000, df9));
-		units.add(new NumberTickUnit(1000000000, df10));
-		units.add(new NumberTickUnit(10000000000.0, df10));
-		units.add(new NumberTickUnit(100000000000.0, df10));
-
-
-		units.add(new NumberTickUnit(0.025, df5));
-		units.add(new NumberTickUnit(0.25, df6));
-		units.add(new NumberTickUnit(2.5, df7));
-		units.add(new NumberTickUnit(25, df8));
-		units.add(new NumberTickUnit(250, df8));
-		units.add(new NumberTickUnit(2500, df8));
-		units.add(new NumberTickUnit(25000, df8));
-		units.add(new NumberTickUnit(250000, df8));
-		units.add(new NumberTickUnit(2500000, df9));
-		units.add(new NumberTickUnit(25000000, df9));
-		units.add(new NumberTickUnit(250000000, df9));
-		units.add(new NumberTickUnit(2500000000.0, df10));
-		units.add(new NumberTickUnit(25000000000.0, df10));
-		units.add(new NumberTickUnit(250000000000.0, df10));
-
-
-		units.add(new NumberTickUnit(0.005, df5));
-		units.add(new NumberTickUnit(0.05, df6));
-		units.add(new NumberTickUnit(0.5, df7));
-		units.add(new NumberTickUnit(5L, df8));
-		units.add(new NumberTickUnit(50L, df8));
-		units.add(new NumberTickUnit(500L, df8));
-		units.add(new NumberTickUnit(5000L, df8));
-		units.add(new NumberTickUnit(50000L, df8));
-		units.add(new NumberTickUnit(500000L, df8));
-		units.add(new NumberTickUnit(5000000L, df9));
-		units.add(new NumberTickUnit(50000000L, df9));
-		units.add(new NumberTickUnit(500000000L, df9));
-		units.add(new NumberTickUnit(5000000000L, df10));
-		units.add(new NumberTickUnit(50000000000L, df10));
-		units.add(new NumberTickUnit(500000000000L, df10));
-
-		return units;
-
 	}
 
 

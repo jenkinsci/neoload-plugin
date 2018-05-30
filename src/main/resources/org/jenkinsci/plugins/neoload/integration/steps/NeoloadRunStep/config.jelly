@@ -1,0 +1,212 @@
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define"
+	xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
+
+	<!-- note that the "field" attribute must be in the outer-most tags for the help file to be associated with it. -->
+	<f:entry title="NeoLoad Executable" field="executable" >
+		<f:textbox value="${executable}" placeholder="/opt/NeoLoad 6.5/bin/NeoLoadCmd"/>
+	</f:entry>
+
+	<!-- choose a local or remote (shared) project - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  -->
+	<f:section title="Project Type" >
+		<f:radioBlock name="projectType" value="projectTypeLocal" title="Local Project" 
+			help="/descriptor/org.jenkinsci.plugins.neoload.integration.NeoBuildAction/help/projectTypeLocal" 
+			default="projectTypeLocal" 
+			checked="true" inline="true">
+			<f:nested>
+				<f:entry title="Project File" field="localProjectFile" >
+					<f:textbox placeholder="/Users/userName/neoload_projects/JenkinsExample/JenkinsExample.nlp (required)"  />
+				</f:entry>
+			</f:nested>
+		</f:radioBlock>
+		
+		<f:radioBlock name="projectType" value="projectTypeShared" title="Shared Project" checked="${instance.isProjectType('projectTypeShared')}" 
+			help="/descriptor/org.jenkinsci.plugins.neoload.integration.NeoBuildAction/help/projectTypeShared" 
+		inline="true">
+			<f:nested>
+				<f:entry field="sharedProjectServer" title="Shared Project Server">
+   					<f:select />
+				</f:entry>
+				<f:entry field="sharedProjectName" title="Project Name">
+					<f:textbox placeholder="(required)" />
+				</f:entry>
+				
+			    <f:entry field="publishTestResults" title="Publish">
+					<f:checkbox name="publishTestResults" checked="${publishTestResults}" 
+						title="Publish the Test Results" />
+				</f:entry>
+				
+			</f:nested>
+		</f:radioBlock>
+	</f:section>
+	
+	
+	<!--  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  -->
+
+	<f:section title="Project Details" name="projectDetails" >
+	</f:section>
+
+
+	<f:entry title="Scenario Name" field="scenarioName" >
+		<f:textbox name="scenarioName" value="${scenarioName}" placeholder="ScenarioName (required)" />
+	</f:entry>
+  
+	<f:entry title="Test Result Name" field="testResultName" >
+		<f:textbox name="testResultName" value="${testResultName}"  
+			placeholder="$$Date{hh:mm - dd MMM yyyy} (build $${BUILD_NUMBER}) (optional)"
+			default="$$Date{hh:mm - dd MMM yyyy} (build $${BUILD_NUMBER})" />
+	</f:entry>
+
+	<f:entry title="Test Description" field="testDescription" >
+		<f:textbox value="${testDescription}" placeholder="(optional)" />
+	</f:entry>
+
+    <f:entry field="displayTheGUI" title="GUI" >
+		<f:checkbox name="displayGUI" checked="${displayGUI}"
+			 title="Display the GUI" />
+	</f:entry>
+	
+	
+	<!-- report type - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  -->
+	
+	<f:section title="Report File Details" >
+		<f:radioBlock name="reportType" value="reportTypeDefault" title="Default Report File Names" 
+			help="/descriptor/org.jenkinsci.plugins.neoload.integration.NeoBuildAction/help/reportTypeDefault" 
+			default="reportTypeDefault" 
+			checked="true" inline="true">
+		</f:radioBlock>
+		
+		<f:radioBlock name="reportType" value="reportTypeCustom" title="Custom Report File Names" 
+			checked="${instance.isReportType('reportTypeCustom')}" 
+			help="/descriptor/org.jenkinsci.plugins.neoload.integration.NeoBuildAction/help/reportTypeCustom" 
+		inline="true">
+			<f:nested>
+			
+				<f:entry title="HTML Report" field="htmlReport" >
+					<f:textbox name="htmlReport" value="${htmlReport}" default="./neoload-report/report.html"
+						placeholder="$${WORKSPACE}/neoload-report/report.html (optional)" />
+				</f:entry>
+				<f:entry title="XML Report" field="xmlReport" >
+					<f:textbox name="xmlReport" value="${xmlReport}" default="./neoload-report/report.xml"
+						placeholder="$${WORKSPACE}/neoload-report/report.xml (required)" />
+				</f:entry>
+				<f:entry title="PDF Report" field="pdfReport" >
+					<f:textbox name="pdfReport" value="${pdfReport}" 
+					placeholder="$${WORKSPACE}/neoload-report/report.pdf (optional)" />
+				</f:entry>
+				<f:entry title="JUnit Report" field="junitReport" >
+					<f:textbox name="junitReport" value="${junitReport}"  
+						default="./neoload-report/junit-sla-results.xml"
+						placeholder="$${WORKSPACE}/neoload-report/junit-sla-results.xml (optional)" />
+				</f:entry>				
+				
+			</f:nested>
+		</f:radioBlock>
+	</f:section>
+
+		
+	
+	<!-- choose a file or remote license - - - - - - - - - - - - - - - - - - - - - - - - - - - -  -->
+	<f:section title="License Type" >
+	</f:section>
+
+		<f:radioBlock name="licenseType" value="licenseTypeLocal" title="Existing License" 
+			help="/descriptor/org.jenkinsci.plugins.neoload.integration.NeoBuildAction/help/licenseTypeLocal" 
+			default="licenseTypeLocal" 
+			checked="true" inline="true" >
+		</f:radioBlock>
+		
+		<f:radioBlock name="licenseType" value="licenseTypeShared" title="Shared License"  
+			help="/descriptor/org.jenkinsci.plugins.neoload.integration.NeoBuildAction/help/licenseTypeShared" 
+			checked="${instance.isLicenseType('licenseTypeShared')}" inline="true">
+			<f:nested>
+				<f:entry field="licenseServer" title="NTS Server">
+   					<f:select />
+				</f:entry>
+				<f:entry title="Virtual User Count (User Path Count)" field="licenseVUCount" >
+					<f:textbox value="${licenseVUCount}" default="50" placeholder="50 (required)" />
+				</f:entry>
+				<f:entry title="Duration (in hours)" field="licenseDuration" >
+					<f:textbox value="${licenseDuration}" default="2" placeholder="2 (required)" />
+				</f:entry>
+			</f:nested>
+		</f:radioBlock>
+
+
+	<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  -->
+	<f:section title="Advanced Options" name="advancedOptions" >
+	</f:section>
+	
+	<f:entry field="customCommandLineOptions" title="Custom Command Line Options">
+		<f:expandableTextbox value="${customCommandLineOptions}" placeholder="(optional)" />
+	</f:entry>
+	
+	<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  -->
+	<f:section title="Default NeoLoad Trend Graphs" name="incorporateNeoLoadResults" >
+	</f:section>
+	
+	<f:entry title="Avg" field="showTrendAverageResponse" >
+		<f:checkbox name="showTrendAverageResponse" checked="${showTrendAverageResponse}"
+			default="true"   
+			title="Display Trend Graph: Average Response Time (all pages)" />
+	</f:entry>
+	
+	<f:entry title="Errors" field="showTrendErrorRate" >
+		<f:checkbox name="showTrendErrorRate" checked="${showTrendErrorRate}" 
+			default="true"  
+			title="Display Trend Graph: Error Rate %" />
+	</f:entry>
+	
+	<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+	<f:section title="Define NeoLoad Trend Graphs" name="graphs" >
+	</f:section>
+
+	<f:entry title="Graphs" >
+		<f:repeatable field="graphOptionsInfo" minimum="0" add="Add Graph">
+			<table width="100%">
+				<f:entry title="Name" field="name" placeholder="(optional)">
+					<f:textbox />
+				</f:entry>
+
+
+				<f:entry title="Curve(s)" >
+
+					<f:repeatable name="curveName" field="curve" add="Add a Curve" minimum="1">
+
+						<table width="100%">
+							<f:entry title="Curve" field="path" >
+								<f:textbox value="${curveVar.path}" placeholder="UserPath>Actions>(Transaction or Page) OR Controller/User Load OR LG localhost:7100/CPU Load (required)" />
+							</f:entry>
+
+							<f:entry title="">
+								<div align="right">
+									<f:repeatableDeleteButton value="Delete Curve" />
+								</div>
+							</f:entry>
+						</table>
+
+					</f:repeatable>
+				</f:entry>
+
+
+				<f:entry title="Statistic" field="statistic">
+					<f:select />
+				</f:entry>
+
+				<div align="right">
+					<f:repeatableDeleteButton value="Delete Graph" />
+				</div>
+
+			</table>
+		</f:repeatable>
+	</f:entry>
+	<f:entry title="Limit the number of points in trend charts" field="maxTrends"
+	         help="/descriptor/org.jenkinsci.plugins.neoload.integration.NeoBuildAction/help/maxTrends">
+		<f:textbox value="${maxTrends}" default="" placeholder="0 for unlimited"	/>
+	</f:entry>
+	<f:entry field="autoArchive" title="Auto archive" >
+		<f:checkbox name="autoArchive" checked="${autoArchive}"
+		            default="true"
+		            title="Archive automaticaly and refresh trends" />
+	</f:entry>
+	
+</j:jelly>

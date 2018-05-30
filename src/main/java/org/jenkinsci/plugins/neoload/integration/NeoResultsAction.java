@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, Neotys
+ * Copyright (c) 2018, Neotys
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -26,15 +26,14 @@
  */
 package org.jenkinsci.plugins.neoload.integration;
 
-import java.io.IOException;
-import java.util.logging.Logger;
-
-import hudson.model.Run;
-import org.jenkinsci.plugins.neoload.integration.supporting.PluginUtils;
-
 import hudson.model.AbstractBuild;
 import hudson.model.Action;
+import hudson.model.Run;
 import hudson.model.Run.Artifact;
+import org.jenkinsci.plugins.neoload.integration.supporting.NeoLoadPluginOptions;
+import org.jenkinsci.plugins.neoload.integration.supporting.PluginUtils;
+
+import java.util.logging.Logger;
 
 /**
  * This class integrates with the side panel of the specific run of a job. The side panel consists of the navigation links on the left.
@@ -67,24 +66,24 @@ public class NeoResultsAction implements Action {
 	 * This is added to a file to mark whether the styles have been applied or not.
 	 */
 	private static final String COMMENT_CSS_APPLIED_STYLE = "/* NeoLoad Jenkins plugin applied style */";
-
-	/**
-	 * The current build.
-	 */
-	private final AbstractBuild<?, ?> build;
-
-	/**
-	 * True if the report file is found without any issues. This allows us to only show the link when the report file is found.
-	 */
-	private Artifact reportHTMLArtifactCache = null;
-
-
-	private final String storedXmlReportPath;
-	private final String storedHtmlReportPath;
 	/**
 	 * Log various messages.
 	 */
 	private static final Logger LOGGER = Logger.getLogger(NeoResultsAction.class.getName());
+	/**
+	 * The current build.
+	 */
+	private final AbstractBuild<?, ?> build;
+	/**
+	 * Or the current Run
+	 */
+	private final Run<?, ?> run;
+	private final String storedXmlReportPath;
+	private final String storedHtmlReportPath;
+	/**
+	 * True if the report file is found without any issues. This allows us to only show the link when the report file is found.
+	 */
+	private Artifact reportHTMLArtifactCache = null;
 
 	/**
 	 * Instantiates a new Neo results action.
@@ -93,28 +92,48 @@ public class NeoResultsAction implements Action {
 	 * @param xmlReportPath  the xml report path
 	 * @param htmlReportPath the html report path
 	 */
+	@Deprecated
 	NeoResultsAction(final AbstractBuild<?, ?> target, final String xmlReportPath, final String htmlReportPath) {
 		super();
 		this.build = target;
+		this.run = null;
 		this.storedXmlReportPath = xmlReportPath;
 		this.storedHtmlReportPath = htmlReportPath;
 	}
 
-
+	/**
+	 * Instantiates a new Neo results action.
+	 *
+	 * @param run the run
+	 */
+	public NeoResultsAction(Run<?, ?> run,final String xmlReportPath, final String htmlReportPath) {
+		this.run = run;
+		this.build = null;
+		this.storedXmlReportPath = xmlReportPath;
+		this.storedHtmlReportPath = htmlReportPath;
+	}
 
 	private Artifact findHtmlReportArtifact() {
-		return PluginUtils.findArtifact(PluginUtils.getHTMLReportPaths(build,getStoredHtmlReportPath()),build);
+		if (build != null) {
+			return PluginUtils.findArtifact(PluginUtils.getHTMLReportPaths(build, getStoredHtmlReportPath()), build);
+		}
+		if (run != null) {
+			return PluginUtils.findArtifact(PluginUtils.getHTMLReportPaths(run, getStoredHtmlReportPath()), run);
+		}
+		return null;
 	}
 
 	/**
 	 * Allows access to sidepanel.jelly from index.jelly.
 	 *
-	 * @return build
+	 * @return build build
 	 */
 	public Run<?, ?> getBuild() {
-		return build;
+		if (build != null) {
+			return build;
+		}
+		return run;
 	}
-
 
 	private Artifact getReportArtifact() {
 		if (reportHTMLArtifactCache == null) {
@@ -158,7 +177,6 @@ public class NeoResultsAction implements Action {
 	 * @return the url name
 	 */
 	public String getUrlName() {
-
 		if (getReportArtifact() == null) {
 			return null;
 		} else {

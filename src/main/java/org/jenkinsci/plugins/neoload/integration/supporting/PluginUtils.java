@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, Neotys
+ * Copyright (c) 2018, Neotys
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -26,89 +26,72 @@
  */
 package org.jenkinsci.plugins.neoload.integration.supporting;
 
+import com.google.common.base.Charsets;
+import hudson.EnvVars;
+import hudson.Util;
+import hudson.model.*;
+import hudson.tasks.Builder;
+import hudson.util.FormValidation;
+import hudson.util.FormValidation.FileValidator;
+import hudson.util.ListBoxModel;
+import hudson.util.RunList;
+import jenkins.model.Jenkins;
+import org.apache.commons.beanutils.Converter;
+import org.apache.commons.codec.DecoderException;
+import org.apache.commons.codec.EncoderException;
+import org.apache.commons.codec.net.BCodec;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang.StringUtils;
+import org.jenkinsci.plugins.neoload.integration.NeoBuildAction;
+import org.jenkinsci.plugins.neoload.integration.NeoGlobalConfig;
 import org.jenkinsci.plugins.neoload.integration.NeoResultsAction;
 import org.kohsuke.stapler.Stapler;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 
+import javax.xml.xpath.XPathExpressionException;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import hudson.model.Run;
-import hudson.util.RunList;
-import org.apache.commons.beanutils.Converter;
-import org.apache.commons.codec.DecoderException;
-import org.apache.commons.codec.EncoderException;
-import org.apache.commons.codec.net.BCodec;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.lang.StringUtils;
-import org.jenkinsci.plugins.neoload.integration.NeoBuildAction;
-import org.jenkinsci.plugins.neoload.integration.NeoGlobalConfig;
-
-import com.google.common.base.Charsets;
-
-import hudson.EnvVars;
-import hudson.Util;
-import hudson.model.AbstractBuild;
-import hudson.model.AbstractProject;
-import hudson.model.Project;
-import hudson.tasks.Builder;
-import hudson.util.FormValidation;
-import hudson.util.FormValidation.FileValidator;
-import jenkins.model.Jenkins;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-
-import javax.xml.xpath.XPathExpressionException;
-
 /**
- * The type Plugin utils.
+ * In this class numerous function has been duplicated with a different prototype to work with pipelines
+ * The older methods had been kept for compatibility purpose with the old plugin
  */
 public final class PluginUtils implements Serializable, Converter {
 
 	/**
+	 * The constant GRAPH_LOCK.
+	 */
+	public static final LockManager GRAPH_LOCK = new LockManager();
+	/**
 	 * Encode passwords so that they're not plain text on the disk.
 	 */
 	private static final BCodec BCODEC = new BCodec();
+	/**
+	 * Log various messages.
+	 */
+	private static final Logger LOGGER = Logger.getLogger(PluginUtils.class.getName());
+	/**
+	 * Generated.
+	 */
+	private static final long serialVersionUID = -3063042074729452263L;
+	public static final String EMPTY_SERVER_MESSAGE = "Please configure Jenkins System Settings for NeoLoad to add a server.";
 
 	static {
 		Stapler.CONVERT_UTILS.register(new PluginUtils(), ServerInfo.class);
 		Stapler.CONVERT_UTILS.register(new PluginUtils(), CollabServerInfo.class);
 		Stapler.CONVERT_UTILS.register(new PluginUtils(), NTSServerInfo.class);
 	}
-
-	/**
-	 * The constant GRAPH_LOCK.
-	 */
-	public static final LockManager GRAPH_LOCK = new LockManager();
-
-
-	/**
-	 * Log various messages.
-	 */
-	private static final Logger LOGGER = Logger.getLogger(PluginUtils.class.getName());
-
-	/**
-	 * Generated.
-	 */
-	private static final long serialVersionUID = -3063042074729452263L;
 
 	/**
 	 * Utility classes are not intended to be instantiated, but the plugin doesn't work if we throw an exception.
@@ -163,6 +146,16 @@ public final class PluginUtils implements Serializable, Converter {
 	}
 
 	/**
+	 * Gets plugin options.
+	 *
+	 * @param project the project
+	 * @return the plugin options
+	 */
+	public static NeoLoadPluginOptions getPluginOptions(final Job<?, ?> project) {
+		return project.getProperty(SimpleBuildOption.class);
+	}
+
+	/**
 	 * Get the configured instance for the plugin.
 	 *
 	 * @param project the project
@@ -178,62 +171,30 @@ public final class PluginUtils implements Serializable, Converter {
 				return (NeoBuildAction) b;
 			}
 		}
-
 		return null;
 	}
 
+
 	/**
-	 * Get neo result action neo results action.
+	 * Gets neo result action.
 	 *
 	 * @param build the build
-	 * @return the neo results action
+	 * @return the neo result action
 	 */
-	public static NeoResultsAction getNeoResultAction(final AbstractBuild<?, ?> build){
+	public static NeoResultsAction getNeoResultAction(final AbstractBuild<?, ?> build) {
 		return build.getAction(NeoResultsAction.class);
 	}
 
 	/**
-	 * This could be DateUtils.toCalendar instead but then I would have to deal with maven dependencies again.
+	 * Gets neo result action.
 	 *
-	 * @param date the date
-	 * @return calendar
+	 * @param build the build
+	 * @return the neo result action
 	 */
-	public static Calendar toCalendar(final Date date) {
-		final Calendar cal = Calendar.getInstance();
-		cal.setTime(date);
-
-		return cal;
+	public static NeoResultsAction getNeoResultAction(final Run<?, ?> build) {
+		return build.getAction(NeoResultsAction.class);
 	}
 
-
-	/**
-	 * Convert server info.
-	 *
-	 * @param type  the type
-	 * @param value the value
-	 * @return the server info
-	 */
-	public ServerInfo convert(@SuppressWarnings("rawtypes") final Class type, final Object value) {
-		// get the main config.
-		final NeoGlobalConfig.DescriptorImpl globalConfigDescriptor =
-				(NeoGlobalConfig.DescriptorImpl) Jenkins.getInstance().getDescriptor(NeoGlobalConfig.class);
-
-		if (globalConfigDescriptor == null) {
-			LOGGER.log(Level.FINEST, "No NeoLoad server settings found. Please add servers before configuring jobs. (getLicenseServerOptions)");
-			return null;
-		}
-
-		// find the serverInfo based on the unique ID.
-		@SuppressWarnings("unchecked") final Collection<ServerInfo> allServerInfo =
-				CollectionUtils.union(globalConfigDescriptor.getNtsInfo(), globalConfigDescriptor.getCollabInfo());
-		for (final ServerInfo si : allServerInfo) {
-			if (si.getUniqueID().equals(value)) {
-				return si;
-			}
-		}
-
-		return null;
-	}
 
 	/**
 	 * Validate warn if empty form validation.
@@ -283,12 +244,11 @@ public final class PluginUtils implements Serializable, Converter {
 		}
 	}
 
-
 	/**
 	 * removes empty strings from a list.
 	 *
 	 * @param originalStrings the original strings
-	 * @return list
+	 * @return list list
 	 */
 	public static List<String> removeAllEmpties(final String... originalStrings) {
 		final List<String> cleanedStrings = new ArrayList<String>(Arrays.asList(originalStrings));
@@ -304,7 +264,6 @@ public final class PluginUtils implements Serializable, Converter {
 
 		return cleanedStrings;
 	}
-
 
 	/**
 	 * Check if the given string points to a file on local machine.
@@ -376,10 +335,10 @@ public final class PluginUtils implements Serializable, Converter {
 	 * @param firstPath the first path
 	 * @return the html report paths
 	 */
-	public static List<String> getHTMLReportPaths(final AbstractBuild<?, ?> build,final String firstPath) {
+	public static List<String> getHTMLReportPaths(final AbstractBuild<?, ?> build, final String firstPath) {
 		List<String> paths = new ArrayList<>();
 
-		if(firstPath != null){
+		if (firstPath != null) {
 			paths.add(firstPath);
 		}
 		final NeoBuildAction neoBuildAction = getNeoBuildAction(build.getProject());
@@ -392,6 +351,25 @@ public final class PluginUtils implements Serializable, Converter {
 	}
 
 	/**
+	 * Gets html report paths.
+	 *
+	 * @param build     the build
+	 * @param firstPath the first path
+	 * @return the html report paths
+	 */
+	public static List<String> getHTMLReportPaths(final Run<?, ?> build, final String firstPath) {
+		List<String> paths = new ArrayList<>();
+
+		if (firstPath != null) {
+			paths.add(firstPath);
+		}
+
+		paths.add("neoload-report/report.html");
+		return paths;
+	}
+
+
+	/**
 	 * Gets xml report paths.
 	 *
 	 * @param build the build
@@ -401,7 +379,7 @@ public final class PluginUtils implements Serializable, Converter {
 		List<String> paths = new ArrayList<>();
 
 		final NeoResultsAction neoResultAction = getNeoResultAction(build);
-		if(neoResultAction != null && neoResultAction.getStoredXmlReportPath()!=null){
+		if (neoResultAction != null && neoResultAction.getStoredXmlReportPath() != null) {
 			paths.add(neoResultAction.getStoredXmlReportPath());
 		}
 
@@ -415,18 +393,39 @@ public final class PluginUtils implements Serializable, Converter {
 	}
 
 	/**
-	 * Remove workspace string.
+	 * Gets xml report paths.
+	 *
+	 * @param build the build
+	 * @return the xml report paths
+	 */
+	public static List<String> getXMLReportPaths(final Run<?, ?> build) {
+		List<String> paths = new ArrayList<>();
+
+		final NeoResultsAction neoResultAction = getNeoResultAction(build);
+		if (neoResultAction != null && neoResultAction.getStoredXmlReportPath() != null) {
+			paths.add(neoResultAction.getStoredXmlReportPath());
+		}
+
+		paths.add("neoload-report/report.xml");
+		return paths;
+	}
+
+
+	/**
+	 * Remove workspace or relative point string.
 	 *
 	 * @param report the report
 	 * @return the string
 	 */
-	public static String removeWorkspace(final String report) {
+	public static String removeWorkspaceOrRelativePoint(final String report) {
 		if (report == null) {
 			return null;
 		}
+		if (report.startsWith(".") && !report.startsWith("..")) {
+			return report.substring(1);
+		}
 		return report.replaceAll("%WORKSPACE%/|\\$\\{WORKSPACE}/", "");
 	}
-
 
 	/**
 	 * Find artifact run . artifact.
@@ -436,7 +435,6 @@ public final class PluginUtils implements Serializable, Converter {
 	 * @return the run . artifact
 	 */
 	public static Run.Artifact findArtifact(final List<String> paths, final AbstractBuild<?, ?> build) {
-
 
 		if (build == null) {
 			// This can happen when the plugin is reinstalled or simply after time passes. When the plugin is
@@ -454,7 +452,33 @@ public final class PluginUtils implements Serializable, Converter {
 				}
 			}
 		}
+		return null;
+	}
 
+	/**
+	 * Find artifact run . artifact.
+	 *
+	 * @param paths the paths
+	 * @param build the build
+	 * @return the run . artifact
+	 */
+	public static Run.Artifact findArtifact(final List<String> paths, final Run<?, ?> build) {
+		if (build == null) {
+			// This can happen when the plugin is reinstalled or simply after time passes. When the plugin is
+			// initialized you need to get the "project" instance, iterate over every build, and reinitialize every
+			// instance of this action (NeoResultsAction) so that the build instance won't be null.
+			LOGGER.log(Level.SEVERE, "NeoResultsAction.findHtmlReportArtifact() build is null.");
+			return null;
+		}
+
+		//To be compatible  with older
+		for (String path : paths) {
+			for (Run.Artifact artifact : build.getArtifacts()) {
+				if (artifact.relativePath.endsWith(path)) {
+					return artifact;
+				}
+			}
+		}
 		return null;
 	}
 
@@ -513,6 +537,16 @@ public final class PluginUtils implements Serializable, Converter {
 	}
 
 	/**
+	 * Gets pictures folder.
+	 *
+	 * @param project the project
+	 * @return the pictures folder
+	 */
+	public static File getPicturesFolder(Job<?, ?> project) {
+		return new File(project.getRootDir(), "neoload-trend");
+	}
+
+	/**
 	 * Build graph.
 	 *
 	 * @param picturesFolder the pictures folder
@@ -520,7 +554,7 @@ public final class PluginUtils implements Serializable, Converter {
 	 * @param project        the project
 	 */
 	public static void buildGraph(final File picturesFolder, final NeoLoadPluginOptions npo, final AbstractProject<?, ?> project) {
-		if(GRAPH_LOCK.tryLock(project)) {
+		if (GRAPH_LOCK.tryLock(project)) {
 			try {
 				picturesFolder.mkdirs();
 
@@ -546,6 +580,39 @@ public final class PluginUtils implements Serializable, Converter {
 		}
 	}
 
+	/**
+	 * Build graph.
+	 *
+	 * @param picturesFolder the pictures folder
+	 * @param npo            the npo
+	 * @param project        the project
+	 */
+	public static void buildGraph(final File picturesFolder, final NeoLoadPluginOptions npo, final Job<?, ?> project) {
+		if (GRAPH_LOCK.tryLock(project)) {
+			try {
+				picturesFolder.mkdirs();
+
+				if (picturesFolder.isDirectory()) {
+					//Clean
+					for (File file : picturesFolder.listFiles()) {
+						file.delete();
+					}
+					NeoloadGraphsStatistics neoloadGraphsStatistics = new NeoloadGraphsStatistics(npo);
+
+					for (final Run<?, ?> build : getLimitedBuilds(npo, project)) {
+						neoloadGraphsStatistics.addBuild(build);
+					}
+					try {
+						neoloadGraphsStatistics.writePng(picturesFolder);
+					} catch (IOException e) {
+						LOGGER.log(Level.WARNING, "Exception occurs during the picture writing ", e);
+					}
+				}
+			} finally {
+				GRAPH_LOCK.unlock(project);
+			}
+		}
+	}
 
 	private static List<AbstractBuild> getLimitedBuilds(NeoLoadPluginOptions npo, final AbstractProject project) {
 		final int maxTrends = npo.getMaxTrends();
@@ -557,15 +624,123 @@ public final class PluginUtils implements Serializable, Converter {
 		}
 	}
 
+	private static List<Run> getLimitedBuilds(NeoLoadPluginOptions npo, final Job project) {
+		final int maxTrends = npo.getMaxTrends();
+		final RunList<?> builds = project.getBuilds();
+		if (maxTrends > 0 && builds.size() > maxTrends) {
+			return (List<Run>) builds.subList(0, maxTrends);
+		} else {
+			return (List<Run>) builds;
+		}
+	}
+
+
 	/**
 	 * Build graph.
 	 *
 	 * @param project the project
 	 */
 	public static void buildGraph(AbstractProject project) {
-		final NeoLoadPluginOptions npo = PluginUtils.getPluginOptions(project);
-		final File picturesFolder = PluginUtils.getPicturesFolder(project);
-		PluginUtils.buildGraph(picturesFolder, npo, project);
+		try {
+			final NeoLoadPluginOptions npo = PluginUtils.getPluginOptions(project);
+			final File picturesFolder = PluginUtils.getPicturesFolder(project);
+			PluginUtils.buildGraph(picturesFolder, npo, project);
+		} catch (Throwable th) {
+			LOGGER.log(Level.WARNING, "Exception occurs during the trend building", th);
+		}
+	}
+
+
+	/**
+	 * Build graph.
+	 *
+	 * @param project the project
+	 */
+	public static void buildGraph(Job project) {
+		try {
+			final NeoLoadPluginOptions npo = PluginUtils.getPluginOptions(project);
+			final File picturesFolder = PluginUtils.getPicturesFolder(project);
+			PluginUtils.buildGraph(picturesFolder, npo, project);
+		} catch (Throwable th) {
+			LOGGER.log(Level.WARNING, "Exception occurs during the trend building", th);
+		}
+	}
+
+	public Object convert(@SuppressWarnings("rawtypes") final Class type, final Object value) {
+		// get the main config.
+		final NeoGlobalConfig.DescriptorImpl globalConfigDescriptor = getNeoGlobalConfig();
+
+		if (globalConfigDescriptor == null) {
+			LOGGER.log(Level.FINEST, "No NeoLoad server settings found. Please add servers before configuring jobs. (getLicenseServerOptions)");
+			return null;
+		}
+
+		// find the serverInfo based on the unique ID.
+		@SuppressWarnings("unchecked") final Collection<ServerInfo> allServerInfo =
+				CollectionUtils.union(globalConfigDescriptor.getNtsInfo(), globalConfigDescriptor.getCollabInfo());
+		for (final ServerInfo si : allServerInfo) {
+			if (si.getUniqueID().equals(value)) {
+				return si;
+			}
+		}
+		return null;
+	}
+
+	public static NeoGlobalConfig.DescriptorImpl getNeoGlobalConfig() {
+		return (NeoGlobalConfig.DescriptorImpl) Jenkins.getInstance().getDescriptor(NeoGlobalConfig.class);
+	}
+
+
+	public static List<ServerInfo> getServerInfos(boolean collab) {
+		final NeoGlobalConfig.DescriptorImpl globalConfigDescriptor = getNeoGlobalConfig();
+
+		List<ServerInfo> serverInfoList = new ArrayList<>();
+		if (globalConfigDescriptor != null) {
+			serverInfoList.addAll(globalConfigDescriptor.getNtsInfo());
+
+			if (collab) {
+				serverInfoList.addAll(globalConfigDescriptor.getCollabInfo());
+			}
+		}
+		return serverInfoList;
+	}
+
+	public static ListBoxModel getServerInfosListBox(boolean collab) {
+		final List<ServerInfo> serverInfos = getServerInfos(collab);
+		final ListBoxModel listBoxModel = new ListBoxModel();
+
+		if (serverInfos.isEmpty()) {
+			listBoxModel.add(new ListBoxModel.Option(EMPTY_SERVER_MESSAGE, null));
+		} else {
+			for (final ServerInfo server : serverInfos) {
+				listBoxModel.add(new ListBoxModel.Option(server.getNonEmptyLabel(collab), server.getUniqueID()));
+			}
+		}
+		return listBoxModel;
+	}
+
+	public static String forgeArtifactoryPath(final NeoBuildAction neoBuildAction) {
+		List<String> paths = new ArrayList<>();
+		final String htmlReport = neoBuildAction.getHtmlReport();
+		if (StringUtils.isNotEmpty(htmlReport)) {
+			paths.add(htmlReport);
+			final File file = new File(htmlReport);
+			paths.add(file.getParent()+"/"+ FilenameUtils.removeExtension(file.getName())+"_files/**");
+		}
+		final String xmlReport = neoBuildAction.getXmlReport();
+		if(StringUtils.isNotEmpty(xmlReport)){
+			paths.add(xmlReport);
+			paths.add(xmlReport.replace(".xml",".dtd"));
+		}
+		addIfNotEmpty(paths, neoBuildAction.getPdfReport());
+		addIfNotEmpty(paths, neoBuildAction.getJunitReport());
+		return StringUtils.join(paths,",");
+	}
+
+	private static void addIfNotEmpty(final List<String> paths, final String str) {
+		if (StringUtils.isNotEmpty(str)) {
+			paths.add(str);
+		}
 	}
 }
 

@@ -1,13 +1,20 @@
                        **************************************
                        *  NeoLoad Jenkins Plugin ChangeLog  *
                        **************************************
+Version 2.2.0
+=============
+Add of the pipeline as code interface
+Refactoring of password scrambler to take the newer version of it
+
 Version 2.1.1
 =============
-- FIXED: Runtime Exception "Issue executing password scrambler" was thrown when NeoLoad path executable could not be found. (#11841) 
+- FIXED: Runtime Exception "Issue executing password scrambler" was thrown when NeoLoad path executable could not be found. (#11841)
+
 
 Version 2.1.0
 =============
 Change version of plugin base to 1.609.1
+
 - FIXED: performance: Refactor to generate image only one time
 
 
@@ -28,7 +35,7 @@ Version 2.0.0 (June 9, 2016)
 =============   
 - FIXED: When creating a new Neoload job there is no choice selected by default for Report File Details. (#10272)
 - FIXED: PDF report option is not kept in Project details after a save or apply. (#10253)
-- FIXED: Exception : Fail to convert sharedProject. (#10278)
+- FIXED: Exception : Fail to convert sharedProjectServer. (#10278)
 - FIXED: When using NTS server, job failed due to NTS password "PASSWORD" . Input length must be multiple of 16 when decrypting. (#10248)
 - FIXED: Label have to be reviewed for Neoload servers. (#10246)
 - FIXED: Project details field ordering need to be review for better understanding. (#10244)

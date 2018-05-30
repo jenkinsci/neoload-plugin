@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, Neotys
+ * Copyright (c) 2018, Neotys
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,38 +33,32 @@ package org.jenkinsci.plugins.neoload.integration.supporting;
  */
 public class NeoLoadReportDoc {
 
-	private static final String VIRTUAL_USER_XML_PATH = "/report/virtual-users";
-	private static final String MONITOR_XML_PATH = "/report/monitors/monitored-host[@name='";
-
-	private NeoLoadReportDoc(){
-
-	}
-
 	/**
 	 * String for the average type.
 	 */
 	public static final String AVG = "/@avg";
-
 	/**
 	 * String for the value type.
 	 */
 	public static final String VAL = "/@value";
-
 	/**
 	 * String for the error% type.
 	 */
 	public static final String ERROR_RATE = "/@error_rate";
-
 	/**
 	 * String for the percentile3 type.
 	 */
 	public static final String PERCENTILE2 = "/@percentile2";
-
 	/**
 	 * String for the percentile3 type.
 	 */
 	public static final String PERCENTILE3 = "/@percentile3";
+	private static final String VIRTUAL_USER_XML_PATH = "/report/virtual-users";
+	private static final String MONITOR_XML_PATH = "/report/monitors/monitored-host[@name='";
 
+	private NeoLoadReportDoc() {
+
+	}
 
 	/**
 	 * Gets x path for custom graph.
@@ -114,9 +108,8 @@ public class NeoLoadReportDoc {
 		path += "']/monitor/counters/statistic-item[@name='";
 		path += litePath;
 		path += "']";
-		return path +  getTypeByStatistic(type);
+		return path + getTypeByStatistic(type);
 	}
-
 
 
 	private static String getTypeByStatistic(final String statistic) {

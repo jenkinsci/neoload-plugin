@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, Neotys
+ * Copyright (c) 2018, Neotys
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -12,7 +12,7 @@
  *     * Neither the name of Neotys nor the
  *       names of its contributors may be used to endorse or promote products
  *       derived from this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -26,28 +26,30 @@
  */
 package org.jenkinsci.plugins.neoload.integration;
 
+import hudson.Extension;
+import hudson.model.*;
+import net.sf.json.JSONObject;
+import org.kohsuke.stapler.StaplerRequest;
+
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
-
-import org.kohsuke.stapler.StaplerRequest;
-
-import hudson.Extension;
-import hudson.model.AbstractProject;
-import hudson.model.Action;
-import hudson.model.Describable;
-import hudson.model.Descriptor;
-import hudson.model.TransientProjectActionFactory;
-import net.sf.json.JSONObject;
 
 /**
  * Without this class the two trend graphs are not displayed.
  */
 @Extension(optional = true)
 public class ProjectSpecificActionFactory extends TransientProjectActionFactory
-implements Describable<ProjectSpecificActionFactory>, Serializable {
+		implements Describable<ProjectSpecificActionFactory>, Serializable {
 
-	/** Generated. */
+	/**
+	 * The constant DESCRIPTOR.
+	 */
+	@Extension(optional = true)
+	public static final DescriptorImplPSA DESCRIPTOR = new DescriptorImplPSA();
+	/**
+	 * Generated.
+	 */
 	private static final long serialVersionUID = -1955069445418117473L;
 
 	/**
@@ -71,23 +73,28 @@ implements Describable<ProjectSpecificActionFactory>, Serializable {
 	}
 
 	/**
-	 * The constant DESCRIPTOR.
-	 */
-	@Extension(optional = true)
-	public static final DescriptorImplPSA DESCRIPTOR = new DescriptorImplPSA();
-
-	/**
 	 * The type Descriptor impl psa.
 	 */
 	public static final class DescriptorImplPSA extends Descriptor<ProjectSpecificActionFactory> implements Serializable {
 
-		/** Generated. */
+		/**
+		 * Generated.
+		 */
 		private static final long serialVersionUID = 7549069766029770042L;
 
 		/**
 		 * Instantiates a new Descriptor impl psa.
 		 */
 		public DescriptorImplPSA() {
+		}
+
+		/**
+		 * Is show graph boolean.
+		 *
+		 * @return the boolean
+		 */
+		public static boolean isShowGraph() {
+			return true;
 		}
 
 		/**
@@ -123,15 +130,6 @@ implements Describable<ProjectSpecificActionFactory>, Serializable {
 		@Override
 		public boolean configure(final StaplerRequest req, final JSONObject formData) throws FormException {
 			return super.configure(req, formData);
-		}
-
-		/**
-		 * Is show graph boolean.
-		 *
-		 * @return the boolean
-		 */
-		public static boolean isShowGraph() {
-			return true;
 		}
 	}
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, Neotys
+ * Copyright (c) 2018, Neotys
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -12,7 +12,7 @@
  *     * Neither the name of Neotys nor the
  *       names of its contributors may be used to endorse or promote products
  *       derived from this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -26,6 +26,19 @@
  */
 package org.jenkinsci.plugins.neoload.integration.supporting;
 
+import com.google.gson.Gson;
+import org.apache.commons.lang.StringEscapeUtils;
+import org.w3c.dom.Document;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.*;
 import java.io.IOException;
 import java.io.Serializable;
 import java.io.StringReader;
@@ -36,43 +49,34 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpression;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
-
-import org.apache.commons.lang.StringEscapeUtils;
-import org.w3c.dom.Document;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
-
-import com.google.gson.Gson;
-
 /**
  * The type Xml utilities.
  */
 public final class XMLUtilities implements Serializable {
 
-	/** Generated. */
+	/**
+	 * Generated.
+	 */
 	private static final long serialVersionUID = -8773441162622083954L;
 
-	/** Used for XPATH expressions. */
+	/**
+	 * Used for XPATH expressions.
+	 */
 	private static final XPathFactory XPATHFACTORY = XPathFactory.newInstance();
 
-	/** Used for XPATH expressions. */
+	/**
+	 * Used for XPATH expressions.
+	 */
 	private static final XPath XPATH = XPATHFACTORY.newXPath();
 
-	/** Log various messages. */
+	/**
+	 * Log various messages.
+	 */
 	private static final Logger LOGGER = Logger.getLogger(XMLUtilities.class.getName());
 
-	/** Utility classes are not intended to be instantiated. */
+	/**
+	 * Utility classes are not intended to be instantiated.
+	 */
 	private XMLUtilities() {
 		throw new IllegalAccessError();
 	}
@@ -140,7 +144,7 @@ public final class XMLUtilities implements Serializable {
 
 	/**
 	 * Return all nodes matching the passed in expression. Useful legend expressions are listed below:
-	 *
+	 * <p>
 	 * Expression	Description
 	 * nodename	Selects all nodes with the name "nodename"
 	 * /	Selects from the root node
@@ -151,7 +155,7 @@ public final class XMLUtilities implements Serializable {
 	 *
 	 * @param expression search for this expression
 	 * @param searchNode search this and all child nodes
-	 * @return list
+	 * @return list list
 	 * @throws XPathExpressionException the x path expression exception
 	 */
 	public static List<Node> findByExpression(final String expression, final Node searchNode) throws XPathExpressionException {
@@ -166,7 +170,7 @@ public final class XMLUtilities implements Serializable {
 	 *
 	 * @param expression the expression
 	 * @param searchNode the search node
-	 * @return node
+	 * @return node node
 	 * @throws XPathExpressionException the x path expression exception
 	 */
 	public static Node findFirstByExpression(final String expression, final Node searchNode) throws XPathExpressionException {
@@ -201,7 +205,7 @@ public final class XMLUtilities implements Serializable {
 	 * Turns a NodeList into a list.
 	 *
 	 * @param nodeList the node list
-	 * @return list
+	 * @return list list
 	 */
 	public static List<Node> toList(final NodeList nodeList) {
 		final List<Node> list = new ArrayList<Node>(nodeList.getLength());

@@ -1,3 +1,29 @@
+/*
+ * Copyright (c) 2018, Neotys
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *     * Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above copyright
+ *       notice, this list of conditions and the following disclaimer in the
+ *       documentation and/or other materials provided with the distribution.
+ *     * Neither the name of Neotys nor the
+ *       names of its contributors may be used to endorse or promote products
+ *       derived from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL NEOTYS BE LIABLE FOR ANY
+ * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 package org.jenkinsci.plugins.neoload.integration.supporting;
 
 import hudson.model.AbstractBuild;
@@ -18,10 +44,6 @@ import java.util.logging.Logger;
  */
 public class NeoloadGraphsStatistics {
 	private static final Logger LOGGER = Logger.getLogger(NeoloadGraphsStatistics.class.getName());
-
-
-	private List<NeoloadGraphXPathStat> neoloadGraphXPathStats = new ArrayList<>();
-
 	private static final List<Color> availableColors = Arrays.asList(
 			Color.BLUE,
 			Color.GREEN,
@@ -35,11 +57,7 @@ public class NeoloadGraphsStatistics {
 			Color.darkGray,
 			Color.lightGray
 	);
-
-	private static Color colorFromIndex(int index) {
-		return availableColors.get(index % availableColors.size());
-	}
-
+	private List<NeoloadGraphXPathStat> neoloadGraphXPathStats = new ArrayList<>();
 
 	/**
 	 * Instantiates a new Neoload graphs statistics.
@@ -77,6 +95,10 @@ public class NeoloadGraphsStatistics {
 		}
 	}
 
+	private static Color colorFromIndex(int index) {
+		return availableColors.get(index % availableColors.size());
+	}
+
 	private static NeoloadGraphXPathStat convertInfo(final GraphOptionsInfo graphOptionsInfo) {
 
 		return new NeoloadGraphXPathStat(
@@ -85,7 +107,6 @@ public class NeoloadGraphsStatistics {
 				listCurves(graphOptionsInfo)
 		);
 	}
-
 
 	private static List<NeoloadCurvesXPathStat> listCurves(final GraphOptionsInfo graphOptionsInfo) {
 		final List<NeoloadCurvesXPathStat> curves = new ArrayList<>();
@@ -131,7 +152,21 @@ public class NeoloadGraphsStatistics {
 		addReport(getReportArtifactXML(build), build.getNumber());
 	}
 
+	/**
+	 * Add build.
+	 *
+	 * @param build the build
+	 */
+	public void addBuild(final Run<?, ?> build) {
+		addReport(getReportArtifactXML(build), build.getNumber());
+	}
+
 	private File getReportArtifactXML(final AbstractBuild<?, ?> build) {
+		final Run.Artifact artifact = PluginUtils.findArtifact(PluginUtils.getXMLReportPaths(build), build);
+		return artifact == null ? null : artifact.getFile();
+	}
+
+	private File getReportArtifactXML(final Run<?, ?> build) {
 		final Run.Artifact artifact = PluginUtils.findArtifact(PluginUtils.getXMLReportPaths(build), build);
 		return artifact == null ? null : artifact.getFile();
 	}
