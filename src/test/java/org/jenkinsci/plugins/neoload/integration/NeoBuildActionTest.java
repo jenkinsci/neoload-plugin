@@ -48,6 +48,7 @@ public class NeoBuildActionTest extends HudsonTestCase {
 						"test result name", "test description",
 						"shared-license-type", // license type - local or shared.
 						"50", // VU count for license
+						"0", //Vu count for SAP
 						"1", // license hours
 						"", // custom command line options
 						true, // publish test results
@@ -93,6 +94,7 @@ public class NeoBuildActionTest extends HudsonTestCase {
 
 						"shared-license-type", // license type - local or shared.
 						"50", // VU count for license
+						"0", //Vu count for SAP
 						"1", // license hours
 						"", // custom command line options
 						true, // publish test results
@@ -130,6 +132,7 @@ public class NeoBuildActionTest extends HudsonTestCase {
 						"test result name", "test description",
 						"local", // license type - local or shared.
 						"50", // VU count for license
+						"0", //Vu count for SAP
 						"1", // license hours
 						"", // custom command line options
 						true, // publish test results
@@ -163,6 +166,7 @@ public class NeoBuildActionTest extends HudsonTestCase {
 						"test result name", "test description",
 						"shared-license-type", // license type - local or shared.
 						"50", // VU count for license
+						"0", //Vu count for SAP
 						"1", // license hours
 						"", // custom command line options
 						true, // publish test results
@@ -198,6 +202,7 @@ public class NeoBuildActionTest extends HudsonTestCase {
 						"test result name", "test description",
 						"shared-license-type", // license type - local or shared.
 						"50", // VU count for license
+						"0", //Vu count for SAP
 						"1", // license hours
 						"", // custom command line options
 						true, // publish test results

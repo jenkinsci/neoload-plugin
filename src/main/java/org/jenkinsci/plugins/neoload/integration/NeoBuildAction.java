@@ -100,6 +100,7 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 	private final String testDescription;
 	private final String licenseType;
 	private final String licenseVUCount;
+	private final String licenseVUSAPCount;
 	private final String licenseDuration;
 	private final String customCommandLineOptions;
 	private final int maxTrends;
@@ -169,6 +170,7 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 	                      final String testDescription,
 	                      final String licenseType,
 	                      final String licenseVUCount,
+	                      final String licenseVUSAPCount,
 	                      final String licenseDuration,
 	                      final String customCommandLineOptions,
 	                      final boolean publishTestResults,
@@ -180,11 +182,8 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 	                      final int maxTrends) {
 		super(NeoBuildAction.class.getName() + " (command)");
 
-		if (StringUtils.isEmpty(executable)) {
-			this.executable = PluginUtils.getNeoGlobalConfig().getDefaultExecutable();
-		} else {
-			this.executable = executable;
-		}
+
+		this.executable = executable;
 		this.projectType = StringUtils.trimToEmpty(projectType);
 		this.reportType = StringUtils.trimToEmpty(reportType);
 		this.localProjectFile = localProjectFile;
@@ -201,6 +200,7 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 		this.testDescription = testDescription;
 		this.licenseType = StringUtils.trimToEmpty(licenseType);
 		this.licenseVUCount = licenseVUCount;
+		this.licenseVUSAPCount = licenseVUSAPCount;
 		this.licenseDuration = licenseDuration;
 		this.customCommandLineOptions = customCommandLineOptions;
 		this.sharedProjectServer = updateUsingUniqueID(sharedProjectServer);
@@ -236,6 +236,7 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 				step.getTestDescription(),
 				step.getLicenseType(),
 				step.getLicenseVUCount(),
+				step.getLicenseVUSAPCount(),
 				step.getLicenseDuration(),
 				step.getCustomCommandLineOptions(),
 				step.isPublishTestResults(),
@@ -451,6 +452,18 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 		}
 	}
 
+	private String computeVuCount(){
+		if(PluginUtils.isSAP(licenseVUSAPCount)){
+			return licenseVUCount + ";"+licenseVUSAPCount;
+		}else{
+			return licenseVUCount;
+		}
+	}
+
+	public String getLicenseVUSAPCount() {
+		return licenseVUSAPCount;
+	}
+
 	private void setupLicenseInfo(final List<String> commands, final Map<String, String> hashedPasswords) {
 		if (licenseType.toLowerCase().contains(PROJECT_LOCAL)) {
 			// nothing to do
@@ -459,7 +472,7 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 			addNTSArguments(commands, licenseServer, hashedPasswords);
 
 			// -leaseLicense "<license id>:<virtual user count>:<duration in hours>"
-			commands.add("-leaseLicense \"" + licenseServer.getLicenseID() + ":" + licenseVUCount + ":" + licenseDuration + "\"");
+			commands.add("-leaseLicense \"" + licenseServer.getLicenseID() + ":" + computeVuCount() + ":" + licenseDuration + "\"");
 
 		} else {
 			throw new RuntimeException("Unrecognized license type \"" + licenseType + "\" (expected local or shared).");
@@ -712,7 +725,11 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 	 * @return the executable
 	 */
 	public String getExecutable() {
-		return executable;
+		if (StringUtils.isEmpty(executable)) {
+			return PluginUtils.getNeoGlobalConfig().getDefaultExecutable();
+		} else {
+			return executable;
+		}
 	}
 
 	/**

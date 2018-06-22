@@ -122,8 +122,11 @@
 				<f:entry field="licenseServer" title="NTS Server">
    					<f:select />
 				</f:entry>
-				<f:entry title="Virtual User Count (User Path Count)" field="licenseVUCount" >
+				<f:entry title="Web Virtual Users" field="licenseVUCount" >
 					<f:textbox value="${licenseVUCount}" default="50" placeholder="50 (required)" />
+				</f:entry>
+				<f:entry title="SAP Virtual Users" field="licenseVUSAPCount" >
+					<f:textbox value="${licenseVUSAPCount}" default="0" placeholder="50 (Optional)" />
 				</f:entry>
 				<f:entry title="Duration (in hours)" field="licenseDuration" >
 					<f:textbox value="${licenseDuration}" default="2" placeholder="2 (required)" />

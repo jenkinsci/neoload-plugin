@@ -118,6 +118,7 @@ public class NeoloadRunStep extends AbstractStepImpl implements NeoloadGraphDefi
 	private NTSServerInfo licenseServer;
 	private String sharedProjectName;
 	private String licenseVUCount;
+	private String licenseVUSAPCount;
 	private String licenseDuration;
 	private boolean publishTestResults;
 	private boolean autoArchive = true;
@@ -526,6 +527,16 @@ public class NeoloadRunStep extends AbstractStepImpl implements NeoloadGraphDefi
 	@DataBoundSetter
 	public void setLicenseVUCount(final String licenseVUCount) {
 		this.licenseVUCount = licenseVUCount;
+	}
+
+
+	public String getLicenseVUSAPCount() {
+		return licenseVUSAPCount;
+	}
+
+	@DataBoundSetter
+	public void setLicenseVUSAPCount(final String licenseVUSAPCount) {
+		this.licenseVUSAPCount = licenseVUSAPCount;
 	}
 
 	public String getLicenseDuration() {

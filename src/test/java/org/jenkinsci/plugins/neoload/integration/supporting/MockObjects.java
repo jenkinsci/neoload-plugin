@@ -145,6 +145,7 @@ public class MockObjects {
 						"test result name", "test description",
 						"shared-license-type", // license type - local or shared.
 						"50", // VU count for license
+						"0",
 						"1", // license hours
 						"", // custom command line options
 						true, // publish test results

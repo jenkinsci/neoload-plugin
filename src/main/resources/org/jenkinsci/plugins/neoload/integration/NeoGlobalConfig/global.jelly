@@ -3,7 +3,7 @@
          xmlns:st="jelly:stapler">
 	<f:section title="NeoLoad Configuration">
 		<f:entry title="Default NeoLoad Executable" field="defaultExecutable" >
-			<f:textbox value="${defaultExecutable}" placeholder="C:\Program Files\NeoLoad 5.2\bin\NeoLoadCmd.exe"/>
+			<f:textbox value="${defaultExecutable}" placeholder="/opt/NeoLoad 6.5/bin/NeoLoadCmd"/>
 		</f:entry>
 	</f:section>
     <f:section title="NeoLoad Servers">

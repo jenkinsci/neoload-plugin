@@ -742,5 +742,10 @@ public final class PluginUtils implements Serializable, Converter {
 			paths.add(str);
 		}
 	}
+
+
+	public static boolean isSAP(final String licenseVUSAPCount) {
+		return StringUtils.isNotEmpty(licenseVUSAPCount) && !licenseVUSAPCount.equals("0");
+	}
 }
 

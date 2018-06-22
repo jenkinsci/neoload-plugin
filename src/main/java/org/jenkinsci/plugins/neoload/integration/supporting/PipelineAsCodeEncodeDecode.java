@@ -53,6 +53,7 @@ public class PipelineAsCodeEncodeDecode {
 	private static final String NTS_SERVER = "server";
 	private static final String DURATION = "duration";
 	private static final String VU_COUNT = "vuCount";
+	private static final String VU_SAP_COUNT = "sapVuCount";
 	private static final String SHARED_LICENSE = "sharedLicense";
 	private static final String COLLAB_SERVER = "server";
 	private static final String COLLAB_PROJECT_NAME = "name";
@@ -254,6 +255,7 @@ public class PipelineAsCodeEncodeDecode {
 				neoloadRunStep.setLicenseDuration(getString(sharedLicenseMap, DURATION));
 				neoloadRunStep.setLicenseServer((NTSServerInfo) getServerInfo(getString(sharedLicenseMap, NTS_SERVER), false));
 				neoloadRunStep.setLicenseVUCount(getString(sharedLicenseMap, VU_COUNT));
+				neoloadRunStep.setLicenseVUSAPCount(getOptionalString(sharedLicenseMap, VU_SAP_COUNT,""));
 			} else {
 				throw new NeoloadParseException("Error during the shared license parsing");
 			}
@@ -345,6 +347,9 @@ public class PipelineAsCodeEncodeDecode {
 
 			storeInteger(confNTS, DURATION, neoloadRunStep.getLicenseDuration());
 			storeInteger(confNTS, VU_COUNT, neoloadRunStep.getLicenseVUCount());
+			if(PluginUtils.isSAP(neoloadRunStep.getLicenseVUSAPCount())){
+				storeInteger(confNTS, VU_SAP_COUNT, neoloadRunStep.getLicenseVUSAPCount());
+			}
 			stringObjectMap.put(SHARED_LICENSE, confNTS);
 		}
 	}
