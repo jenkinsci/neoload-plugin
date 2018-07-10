@@ -41,7 +41,7 @@ import org.jenkinsci.plugins.workflow.steps.StepContextParameter;
 /**
  * The type Neoload run step execution.
  */
-public class NeoloadRunStepExecution extends AbstractSynchronousStepExecution<Void> {
+public class NeoloadRunStepExecution extends AbstractSynchronousNonBlockingStepExecution<Void> {
 
 	@StepContextParameter
 	private transient TaskListener listener;

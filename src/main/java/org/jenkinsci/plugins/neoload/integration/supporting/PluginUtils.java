@@ -443,16 +443,7 @@ public final class PluginUtils implements Serializable, Converter {
 			LOGGER.log(Level.SEVERE, "NeoResultsAction.findHtmlReportArtifact() build is null.");
 			return null;
 		}
-
-		//To be compatible  with older
-		for (String path : paths) {
-			for (Run.Artifact artifact : build.getArtifacts()) {
-				if (artifact.relativePath.endsWith(path)) {
-					return artifact;
-				}
-			}
-		}
-		return null;
+		return findArtifacts(paths, build.getArtifacts(), build.getNumber());
 	}
 
 	/**
@@ -470,10 +461,20 @@ public final class PluginUtils implements Serializable, Converter {
 			LOGGER.log(Level.SEVERE, "NeoResultsAction.findHtmlReportArtifact() build is null.");
 			return null;
 		}
+		return findArtifacts(paths, build.getArtifacts(), build.getNumber());
+	}
 
-		//To be compatible  with older
+
+	public static Run.Artifact findArtifacts(final List<String> paths, final List artifacts, final int buildnumber) {
+		//To be compatible  with older we try different paths.
 		for (String path : paths) {
-			for (Run.Artifact artifact : build.getArtifacts()) {
+			path = path.replaceAll("\\$\\{BUILD_NUMBER\\}", Integer.toString(buildnumber));
+			//Variable issues ${workspace/toto become /toto and it not found.
+			while (path.startsWith(File.pathSeparator)) {
+				path = path.substring(1);
+			}
+			for (Object object : artifacts) {
+				Run.Artifact artifact = (Run.Artifact) object;//Because the run and action is little different.
 				if (artifact.relativePath.endsWith(path)) {
 					return artifact;
 				}
@@ -725,16 +726,16 @@ public final class PluginUtils implements Serializable, Converter {
 		if (StringUtils.isNotEmpty(htmlReport)) {
 			paths.add(htmlReport);
 			final File file = new File(htmlReport);
-			paths.add(file.getParent()+"/"+ FilenameUtils.removeExtension(file.getName())+"_files/**");
+			paths.add(file.getParent() + "/" + FilenameUtils.removeExtension(file.getName()) + "_files/**");
 		}
 		final String xmlReport = neoBuildAction.getXmlReport();
-		if(StringUtils.isNotEmpty(xmlReport)){
+		if (StringUtils.isNotEmpty(xmlReport)) {
 			paths.add(xmlReport);
-			paths.add(xmlReport.replace(".xml",".dtd"));
+			paths.add(xmlReport.replace(".xml", ".dtd"));
 		}
 		addIfNotEmpty(paths, neoBuildAction.getPdfReport());
 		addIfNotEmpty(paths, neoBuildAction.getJunitReport());
-		return StringUtils.join(paths,",");
+		return StringUtils.join(paths, ",");
 	}
 
 	private static void addIfNotEmpty(final List<String> paths, final String str) {

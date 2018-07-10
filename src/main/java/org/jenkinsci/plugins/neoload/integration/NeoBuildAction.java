@@ -343,7 +343,7 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 		sharedProjectServer = updateUsingUniqueID(sharedProjectServer);
 		licenseServer = updateUsingUniqueID(licenseServer);
 
-		final Map<String, String> hashedPasswords = getHashedPasswords(launcher);
+		final Map<String, String> hashedPasswords = getHashedPasswords();
 
 		// verify that the executable exists
 		final String executable = getExecutable();
@@ -387,10 +387,9 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 	/**
 	 * Find the password scrambler and use it to hash the passwords.
 	 *
-	 * @param launcher runs code on the slave machine.
 	 * @return key is the plain text version, value is the hashed version.
 	 */
-	Map<String, String> getHashedPasswords(final Launcher launcher) {
+	Map<String, String> getHashedPasswords() {
 		final HashMap<String, String> map = new HashMap<>();
 
 		if (sharedProjectServer != null && StringUtils.trimToNull(sharedProjectServer.getLoginPassword()) != null) {
@@ -403,11 +402,6 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 		// if there are no passwords or the executable doesn't exist then give up.
 		if (map.size() == 0) {
 			LOGGER.finest("No passwords to scramble.");
-			return map;
-		}
-
-		// Special hack for JUnit (we don't have the password-scrambler embbeded with Jenkins.
-		if (launcher.getClass().toString().contains("EnhancerByMockitoWithCGLIB")) {
 			return map;
 		}
 

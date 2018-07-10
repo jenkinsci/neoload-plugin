@@ -37,10 +37,11 @@ import org.jenkinsci.plugins.neoload.integration.supporting.NeoLoadPluginOptions
 import org.jenkinsci.plugins.neoload.integration.supporting.PluginUtils;
 import org.jenkinsci.plugins.neoload.integration.supporting.SimpleBuildOption;
 import org.jenkinsci.plugins.neoload.integration.supporting.SimpleBuildOptionBuilder;
+import org.jenkinsci.plugins.workflow.steps.AbstractSynchronousNonBlockingStepExecution;
 import org.jenkinsci.plugins.workflow.steps.AbstractSynchronousStepExecution;
 import org.jenkinsci.plugins.workflow.steps.StepContextParameter;
 
-public class NeoloadRefreshTrendStepExecution  extends AbstractSynchronousStepExecution<Void> {
+public class NeoloadRefreshTrendStepExecution  extends AbstractSynchronousNonBlockingStepExecution<Void> {
 
 	@StepContextParameter
 	private transient Run run;
