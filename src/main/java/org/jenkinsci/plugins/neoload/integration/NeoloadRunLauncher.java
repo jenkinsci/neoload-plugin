@@ -36,9 +36,7 @@ import hudson.remoting.ChannelClosedException;
 import hudson.tasks.BatchFile;
 import hudson.tasks.CommandInterpreter;
 import hudson.tasks.Shell;
-import org.apache.commons.lang.SystemUtils;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -50,7 +48,8 @@ public class NeoloadRunLauncher extends CommandInterpreter {
 
 	private static final Logger LOGGER = Logger.getLogger(NeoloadRunLauncher.class.getName());
 
-	private final boolean isUnix;
+
+	private final MyInterpreter interpreter;
 
 	/**
 	 * Instantiates a new Neoload run launcher.
@@ -60,25 +59,16 @@ public class NeoloadRunLauncher extends CommandInterpreter {
 	 */
 	public NeoloadRunLauncher(String command, Launcher launcher) {
 		super(command);
-		isUnix = launcher.isUnix();
-	}
-
-	private static String addLineFeedForNonASCII(String s) {
-		if (!s.startsWith("#!")) {
-			if (s.indexOf('\n') != 0) {
-				return "\n" + s;
-			}
+		if (launcher.isUnix()) {
+			interpreter = new ShellMine();
+		}else{
+			interpreter = new BatchFileMine();
 		}
-		return s;
 	}
 
 	@Override
 	public String[] buildCommandLine(FilePath script) {
-		if (isUnix) {
-			return shellCommandLine(script);
-		} else {
-			return batchCommandLine(script);
-		}
+		return interpreter.buildCommandLine(script);
 	}
 
 	/**
@@ -108,10 +98,7 @@ public class NeoloadRunLauncher extends CommandInterpreter {
 
 			try {
 				EnvVars envVars = build.getEnvironment(listener);
-				File f = new File(ws.getRemote());
-				if (!f.isDirectory() && !f.exists()) {
-					f.mkdirs();
-				}
+				ws.mkdirs();
 				r = join(launcher.launch().cmds(buildCommandLine(script)).envs(envVars).stdout(listener).pwd(ws).start());
 			} catch (IOException e) {
 				Util.displayIOException(e, listener);
@@ -142,54 +129,30 @@ public class NeoloadRunLauncher extends CommandInterpreter {
 		}
 	}
 
-	//Shell
-
-	/**
-	 * Batch command line string [ ].
-	 *
-	 * @param script the script
-	 * @return the string [ ]
-	 */
-//BatchFile
-	public String[] batchCommandLine(FilePath script) {
-		return new String[]{"cmd", "/c", "call", script.getRemote()};
-	}
-
-	/**
-	 * Older versions of bash have a bug where non-ASCII on the first line
-	 * makes the shell think the file is a binary file and not a script. Adding
-	 * a leading line feed works around this problem.
-	 *
-	 * @param script the script
-	 * @return the string [ ]
-	 */
-	public String[] shellCommandLine(FilePath script) {
-		return new Shell(command).buildCommandLine(script);
-	}
-
 	// /!\ The code below (till eof) has been duplicated from NeoBuildAction !!!!
 	// It would need refactoring but has not been done because Jenkins works
 	// with the reflectiveness of code and refactoring might have cause regression
 	@Override
 	protected String getContents() {
-		if (SystemUtils.IS_OS_WINDOWS) {
-			return new BatchFileMine().getContents();
-		}
-		return new ShellMine().getContents();
+		return interpreter.getContents();
 	}
 
 	@Override
 	protected String getFileExtension() {
-		if (SystemUtils.IS_OS_WINDOWS) {
-			return new BatchFileMine().getFileExtension();
-		}
-		return new ShellMine().getFileExtension();
+		return interpreter.getFileExtension();
+	}
+
+
+	interface MyInterpreter{
+		String getContents();
+		String getFileExtension();
+		String[] buildCommandLine(FilePath script);
 	}
 
 	/**
 	 * The type Batch file mine.
 	 */
-	public class BatchFileMine extends BatchFile {
+	public class BatchFileMine extends BatchFile implements MyInterpreter{
 		/**
 		 * Instantiates a new Batch file mine.
 		 */
@@ -211,7 +174,7 @@ public class NeoloadRunLauncher extends CommandInterpreter {
 	/**
 	 * The type Shell mine.
 	 */
-	public class ShellMine extends Shell {
+	public class ShellMine extends Shell implements MyInterpreter {
 		/**
 		 * Instantiates a new Shell mine.
 		 */

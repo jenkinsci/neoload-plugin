@@ -80,6 +80,7 @@ public class NeoloadRunStepExecution extends AbstractSynchronousNonBlockingStepE
 			launcher = ws.createLauncher(listener);
 		}
 
+
 		neoBuildAction.perform(build, ws, launcher, listener);
 		return null;
 	}

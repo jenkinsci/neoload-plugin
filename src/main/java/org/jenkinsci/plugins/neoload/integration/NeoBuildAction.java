@@ -44,12 +44,12 @@ import org.apache.commons.lang.SystemUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.jenkinsci.plugins.neoload.integration.steps.NeoloadRunStep;
 import org.jenkinsci.plugins.neoload.integration.supporting.*;
+import org.jenkinsci.plugins.workflow.steps.StepContext;
 import org.kohsuke.stapler.AncestorInPath;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
 
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -446,10 +446,10 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 		}
 	}
 
-	private String computeVuCount(){
-		if(PluginUtils.isSAP(licenseVUSAPCount)){
-			return licenseVUCount + ";"+licenseVUSAPCount;
-		}else{
+	private String computeVuCount() {
+		if (PluginUtils.isSAP(licenseVUSAPCount)) {
+			return licenseVUCount + ";" + licenseVUSAPCount;
+		} else {
 			return licenseVUCount;
 		}
 	}
@@ -946,38 +946,39 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 		return maxTrends;
 	}
 
+
 	/**
 	 * Perform boolean.
 	 *
-	 * @param build    the build
+	 * @param run    the build
 	 * @param ws       the ws
 	 * @param launcher the launcher
 	 * @param listener the listener
 	 * @return the boolean
 	 * @throws InterruptedException the interrupted exception
 	 */
-	public void perform(Run<?, ?> build, FilePath ws, Launcher launcher, TaskListener listener) throws InterruptedException, IOException, NeoloadException {
+	public void perform(Run<?, ?> run, FilePath ws, Launcher launcher, TaskListener listener) throws Exception {
 		final StringBuilder sb = prepareCommandLine(launcher, ws);
 		final SimpleBuildOption jobProp = SimpleBuildOption.fromNPO(this);
-		build.getParent().removeProperty(SimpleBuildOption.class);
-		build.getParent().addProperty(jobProp);
-		build.addAction(new NeoResultsAction(build, xmlReport, htmlReport));
+		run.getParent().removeProperty(SimpleBuildOption.class);
+		run.getParent().addProperty(jobProp);
+		run.addAction(new NeoResultsAction(run, xmlReport, htmlReport));
 
+		boolean returnedValue =  new NeoloadRunLauncher(sb.toString(), launcher).perform(run, ws, launcher, listener);
 
-		boolean returnedValue = (new NeoloadRunLauncher(sb.toString(), launcher)).perform(build, ws, launcher, listener);
-		build.addAction(new ProjectSpecificAction(build));
+		run.addAction(new ProjectSpecificAction(run));
 
 		if (this.isArchiveAndBuildTrends()) {
 			final String artifact = PluginUtils.forgeArtifactoryPath(this);
 			listener.getLogger().println("Archiving " + artifact);
 			ArtifactArchiver archiver = new ArtifactArchiver(artifact);
 
-			archiver.perform(build, ws, launcher, listener);
+			archiver.perform(run, ws, launcher, listener);
 
 			listener.getLogger().println("Building trends...");
-			PluginUtils.buildGraph(build.getParent());
+			PluginUtils.buildGraph(run.getParent());
 		}
-		if(!returnedValue){
+		if (!returnedValue) {
 			throw new NeoloadException("Error occurred during the test.");
 		}
 	}

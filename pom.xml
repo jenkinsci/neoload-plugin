@@ -96,7 +96,6 @@
             <version>${workflow.version}</version>
             <scope>test</scope>
         </dependency>
-
 		<dependency>
 			<groupId>org.codehaus.plexus</groupId>
 			<artifactId>plexus-utils</artifactId>
