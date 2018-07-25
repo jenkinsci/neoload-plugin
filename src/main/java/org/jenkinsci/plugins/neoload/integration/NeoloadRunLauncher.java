@@ -26,16 +26,15 @@
  */
 package org.jenkinsci.plugins.neoload.integration;
 
-import hudson.EnvVars;
-import hudson.FilePath;
-import hudson.Launcher;
-import hudson.Util;
+import hudson.*;
+import hudson.model.AbstractProject;
 import hudson.model.Run;
 import hudson.model.TaskListener;
 import hudson.remoting.ChannelClosedException;
-import hudson.tasks.BatchFile;
-import hudson.tasks.CommandInterpreter;
-import hudson.tasks.Shell;
+import hudson.tasks.*;
+import hudson.tasks.Messages;
+import net.sf.json.JSONObject;
+import org.kohsuke.stapler.StaplerRequest;
 
 import java.io.IOException;
 import java.util.logging.Level;
@@ -60,9 +59,9 @@ public class NeoloadRunLauncher extends CommandInterpreter {
 	public NeoloadRunLauncher(String command, Launcher launcher) {
 		super(command);
 		if (launcher.isUnix()) {
-			interpreter = new ShellMine();
+			interpreter = new ShellMine(command);
 		}else{
-			interpreter = new BatchFileMine();
+			interpreter = new BatchFileMine(command);
 		}
 	}
 
@@ -103,7 +102,10 @@ public class NeoloadRunLauncher extends CommandInterpreter {
 			} catch (IOException e) {
 				Util.displayIOException(e, listener);
 				e.printStackTrace(listener.fatalError(hudson.tasks.Messages.CommandInterpreter_CommandFailed()));
+			} catch (Throwable th){
+				th.printStackTrace(listener.fatalError(hudson.tasks.Messages.CommandInterpreter_CommandFailed()));
 			}
+			//LOGGER.log(Level.FINEST, "returned: " + r);
 			return r == 0;
 		} finally {
 			try {
@@ -152,12 +154,12 @@ public class NeoloadRunLauncher extends CommandInterpreter {
 	/**
 	 * The type Batch file mine.
 	 */
-	public class BatchFileMine extends BatchFile implements MyInterpreter{
+	public static class BatchFileMine extends BatchFile implements MyInterpreter{
 		/**
 		 * Instantiates a new Batch file mine.
 		 */
-		public BatchFileMine() {
-			super(NeoloadRunLauncher.this.command);
+		public BatchFileMine(final  String command) {
+			super(command);
 		}
 
 		@Override
@@ -168,18 +170,39 @@ public class NeoloadRunLauncher extends CommandInterpreter {
 		@Override
 		public String getFileExtension() {
 			return super.getFileExtension();
+		}
+
+		@Extension // Because it final in parent !
+		public static class DescriptorImpl extends BuildStepDescriptor<Builder> {
+			@Override
+			public String getHelpFile() {
+				return "/help/project-config/batch.html";
+			}
+
+			public String getDisplayName() {
+				return Messages.BatchFile_DisplayName();
+			}
+
+			@Override
+			public Builder newInstance(StaplerRequest req, JSONObject data) {
+				return new BatchFile(data.getString("command"));
+			}
+
+			public boolean isApplicable(Class<? extends AbstractProject> jobType) {
+				return true;
+			}
 		}
 	}
 
 	/**
 	 * The type Shell mine.
 	 */
-	public class ShellMine extends Shell implements MyInterpreter {
+	public static class ShellMine extends Shell implements MyInterpreter {
 		/**
 		 * Instantiates a new Shell mine.
 		 */
-		public ShellMine() {
-			super(NeoloadRunLauncher.this.command);
+		public ShellMine(final String command) {
+			super(command);
 		}
 
 		@Override
@@ -190,6 +213,10 @@ public class NeoloadRunLauncher extends CommandInterpreter {
 		@Override
 		public String getFileExtension() {
 			return super.getFileExtension();
+		}
+		@Extension
+		public static class DescriptorImpl extends Shell.DescriptorImpl{
+
 		}
 	}
 }
