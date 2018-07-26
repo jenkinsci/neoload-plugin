@@ -38,17 +38,17 @@ public class NeoLoadReportDocTest  {
 
 	@Test
 	public void getXPathForCustomGraph(){
-		assertEquals("/report/virtual-users/statistic-item[@name='UserPath']/statistic-item[@name='Actions']/statistic-item[@name='toto']/@error_rate",NeoLoadReportDoc.getXPathForCustomGraph("UserPath>Actions>toto","error"));
-		assertEquals("/report/virtual-users/statistic-item[@name='UserPath']/statistic-item[@name='Actions']/statistic-item[@name='toto']/@percentile2",NeoLoadReportDoc.getXPathForCustomGraph("UserPath>Actions>toto","percentile"));
-		assertEquals("/report/virtual-users/statistic-item[@name='UserPath']/statistic-item[@name='Actions']/statistic-item[@name='toto']/@avg",NeoLoadReportDoc.getXPathForCustomGraph("UserPath>Actions>toto","average"));
+		assertEquals("/report/virtual-users/statistic-item[@name=\"UserPath\"]/statistic-item[@name=\"Actions\"]/statistic-item[@name=\"toto\"]/@error_rate",NeoLoadReportDoc.getXPathForCustomGraph("UserPath>Actions>toto","error"));
+		assertEquals("/report/virtual-users/statistic-item[@name=\"UserPath\"]/statistic-item[@name=\"Actions\"]/statistic-item[@name=\"toto\"]/@percentile2",NeoLoadReportDoc.getXPathForCustomGraph("UserPath>Actions>toto","percentile"));
+		assertEquals("/report/virtual-users/statistic-item[@name=\"UserPath\"]/statistic-item[@name=\"Actions\"]/statistic-item[@name=\"toto\"]/@avg",NeoLoadReportDoc.getXPathForCustomGraph("UserPath>Actions>toto","average"));
 	}
 
 
 	@Test
 	public void getXPathForCustomMonitorOrLGGraphTest(){
-		assertEquals("/report/monitors/monitored-host[@name='LG localhost:7100']/monitor/counters/statistic-item[@name='LG localhost:7100/CPU Load']/@error_rate",NeoLoadReportDoc.getXPathForCustomMonitorOrLGGraph("LG localhost:7100/CPU Load","error"));
-		assertEquals("/report/monitors/monitored-host[@name='LG localhost:7100']/monitor/counters/statistic-item[@name='LG localhost:7100/CPU Load']/@percentile2",NeoLoadReportDoc.getXPathForCustomMonitorOrLGGraph("LG localhost:7100/CPU Load","percentile"));
-		assertEquals("/report/monitors/monitored-host[@name='Controller']/monitor/counters/statistic-item[@name='Controller/CPU Load']/@avg",NeoLoadReportDoc.getXPathForCustomMonitorOrLGGraph("Controller/CPU Load","average"));
+		assertEquals("/report/monitors/monitored-host[@name=\"LG localhost:7100\"]/monitor/counters/statistic-item[@name=\"LG localhost:7100/CPU Load\"]/@error_rate",NeoLoadReportDoc.getXPathForCustomMonitorOrLGGraph("LG localhost:7100/CPU Load","error"));
+		assertEquals("/report/monitors/monitored-host[@name=\"LG localhost:7100\"]/monitor/counters/statistic-item[@name=\"LG localhost:7100/CPU Load\"]/@percentile2",NeoLoadReportDoc.getXPathForCustomMonitorOrLGGraph("LG localhost:7100/CPU Load","percentile"));
+		assertEquals("/report/monitors/monitored-host[@name=\"Controller\"]/monitor/counters/statistic-item[@name=\"Controller/CPU Load\"]/@avg",NeoLoadReportDoc.getXPathForCustomMonitorOrLGGraph("Controller/CPU Load","average"));
 	}
 
 }
