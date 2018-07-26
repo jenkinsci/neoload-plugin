@@ -54,7 +54,7 @@ public class NeoLoadReportDoc {
 	 */
 	public static final String PERCENTILE3 = "/@percentile3";
 	private static final String VIRTUAL_USER_XML_PATH = "/report/virtual-users";
-	private static final String MONITOR_XML_PATH = "/report/monitors/monitored-host[@name='";
+	private static final String MONITOR_XML_PATH = "/report/monitors/monitored-host[@name=\"";
 
 	private NeoLoadReportDoc() {
 
@@ -76,7 +76,7 @@ public class NeoLoadReportDoc {
 			tabSplited = litePath.split(">");
 		}
 		for (final String str : tabSplited) {
-			path += "/statistic-item[@name='" + str + "']";
+			path += "/statistic-item[@name=\"" + str + "\"]";
 		}
 		return path + getTypeByStatistic(type);
 	}
@@ -105,9 +105,9 @@ public class NeoLoadReportDoc {
 			path += litePath.substring(0, index);
 		}
 
-		path += "']/monitor/counters/statistic-item[@name='";
+		path += "\"]/monitor/counters/statistic-item[@name=\"";
 		path += litePath;
-		path += "']";
+		path += "\"]";
 		return path + getTypeByStatistic(type);
 	}
 
