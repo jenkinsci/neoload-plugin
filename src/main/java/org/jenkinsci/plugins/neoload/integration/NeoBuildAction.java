@@ -1195,7 +1195,8 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 		 * @return the form validation
 		 */
 		public FormValidation doCheckLocalProjectFile(@QueryParameter("localProjectFile") final String localProjectFile) {
-			return PluginUtils.validateFileExists(localProjectFile, ".nlp", true, false);
+			final String[] extensions = {".nlp", ".yaml", ".yam", ".yml", ".json"};
+			return PluginUtils.validateFileExists(localProjectFile, extensions, true, false);
 		}
 
 		/**
@@ -1205,7 +1206,8 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 		 * @return the form validation
 		 */
 		public FormValidation doCheckExecutable(@QueryParameter final String executable) {
-			return PluginUtils.validateFileExists(executable, ".exe", false, true);
+			final String[] extensions = {".exe"};
+			return PluginUtils.validateFileExists(executable, extensions, false, true);
 		}
 
 		/**

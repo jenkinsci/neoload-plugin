@@ -195,7 +195,8 @@ public class NeoGlobalConfig extends GlobalConfiguration implements Serializable
 		 * @return the form validation
 		 */
 		public FormValidation doCheckPrivateKey(@QueryParameter final String privateKey) {
-			return PluginUtils.validateFileExists(privateKey, "", false, false);
+			final String[] extensions = {""};
+			return PluginUtils.validateFileExists(privateKey, extensions, false, false);
 		}
 
 		/**

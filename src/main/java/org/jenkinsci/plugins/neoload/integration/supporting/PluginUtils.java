@@ -276,15 +276,15 @@ public final class PluginUtils implements Serializable, Converter {
 	 * @param checkInPath    the check in path
 	 * @return the form validation
 	 */
-	public static FormValidation validateFileExists(String file, final String extension, final boolean checkExtension, final boolean checkInPath) {
+	public static FormValidation validateFileExists(String file, final String[] extensions, final boolean checkExtension, final boolean checkInPath) {
 		// If file is null or empty, return an error
 		final FormValidation emptyOrNullValidation = FormValidation.validateRequired(file);
 		if (!FormValidation.Kind.OK.equals(emptyOrNullValidation.kind)) {
 			return emptyOrNullValidation;
 		}
 
-		if (checkExtension && !file.toLowerCase().endsWith(extension)) {
-			return FormValidation.error("Please specify a file with " + extension + " extension");
+		if (checkExtension && !checkExtention(file, extensions)) {
+			return FormValidation.error("Please specify a valid file extension " + Arrays.toString(extensions) + ".");
 		}
 
 		// insufficient permission to perform validation?
@@ -297,8 +297,10 @@ public final class PluginUtils implements Serializable, Converter {
 			File f = new File(file);
 			if (f.exists()) return FileValidator.NOOP.validate(f);
 
-			File fexe = new File(file + extension);
-			if (fexe.exists()) return FileValidator.NOOP.validate(fexe);
+			for(final String extension: extensions){
+				final File fexe = new File(file + extension);
+				if (fexe.exists()) return FileValidator.NOOP.validate(fexe);
+			}
 		}
 
 		if (Files.exists(Paths.get(file))) {
@@ -326,6 +328,22 @@ public final class PluginUtils implements Serializable, Converter {
 		}
 
 		return FormValidation.ok("There is no such file on local host. You can ignore this message if the job is executed on a remote slave.");
+	}
+
+	/**
+	 * Return true if file as a extension among extentions provided, false otherwise.
+	 * @param file
+	 * @param extensions
+	 * @return
+	 */
+	private static boolean checkExtention(final String file, String[] extensions) {
+		final String fileNameLowerCase = file.toLowerCase();
+		for(final String extension : extensions){
+			if(fileNameLowerCase.endsWith(extension)){
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**
