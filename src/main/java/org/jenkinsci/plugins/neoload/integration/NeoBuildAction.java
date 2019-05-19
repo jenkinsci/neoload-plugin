@@ -1195,7 +1195,7 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 		 * @return the form validation
 		 */
 		public FormValidation doCheckLocalProjectFile(@QueryParameter("localProjectFile") final String localProjectFile) {
-			final String[] extensions = {".nlp", ".yaml", ".yam", ".yml", ".json"};
+			final String[] extensions = {".nlp", ".yaml", ".yml", ".json"};
 			return PluginUtils.validateFileExists(localProjectFile, extensions, true, false);
 		}
 
