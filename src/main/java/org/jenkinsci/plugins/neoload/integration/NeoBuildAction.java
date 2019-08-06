@@ -926,9 +926,6 @@ public class NeoBuildAction extends Builder implements SimpleBuildStep, NeoLoadP
 		run.getParent().addProperty(jobProp);
 		run.addAction(new NeoResultsAction(run, xmlReport, htmlReport));
 
-		//boolean returnedValue =  new NeoloadRunLauncher(sb.toString(), launcher).perform(run, ws, launcher, listener);
-
-
 		Launcher.ProcStarter procStarter = launcher.launch();
 		procStarter.cmdAsSingleString(sb.toString());
 		Proc proc = launcher.launch(procStarter);
