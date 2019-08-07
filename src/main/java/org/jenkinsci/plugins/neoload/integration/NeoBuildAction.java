@@ -31,25 +31,26 @@ import com.neotys.nls.security.tools.PasswordEncoder;
 import hudson.Extension;
 import hudson.FilePath;
 import hudson.Launcher;
+import hudson.Proc;
 import hudson.model.*;
 import hudson.tasks.*;
 import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
 import hudson.util.ListBoxModel.Option;
 import jenkins.model.Jenkins;
+import jenkins.tasks.SimpleBuildStep;
 import net.sf.json.JSONObject;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.SystemUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.jenkinsci.plugins.neoload.integration.steps.NeoloadRunStep;
 import org.jenkinsci.plugins.neoload.integration.supporting.*;
-import org.jenkinsci.plugins.workflow.steps.StepContext;
 import org.kohsuke.stapler.AncestorInPath;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -66,7 +67,7 @@ import java.util.regex.Pattern;
  * <p>
  * This class also holds the settings chosen by the user for the plugin.
  */
-public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginOptions {
+public class NeoBuildAction extends Builder implements SimpleBuildStep, NeoLoadPluginOptions {
 
 	/**
 	 * Generated.
@@ -180,7 +181,6 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 	                      final boolean showTrendErrorRate,
 	                      final List<GraphOptionsInfo> graphOptionsInfo,
 	                      final int maxTrends) {
-		super(NeoBuildAction.class.getName() + " (command)");
 
 
 		this.executable = executable;
@@ -674,44 +674,6 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 		return descriptor;
 	}
 
-	/**
-	 * Build command line string [ ].
-	 *
-	 * @param script the script
-	 * @return the string [ ]
-	 */
-	@Override
-	public String[] buildCommandLine(final FilePath script) {
-		return commandInterpreter.buildCommandLine(script);
-	}
-
-	/**
-	 * Gets contents.
-	 *
-	 * @return the contents
-	 */
-	@Override
-	protected String getContents() {
-		if (SystemUtils.IS_OS_WINDOWS) {
-			new BatchFileMine().getContents();
-		}
-
-		return new ShellMine().getContents();
-	}
-
-	/**
-	 * Gets file extension.
-	 *
-	 * @return the file extension
-	 */
-	@Override
-	protected String getFileExtension() {
-		if (SystemUtils.IS_OS_WINDOWS) {
-			new BatchFileMine().getFileExtension();
-		}
-
-		return new ShellMine().getFileExtension();
-	}
 
 	/**
 	 * Gets executable.
@@ -957,14 +919,17 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 	 * @return the boolean
 	 * @throws InterruptedException the interrupted exception
 	 */
-	public void perform(Run<?, ?> run, FilePath ws, Launcher launcher, TaskListener listener) throws Exception {
+	public void perform(Run<?, ?> run, FilePath ws, Launcher launcher, TaskListener listener)  throws InterruptedException, IOException {
 		final StringBuilder sb = prepareCommandLine(launcher, ws);
 		final SimpleBuildOption jobProp = SimpleBuildOption.fromNPO(this);
 		run.getParent().removeProperty(SimpleBuildOption.class);
 		run.getParent().addProperty(jobProp);
 		run.addAction(new NeoResultsAction(run, xmlReport, htmlReport));
 
-		boolean returnedValue =  new NeoloadRunLauncher(sb.toString(), launcher).perform(run, ws, launcher, listener);
+		Launcher.ProcStarter procStarter = launcher.launch();
+		procStarter.cmdAsSingleString(sb.toString());
+		Proc proc = launcher.launch(procStarter);
+		int returnValue = proc.join();
 
 		run.addAction(new ProjectSpecificAction(run));
 
@@ -978,7 +943,7 @@ public class NeoBuildAction extends CommandInterpreter implements NeoLoadPluginO
 			listener.getLogger().println("Building trends...");
 			PluginUtils.buildGraph(run.getParent());
 		}
-		if (!returnedValue) {
+		if (returnValue != 0) {
 			throw new NeoloadException("Error occurred during the test.");
 		}
 	}

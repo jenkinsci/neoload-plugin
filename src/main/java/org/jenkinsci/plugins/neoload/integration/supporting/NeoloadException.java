@@ -29,7 +29,7 @@
 
 package org.jenkinsci.plugins.neoload.integration.supporting;
 
-public class NeoloadException extends Exception {
+public class NeoloadException extends RuntimeException {
 	public NeoloadException() {
 	}
 
