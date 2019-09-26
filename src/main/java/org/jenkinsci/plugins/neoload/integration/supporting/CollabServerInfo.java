@@ -26,10 +26,10 @@
  */
 package org.jenkinsci.plugins.neoload.integration.supporting;
 
+import hudson.util.Secret;
 import org.apache.commons.lang.builder.CompareToBuilder;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.apache.commons.lang.builder.ToStringBuilder;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 import java.io.Serializable;
@@ -50,12 +50,6 @@ public class CollabServerInfo extends ServerInfo implements Serializable, Compar
 
 	/**
 	 * Instantiates a new Collab server info.
-	 */
-	public CollabServerInfo() {
-	}
-
-	/**
-	 * Instantiates a new Collab server info.
 	 *
 	 * @param uniqueID      the unique id
 	 * @param url           the url
@@ -66,8 +60,8 @@ public class CollabServerInfo extends ServerInfo implements Serializable, Compar
 	 * @param passphrase    the passphrase
 	 */
 	@DataBoundConstructor
-	public CollabServerInfo(final String uniqueID, final String url, final String loginUser, final String loginPassword, final String label,
-	                        final String privateKey, final String passphrase) {
+	public CollabServerInfo(final String uniqueID, final String url, final String loginUser, final Secret loginPassword, final String label,
+							final String privateKey, final String passphrase) {
 		super(uniqueID, url, loginUser, loginPassword, label);
 		this.privateKey = privateKey;
 		this.passphrase = passphrase;
@@ -107,11 +101,6 @@ public class CollabServerInfo extends ServerInfo implements Serializable, Compar
 	 */
 	public void setPassphrase(final String passphrase) {
 		this.passphrase = passphrase;
-	}
-
-	@Override
-	public String toString() {
-		return ToStringBuilder.reflectionToString(this);
 	}
 
 	/**

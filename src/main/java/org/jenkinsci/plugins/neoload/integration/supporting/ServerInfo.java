@@ -27,16 +27,13 @@
 package org.jenkinsci.plugins.neoload.integration.supporting;
 
 import hudson.Extension;
-import org.apache.commons.codec.DecoderException;
+import hudson.util.Secret;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.builder.ToStringBuilder;
-import org.apache.commons.lang.time.DateFormatUtils;
 import org.jenkinsci.plugins.workflow.steps.AbstractStepImpl;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 import java.io.Serializable;
 import java.util.UUID;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -57,7 +54,7 @@ public class ServerInfo extends AbstractStepImpl implements Serializable {
 	private String uniqueID = "";
 	private String url;
 	private String loginUser;
-	private String loginPassword;
+	private Secret loginPassword;
 	private String label;
 
 	/**
@@ -76,7 +73,7 @@ public class ServerInfo extends AbstractStepImpl implements Serializable {
 	 * @param label         the label
 	 */
 	@DataBoundConstructor
-	public ServerInfo(final String uniqueID, final String url, final String loginUser, final String loginPassword, final String label) {
+	public ServerInfo(final String uniqueID, final String url, final String loginUser, final Secret loginPassword, final String label) {
 		this.uniqueID = uniqueID;
 		this.url = url;
 		this.loginUser = loginUser;
@@ -130,38 +127,8 @@ public class ServerInfo extends AbstractStepImpl implements Serializable {
 	 *
 	 * @return the login password
 	 */
-	public String getLoginPassword() {
-		// try to decode the password.
-		try {
-			final String decoded = PluginUtils.decode(loginPassword);
-			return decoded;
-
-		} catch (final DecoderException e) {
-			// this happens during normal usage when saving the password on the config page.
-			LOGGER.log(Level.FINEST, "Issue decoding password for server. URL: " + url + ", user: " + loginUser +
-					", message: " + e.getMessage());
-		}
-
+	public Secret getLoginPassword() {
 		return loginPassword;
-	}
-
-	/**
-	 * Sets login password.
-	 *
-	 * @param loginPassword the login password
-	 */
-	public void setLoginPassword(final String loginPassword) {
-		this.loginPassword = loginPassword;
-	}
-
-	/**
-	 * To string string.
-	 *
-	 * @return the string
-	 */
-	@Override
-	public String toString() {
-		return ToStringBuilder.reflectionToString(this);
 	}
 
 	/**

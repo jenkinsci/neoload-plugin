@@ -26,36 +26,30 @@
  */
 package org.jenkinsci.plugins.neoload.integration.supporting;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.withSettings;
-
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.net.URL;
-import java.util.*;
-import java.util.concurrent.TimeUnit;
-
 import com.google.common.collect.Lists;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.filefilter.IOFileFilter;
-import org.codehaus.plexus.util.ReflectionUtils;
-import org.jenkinsci.plugins.neoload.integration.NeoBuildAction;
-
-import hudson.model.AbstractBuild;
-import hudson.model.AbstractProject;
-import hudson.model.Descriptor;
-import hudson.model.Hudson;
-import hudson.model.Job;
-import hudson.model.Project;
-import hudson.model.Result;
-import hudson.model.Run;
+import hudson.model.*;
 import hudson.model.Run.Artifact;
 import hudson.tasks.Builder;
 import hudson.tasks.Publisher;
 import hudson.util.DescribableList;
 import hudson.util.RunList;
+import hudson.util.Secret;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.filefilter.IOFileFilter;
+import org.codehaus.plexus.util.ReflectionUtils;
+import org.jenkinsci.plugins.neoload.integration.NeoBuildAction;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+
+import static org.mockito.Mockito.*;
 
 public class MockObjects {
 
@@ -102,7 +96,7 @@ public class MockObjects {
 	 * @throws FileNotFoundException
 	 * @throws IllegalAccessException
 	 */
-	public MockObjects() throws FileNotFoundException, IOException, IllegalAccessException {
+	public MockObjects(Secret secret) throws FileNotFoundException, IOException, IllegalAccessException {
 		// abstract project without options
 		final List<Publisher> publishersWithoutNeoOptions = new ArrayList<Publisher>();
 		publishersWithoutNeoOptions.add(mock(Publisher.class));
@@ -128,7 +122,7 @@ public class MockObjects {
 		final DescribableList<Publisher, Descriptor<Publisher>> describableListWithNeoOptions = mock(DescribableList.class);
 		when(describableListWithNeoOptions.iterator()).thenReturn(publishersWithNeoOptions.iterator());
 		final List<Builder> builders = new ArrayList<Builder>();
-		final NTSServerInfo ntssi = new NTSServerInfo("uniqueID", "http://url.com:8080", "loginUser", "loginPassword", "Label", "collabPath", "licenseID");
+		final NTSServerInfo ntssi = new NTSServerInfo("uniqueID", "http://url.com:8080", "loginUser", secret, "Label", "collabPath", "licenseID");
 		neoBuildAction =
 				new NeoBuildAction("c:/NeoLoad/executable",
 						"shared-project-type", // project type - local or shared.

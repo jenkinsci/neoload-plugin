@@ -1,22 +1,31 @@
 package org.jenkinsci.plugins.neoload.integration;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
+import hudson.Launcher;
+import hudson.util.Secret;
 import org.jenkinsci.plugins.neoload.integration.supporting.CollabServerInfo;
 import org.jenkinsci.plugins.neoload.integration.supporting.MockObjects;
 import org.jenkinsci.plugins.neoload.integration.supporting.NTSServerInfo;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.jvnet.hudson.test.HudsonTestCase;
+import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
-import hudson.Launcher;
-import jenkins.model.Jenkins;
+import java.util.HashMap;
+import java.util.Map;
 
+@RunWith(PowerMockRunner.class)
+@PrepareForTest({Secret.class})
+@PowerMockIgnore({"javax.crypto.*" })
 public class NeoBuildActionTest extends HudsonTestCase {
+
+	@Mock
+	private Secret secret;
 
 	/**
 	 * Mock project for testing.
@@ -29,13 +38,15 @@ public class NeoBuildActionTest extends HudsonTestCase {
 	@Override
 	@Before
 	public void setUp() throws Exception {
-		super.setUp();
-		mo = new MockObjects();
+		PowerMockito.when(secret.getEncryptedValue()).thenReturn("xzz");
+		PowerMockito.when(secret.getPlainText()).thenReturn("123");
+		mo = new MockObjects(secret);
+
 	}
 
 	@Test
 	public void testPrepareCommandLineBasic() {
-		final NTSServerInfo ntssi = new NTSServerInfo("uniqueID", "http://url.com:8080", "loginUser", "loginPassword", "Label 1", "collabPath", "licenseID");
+		final NTSServerInfo ntssi = new NTSServerInfo("uniqueID", "http://url.com:8080", "loginUser", secret, "Label 1", "collabPath", "licenseID");
 		final NeoBuildAction neoBuildAction =
 				new NeoBuildAction("c:/NeoLoad/executable",
 						"shared-project-type", // project type - local or shared.
@@ -78,9 +89,9 @@ public class NeoBuildActionTest extends HudsonTestCase {
 	@Test
 	public void testPrepareCommandLineNTSAndThirdPartySVNServer() {
 		final CollabServerInfo csi = new CollabServerInfo("COLLAB_uniqueID", "COLLAB_url", "COLLAB_loginUser",
-				"COLLAB_loginPassword", "Label", "COLLAB_privateKey", "COLLAB_passphrase");
+				secret, "Label", "COLLAB_privateKey", "COLLAB_passphrase");
 		final NTSServerInfo ntssi = new NTSServerInfo("NTS_uniqueID", "http://NTS.com:8080", "NTS_loginUser",
-				"NTS_loginPassword", "Label", "NTS_collabPath", "NTS_licenseID");
+				Secret.fromString("NTS_loginPassword"), "Label", "NTS_collabPath", "NTS_licenseID");
 		final NeoBuildAction neoBuildAction =
 				new NeoBuildAction("c:/NeoLoad/executable",
 						"shared-project-type", // project type - local or shared.
@@ -117,9 +128,9 @@ public class NeoBuildActionTest extends HudsonTestCase {
 	@Test
 	public void testPrepareCommandLineExistingLicense() {
 		final CollabServerInfo csi = new CollabServerInfo("COLLAB_uniqueID", "COLLAB_url", "COLLAB_loginUser",
-				"COLLAB_loginPassword", "Label", "COLLAB_privateKey", "COLLAB_passphrase");
+				secret, "Label", "COLLAB_privateKey", "COLLAB_passphrase");
 		final NTSServerInfo ntssi = new NTSServerInfo("NTS_uniqueID", "http://NTS.com:8080", "NTS_loginUser",
-				"NTS_loginPassword", "Label", "NTS_collabPath", "NTS_licenseID");
+				secret, "Label", "NTS_collabPath", "NTS_licenseID");
 		final NeoBuildAction neoBuildAction =
 				new NeoBuildAction("c:/NeoLoad/executable",
 						"shared-project-type", // project type - local or shared.
@@ -151,9 +162,9 @@ public class NeoBuildActionTest extends HudsonTestCase {
 	@Test
 	public void testPrepareCommandLineLocalProject() {
 		final CollabServerInfo csi = new CollabServerInfo("COLLAB_uniqueID", "COLLAB_url", "COLLAB_loginUser",
-				"COLLAB_loginPassword", "Label", "COLLAB_privateKey", "COLLAB_passphrase");
+				secret, "Label", "COLLAB_privateKey", "COLLAB_passphrase");
 		final NTSServerInfo ntssi = new NTSServerInfo("NTS_uniqueID", "http://NTS.com:8080", "NTS_loginUser",
-				"NTS_loginPassword", "Label", "NTS_collabPath", "NTS_licenseID");
+				secret, "Label", "NTS_collabPath", "NTS_licenseID");
 		final NeoBuildAction neoBuildAction =
 				new NeoBuildAction("c:/NeoLoad/executable",
 						"local", // project type - local or shared.
@@ -187,9 +198,9 @@ public class NeoBuildActionTest extends HudsonTestCase {
 	@Test
 	public void testSetupCollabLogin() {
 		CollabServerInfo csi = new CollabServerInfo("COLLAB_uniqueID", "COLLAB_url", "COLLAB_loginUser",
-				"COLLAB_loginPassword", "Label", "COLLAB_privateKey", "COLLAB_passphrase");
+				secret, "Label", "COLLAB_privateKey", "COLLAB_passphrase");
 		final NTSServerInfo ntssi = new NTSServerInfo("NTS_uniqueID", "http://NTS.com:8080", "NTS_loginUser",
-				"NTS_loginPassword", "Label", "NTS_collabPath", "NTS_licenseID");
+				secret, "Label", "NTS_collabPath", "NTS_licenseID");
 		final NeoBuildAction neoBuildAction =
 				new NeoBuildAction("c:/NeoLoad/executable",
 						"shared-project-type", // project type - local or shared.
@@ -212,44 +223,44 @@ public class NeoBuildActionTest extends HudsonTestCase {
 						null,
 						30); // graph info
 
-		final Map<String, String> hashedPasswords = new HashMap<String, String>();
-		hashedPasswords.put(csi.getLoginPassword(), csi.getLoginPassword());
+		final Map<Secret, String> hashedPasswords = new HashMap();
+		hashedPasswords.put(csi.getLoginPassword(), csi.getLoginPassword().getPlainText());
 
 
 		// -CollabLogin "<login>:<hashed password>:<private key>:<hashed passphrase>"
 		csi = new CollabServerInfo("COLLAB_uniqueID", "COLLAB_url", "COLLAB_loginUser",
-				"COLLAB_loginPassword", "Label", "COLLAB_privateKey", "COLLAB_passphrase");
+				secret, "Label", "COLLAB_privateKey", "COLLAB_passphrase");
 		String result = neoBuildAction.setupCollabLogin(hashedPasswords, csi).toString();
 		assertTrue("all fields should be present",
-				result.contains(csi.getLoginUser() + ":" + csi.getLoginPassword() + ":" + csi.getPrivateKey() + ":" +
+				result.contains(csi.getLoginUser() + ":" + csi.getLoginPassword().getPlainText() + ":" + csi.getPrivateKey() + ":" +
 						csi.getPassphrase()));
 
 		// -CollabLogin "<login>:<hashed password>:<private key>"
 		csi = new CollabServerInfo("COLLAB_uniqueID", "COLLAB_url", "COLLAB_loginUser",
-				"COLLAB_loginPassword", "Label", "COLLAB_privateKey", null);
+				secret, "Label", "COLLAB_privateKey", null);
 		result = neoBuildAction.setupCollabLogin(hashedPasswords, csi).toString();
 		assertTrue("too many fields",
-				!result.contains(csi.getLoginUser() + ":" + csi.getLoginPassword() + ":" + csi.getPrivateKey() + ":" +
+				!result.contains(csi.getLoginUser() + ":" + csi.getLoginPassword().getPlainText() + ":" + csi.getPrivateKey() + ":" +
 						csi.getPassphrase()));
-		assertTrue(result.contains(csi.getLoginUser() + ":" + csi.getLoginPassword() + ":" + csi.getPrivateKey()));
+		assertTrue(result.contains(csi.getLoginUser() + ":" + csi.getLoginPassword().getPlainText() + ":" + csi.getPrivateKey()));
 
 		// -CollabLogin "<login>:<hashed password>"
 		csi = new CollabServerInfo("COLLAB_uniqueID", "COLLAB_url", "COLLAB_loginUser",
-				"COLLAB_loginPassword", "Label", null, "");
+				secret, "Label", null, "");
 		result = neoBuildAction.setupCollabLogin(hashedPasswords, csi).toString();
 		assertTrue("too many fields",
-				!result.contains(csi.getLoginUser() + ":" + csi.getLoginPassword() + ":" + csi.getPrivateKey() + ":" +
+				!result.contains(csi.getLoginUser() + ":" + csi.getLoginPassword().getPlainText() + ":" + csi.getPrivateKey() + ":" +
 						csi.getPassphrase()));
 		assertTrue("too many fields",
-				!result.contains(csi.getLoginUser() + ":" + csi.getLoginPassword() + ":" + csi.getPrivateKey()));
-		assertTrue(result.contains(csi.getLoginUser() + ":" + csi.getLoginPassword()));
+				!result.contains(csi.getLoginUser() + ":" + csi.getLoginPassword().getPlainText() + ":" + csi.getPrivateKey()));
+		assertTrue(result.contains(csi.getLoginUser() + ":" + csi.getLoginPassword().getPlainText()));
 
 		// -CollabLogin "<private key>:<hashed passphrase>"
 		csi = new CollabServerInfo("COLLAB_uniqueID", "COLLAB_url", "",
-				"", "Label", "COLLAB_privateKey", "COLLAB_passphrase");
+				secret, "Label", "COLLAB_privateKey", "COLLAB_passphrase");
 		result = neoBuildAction.setupCollabLogin(hashedPasswords, csi).toString();
 		assertTrue("too many fields",
-				!result.contains(csi.getLoginUser() + ":" + csi.getLoginPassword() + ":" + csi.getPrivateKey() + ":" +
+				!result.contains(csi.getLoginUser() + ":" + csi.getLoginPassword().getPlainText() + ":" + csi.getPrivateKey() + ":" +
 						csi.getPassphrase()));
 		assertTrue("too many fields",
 				!result.contains(csi.getLoginPassword() + ":" + csi.getPrivateKey() + ":" + csi.getPassphrase()));

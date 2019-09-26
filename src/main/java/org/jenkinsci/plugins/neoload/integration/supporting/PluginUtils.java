@@ -26,7 +26,6 @@
  */
 package org.jenkinsci.plugins.neoload.integration.supporting;
 
-import com.google.common.base.Charsets;
 import hudson.EnvVars;
 import hudson.Util;
 import hudson.model.*;
@@ -37,9 +36,6 @@ import hudson.util.ListBoxModel;
 import hudson.util.RunList;
 import jenkins.model.Jenkins;
 import org.apache.commons.beanutils.Converter;
-import org.apache.commons.codec.DecoderException;
-import org.apache.commons.codec.EncoderException;
-import org.apache.commons.codec.net.BCodec;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringEscapeUtils;
@@ -74,10 +70,6 @@ public final class PluginUtils implements Serializable, Converter {
 	 */
 	public static final LockManager GRAPH_LOCK = new LockManager();
 	/**
-	 * Encode passwords so that they're not plain text on the disk.
-	 */
-	private static final BCodec BCODEC = new BCodec();
-	/**
 	 * Log various messages.
 	 */
 	private static final Logger LOGGER = Logger.getLogger(PluginUtils.class.getName());
@@ -97,28 +89,6 @@ public final class PluginUtils implements Serializable, Converter {
 	 * Utility classes are not intended to be instantiated, but the plugin doesn't work if we throw an exception.
 	 */
 	private PluginUtils() {
-	}
-
-	/**
-	 * Encode string.
-	 *
-	 * @param text the text
-	 * @return the string
-	 * @throws EncoderException the encoder exception
-	 */
-	public static String encode(final String text) throws EncoderException {
-		return BCODEC.encode(text, Charsets.UTF_8.name());
-	}
-
-	/**
-	 * Decode string.
-	 *
-	 * @param text the text
-	 * @return the string
-	 * @throws DecoderException the decoder exception
-	 */
-	public static String decode(final String text) throws DecoderException {
-		return BCODEC.decode(text);
 	}
 
 	/**
@@ -271,7 +241,7 @@ public final class PluginUtils implements Serializable, Converter {
 	 * it might be executed on a remote host.
 	 *
 	 * @param file           the file
-	 * @param extension      the extension
+	 * @param extensions      the extension
 	 * @param checkExtension the check extension
 	 * @param checkInPath    the check in path
 	 * @return the form validation

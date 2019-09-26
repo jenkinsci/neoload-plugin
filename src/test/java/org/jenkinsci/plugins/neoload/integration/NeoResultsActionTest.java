@@ -38,6 +38,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import hudson.util.Secret;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.time.DateFormatUtils;
@@ -45,15 +46,21 @@ import org.jenkinsci.plugins.neoload.integration.supporting.MockObjects;
 import org.jenkinsci.plugins.neoload.integration.supporting.NeoLoadReportDocTest;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.jvnet.hudson.test.HudsonTestCase;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Matchers;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 
 import hudson.model.AbstractBuild;
 import hudson.model.Action;
 import hudson.model.Run;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
+@RunWith(PowerMockRunner.class)
+@PrepareForTest({Secret.class})
 public class NeoResultsActionTest extends HudsonTestCase {
 
 
@@ -63,14 +70,16 @@ public class NeoResultsActionTest extends HudsonTestCase {
 	private URL urlXml;
 	private URL urlHtml;
 
+	@Mock
+	private Secret secret;
+
 	/**
 	 * @throws java.lang.Exception
 	 */
 	@Override
 	@Before
 	public void setUp() throws Exception {
-		super.setUp();
-		mo = new MockObjects();
+		mo = new MockObjects(secret);
 		urlXml = NeoLoadReportDocTest.class.getResource("data/myReport.xml");
 		urlHtml = NeoLoadReportDocTest.class.getResource("data/myReport.html");
 	}

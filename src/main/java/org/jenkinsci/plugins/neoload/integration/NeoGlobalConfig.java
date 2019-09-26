@@ -31,20 +31,15 @@ import hudson.model.Descriptor;
 import hudson.util.FormValidation;
 import jenkins.model.GlobalConfiguration;
 import net.sf.json.JSONObject;
-import org.apache.commons.codec.EncoderException;
-import org.apache.commons.collections.CollectionUtils;
 import org.jenkinsci.plugins.neoload.integration.supporting.CollabServerInfo;
 import org.jenkinsci.plugins.neoload.integration.supporting.NTSServerInfo;
 import org.jenkinsci.plugins.neoload.integration.supporting.PluginUtils;
-import org.jenkinsci.plugins.neoload.integration.supporting.ServerInfo;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
 
 import java.io.Serializable;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -123,20 +118,8 @@ public class NeoGlobalConfig extends GlobalConfiguration implements Serializable
 			ntsInfo = tempNTSInfo == null ? Collections.<NTSServerInfo>emptyList() : tempNTSInfo;
 			collabInfo = tempCollabInfo == null ? Collections.<CollabServerInfo>emptyList() : tempCollabInfo;
 
-			final Collection<ServerInfo> allServerInfo = CollectionUtils.union(ntsInfo, collabInfo);
-			// encode the passwords so that they're not plain text
-			for (final ServerInfo info : allServerInfo) {
-				final String plainTextPassword = info.getLoginPassword();
-				try {
-					final String encoded = PluginUtils.encode(plainTextPassword);
-					info.setLoginPassword(encoded);
-
-				} catch (final EncoderException e) {
-					LOGGER.log(Level.SEVERE, "Issue encoding password.", e);
-				}
-			}
-
 			save();
+
 			return true;
 		}
 

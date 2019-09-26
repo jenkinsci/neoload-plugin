@@ -37,6 +37,7 @@ import hudson.tasks.*;
 import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
 import hudson.util.ListBoxModel.Option;
+import hudson.util.Secret;
 import jenkins.model.Jenkins;
 import jenkins.tasks.SimpleBuildStep;
 import net.sf.json.JSONObject;
@@ -260,7 +261,7 @@ public class NeoBuildAction extends Builder implements SimpleBuildStep, NeoLoadP
 		return !launcher.isUnix();
 	}
 
-	private static void addNTSArguments(final List<String> commands, final NTSServerInfo n, final Map<String, String> hashedPasswords) {
+	private static void addNTSArguments(final List<String> commands, final NTSServerInfo n, final Map<Secret, String> hashedPasswords) {
 		commands.add("-NTS \"" + n.getUrl() + "\"");
 		commands.add("-NTSLogin \"" + n.getLoginUser() + ":" +
 				hashedPasswords.get(n.getLoginPassword()) + "\"");
@@ -343,7 +344,7 @@ public class NeoBuildAction extends Builder implements SimpleBuildStep, NeoLoadP
 		sharedProjectServer = updateUsingUniqueID(sharedProjectServer);
 		licenseServer = updateUsingUniqueID(licenseServer);
 
-		final Map<String, String> hashedPasswords = getHashedPasswords();
+		final Map<Secret, String> hashedPasswords = getHashedPasswords();
 
 		// verify that the executable exists
 		final String executable = getExecutable();
@@ -389,13 +390,13 @@ public class NeoBuildAction extends Builder implements SimpleBuildStep, NeoLoadP
 	 *
 	 * @return key is the plain text version, value is the hashed version.
 	 */
-	Map<String, String> getHashedPasswords() {
-		final HashMap<String, String> map = new HashMap<>();
+	Map<Secret, String> getHashedPasswords() {
+		final HashMap<Secret, String> map = new HashMap<>();
 
-		if (sharedProjectServer != null && StringUtils.trimToNull(sharedProjectServer.getLoginPassword()) != null) {
+		if (sharedProjectServer != null && StringUtils.trimToNull(sharedProjectServer.getLoginPassword().getPlainText()) != null) {
 			map.put(sharedProjectServer.getLoginPassword(), "## use the password-scrambler to resolve this issue ##");
 		}
-		if (licenseServer != null && StringUtils.trimToNull(licenseServer.getLoginPassword()) != null) {
+		if (licenseServer != null && StringUtils.trimToNull(licenseServer.getLoginPassword().getPlainText()) != null) {
 			map.put(licenseServer.getLoginPassword(), "## use the password-scrambler to resolve this issue ##");
 		}
 
@@ -405,10 +406,10 @@ public class NeoBuildAction extends Builder implements SimpleBuildStep, NeoLoadP
 			return map;
 		}
 
-		Map<String, String> resultMap = new HashMap<>();
+		Map<Secret, String> resultMap = new HashMap<>();
 		try {
-			for (Map.Entry<String, String> entry : map.entrySet()) {
-				resultMap.put(entry.getKey(), PasswordEncoder.encode(entry.getKey()));
+			for (Map.Entry<Secret, String> entry : map.entrySet()) {
+				resultMap.put(entry.getKey(), PasswordEncoder.encode(entry.getKey().getPlainText()));
 			}
 		} catch (UnsupportedEncodingException | GeneralSecurityException e) {
 			LOGGER.log(Level.SEVERE, "Exception during password encryption", e);
@@ -458,7 +459,7 @@ public class NeoBuildAction extends Builder implements SimpleBuildStep, NeoLoadP
 		return licenseVUSAPCount;
 	}
 
-	private void setupLicenseInfo(final List<String> commands, final Map<String, String> hashedPasswords) {
+	private void setupLicenseInfo(final List<String> commands, final Map<Secret, String> hashedPasswords) {
 		if (licenseType.toLowerCase().contains(PROJECT_LOCAL)) {
 			// nothing to do
 		} else if (licenseType.toLowerCase().contains(PROJECT_SHARED)) {
@@ -493,7 +494,7 @@ public class NeoBuildAction extends Builder implements SimpleBuildStep, NeoLoadP
 		}
 	}
 
-	private void setupProjectType(final List<String> commands, final Map<String, String> hashedPasswords) {
+	private void setupProjectType(final List<String> commands, final Map<Secret, String> hashedPasswords) {
 		if (projectType.toLowerCase().contains(PROJECT_LOCAL)) {
 			commands.add("-project \"" + localProjectFile + "\"");
 
@@ -531,7 +532,7 @@ public class NeoBuildAction extends Builder implements SimpleBuildStep, NeoLoadP
 	 * @param csi             the csi
 	 * @return the collab login
 	 */
-	StringBuilder setupCollabLogin(final Map<String, String> hashedPasswords, final CollabServerInfo csi) {
+	StringBuilder setupCollabLogin(final Map<Secret, String> hashedPasswords, final CollabServerInfo csi) {
 		final StringBuilder sb = new StringBuilder();
 		// -CollabLogin "<login>:<hashed password>", or
 		// -CollabLogin "<login>:<private key>:<hashed passphrase>", or
