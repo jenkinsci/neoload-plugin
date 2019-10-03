@@ -34,6 +34,7 @@ import java.util.Map;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
+import hudson.util.Secret;
 import org.junit.Before;
 import org.junit.Test;
 import org.w3c.dom.DOMException;
@@ -69,7 +70,7 @@ public class XMLUtilitiesTest extends TestCase {
 
 	@Test
 	public void testToAndFromXML_A() throws ParserConfigurationException, SAXException, IOException {
-		final NTSServerInfo ntsServerInfo = new NTSServerInfo("123", "http://serveraddress:8080/", "loginUser", "<>!@#$%^&*()_+", "Label 1", "/repository_1", 
+		final NTSServerInfo ntsServerInfo = new NTSServerInfo("123", "http://serveraddress:8080/", "loginUser", Secret.fromString("<>!@#$%^&*()_+"), "Label 1", "/repository_1",
 				"MCwCFBU8hLebFPEcgunM5wPU0IoUEmkEAhQF8G4snQv9YLWGl4t10nXZnaW+5w==");
 		final String xmlEscaped = XMLUtilities.toXMLEscaped(ntsServerInfo);
 
@@ -79,7 +80,7 @@ public class XMLUtilitiesTest extends TestCase {
 
 	@Test
 	public void testToAndFromXML_B() throws ParserConfigurationException, SAXException, IOException {
-		final CollabServerInfo collabServerInfo = new CollabServerInfo("123", "svn://serveraddress:3690/neoload", "><loginUser", "!@#$%^&*()_+", "Label 2",
+		final CollabServerInfo collabServerInfo = new CollabServerInfo("123", "svn://serveraddress:3690/neoload", "><loginUser", Secret.fromString("!@#$%^&*()_+"), "Label 2",
 				null, null);
 		final String xmlEscaped = XMLUtilities.toXMLEscaped(collabServerInfo);
 

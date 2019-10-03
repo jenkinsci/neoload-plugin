@@ -28,21 +28,32 @@ package org.jenkinsci.plugins.neoload.integration;
 
 import java.util.Collection;
 
+import hudson.util.Secret;
 import org.jenkinsci.plugins.neoload.integration.ProjectSpecificActionFactory.DescriptorImplPSA;
 import org.jenkinsci.plugins.neoload.integration.supporting.MockObjects;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.kohsuke.stapler.StaplerRequest;
 
 import hudson.model.Action;
 import hudson.model.Descriptor.FormException;
 import junit.framework.TestCase;
 import net.sf.json.JSONObject;
+import org.mockito.Mock;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
+@RunWith(PowerMockRunner.class)
+@PrepareForTest({Secret.class})
 public class ProjectSpecificActionFactoryTest extends TestCase {
 
 	/** Mock project for testing. */
 	private MockObjects mo = null;
+
+	@Mock
+	Secret secret;
 
 	/**
 	 * @throws java.lang.Exception
@@ -50,7 +61,8 @@ public class ProjectSpecificActionFactoryTest extends TestCase {
 	@Override
 	@Before
 	public void setUp() throws Exception {
-		mo = new MockObjects();
+		PowerMockito.when(secret.getEncryptedValue()).thenReturn("123");
+		mo = new MockObjects(secret);
 	}
 
 	@Test

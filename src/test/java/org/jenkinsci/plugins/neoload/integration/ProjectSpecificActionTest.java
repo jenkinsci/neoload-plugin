@@ -26,15 +26,26 @@
  */
 package org.jenkinsci.plugins.neoload.integration;
 
+import hudson.util.Secret;
 import junit.framework.TestCase;
 import org.jenkinsci.plugins.neoload.integration.supporting.MockObjects;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
+@RunWith(PowerMockRunner.class)
+@PrepareForTest({Secret.class})
 public class ProjectSpecificActionTest extends TestCase {
 
 	/** Objects for testing. */
 	private MockObjects mo = null;
+
+	@Mock
+	private Secret secret;
 
 	/**
 	 * @throws java.lang.Exception
@@ -42,7 +53,8 @@ public class ProjectSpecificActionTest extends TestCase {
 	@Override
 	@Before
 	public void setUp() throws Exception {
-		mo = new MockObjects();
+		PowerMockito.when(secret.getEncryptedValue()).thenReturn("123");
+		mo = new MockObjects(secret);
 	}
 
 	@Test

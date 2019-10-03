@@ -26,10 +26,10 @@
  */
 package org.jenkinsci.plugins.neoload.integration.supporting;
 
+import hudson.util.Secret;
 import org.apache.commons.lang.builder.CompareToBuilder;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.apache.commons.lang.builder.ToStringBuilder;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 import java.io.Serializable;
@@ -50,12 +50,6 @@ public class NTSServerInfo extends ServerInfo implements Serializable, Comparabl
 
 	/**
 	 * Instantiates a new Nts server info.
-	 */
-	public NTSServerInfo() {
-	}
-
-	/**
-	 * Instantiates a new Nts server info.
 	 *
 	 * @param uniqueID      the unique id
 	 * @param url           the url
@@ -66,8 +60,8 @@ public class NTSServerInfo extends ServerInfo implements Serializable, Comparabl
 	 * @param licenseID     the license id
 	 */
 	@DataBoundConstructor
-	public NTSServerInfo(final String uniqueID, final String url, final String loginUser, final String loginPassword, final String label,
-	                     final String collabPath, final String licenseID) {
+	public NTSServerInfo(final String uniqueID, final String url, final String loginUser, final Secret loginPassword, final String label,
+						 final String collabPath, final String licenseID) {
 		super(uniqueID, url, loginUser, loginPassword, label);
 		this.collabPath = collabPath;
 		this.licenseID = licenseID;
@@ -118,11 +112,6 @@ public class NTSServerInfo extends ServerInfo implements Serializable, Comparabl
 	 */
 	public void setLicenseID(final String licenseID) {
 		this.licenseID = licenseID;
-	}
-
-	@Override
-	public String toString() {
-		return ToStringBuilder.reflectionToString(this);
 	}
 
 	/**
