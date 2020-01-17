@@ -58,7 +58,7 @@ The following steps are required:
     Rate** trend graph in Jenkins.
 -   *(Recommended)* Add as many user-defined graphs as wanted with
     several curves on each graph.  
-    ![](/docs/images/image2018-2-5_10:49:40.png)}
+    ![](/docs/images/configuration.png)}
 
 ## Post-Build Action
 
@@ -66,11 +66,11 @@ The plugin needs the **Archive the artifacts** post-build action. The
 regeneration of trends could be triggered. Please archive the artifact
 before Refresh trends.
 
-![](/docs/images/image2018-2-5_10:41:47.png)
+![](/docs/images/post-build-actions.png)
 
 **Example Trend Graphs**
 
-**![](/docs/images/image2018-2-5_10:44:40.png)}**
+**![](/docs/images/graphs.png)}**
 
 ## Pipelines Steps
 
