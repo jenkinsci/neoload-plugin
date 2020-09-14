@@ -416,7 +416,7 @@ public class NeoBuildAction extends Builder implements SimpleBuildStep, NeoLoadP
             for (Map.Entry<Secret, String> entry : map.entrySet()) {
                 resultMap.put(entry.getKey(), PasswordEncoder.encode(entry.getKey().getPlainText()));
             }
-        } catch (UnsupportedEncodingException | GeneralSecurityException e) {
+        } catch (GeneralSecurityException e) {
             LOGGER.log(Level.SEVERE, "Exception during password encryption", e);
             throw new RuntimeException(e);
         }
