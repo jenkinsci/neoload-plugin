@@ -28,10 +28,7 @@ package org.jenkinsci.plugins.neoload.integration;
 
 import com.google.common.base.Joiner;
 import com.neotys.nls.security.tools.PasswordEncoder;
-import hudson.Extension;
-import hudson.FilePath;
-import hudson.Launcher;
-import hudson.Proc;
+import hudson.*;
 import hudson.model.*;
 import hudson.tasks.*;
 import hudson.util.FormValidation;
@@ -330,7 +327,7 @@ public class NeoBuildAction extends Builder implements SimpleBuildStep, NeoLoadP
 
         if (arePasswordsSafe()) {
 
-            final StringBuilder sb = prepareCommandLine(launcher, null);
+            final StringBuilder sb = prepareCommandLine(launcher, null, false);
             build.addAction(new NeoResultsAction(build, getXMLReportArtifactPath(), getHTMLReportArtifactPath()));
             return runTheCommand(sb.toString(), build, launcher, listener);
 
@@ -351,7 +348,7 @@ public class NeoBuildAction extends Builder implements SimpleBuildStep, NeoLoadP
      * @param currentWorkspace the current workspace
      * @return string builder
      */
-    protected StringBuilder prepareCommandLine(final Launcher launcher, final FilePath currentWorkspace) {
+    protected StringBuilder prepareCommandLine(final Launcher launcher, final FilePath currentWorkspace, final boolean withoutShell) {
         // update server settings from the main config.
         sharedProjectServer = updateUsingUniqueID(sharedProjectServer);
         licenseServer = updateUsingUniqueID(licenseServer);
@@ -369,7 +366,7 @@ public class NeoBuildAction extends Builder implements SimpleBuildStep, NeoLoadP
         // get the project
         setupProjectType(commands, hashedPasswords);
 
-        setupTestInfo(commands, launcher);
+        setupTestInfo(commands, launcher, withoutShell);
 
         setupLicenseInfo(commands, hashedPasswords);
 
@@ -507,12 +504,12 @@ public class NeoBuildAction extends Builder implements SimpleBuildStep, NeoLoadP
         }
     }
 
-    private void setupTestInfo(final List<String> commands, Launcher launcher) {
+    private void setupTestInfo(final List<String> commands, Launcher launcher, boolean withoutShell) {
         commands.add("-launch \"" + scenarioName + "\"");
 
         // the $Date{.*} value in testResultName must be escaped if we're on linux so that NeoLoad is passed the $.
         final String escapedTestResultName;
-        if (isOsWindows(launcher)) {
+        if (isOsWindows(launcher) || withoutShell) {
             escapedTestResultName = testResultName;
         } else {
             escapedTestResultName = testResultName.replaceAll(
@@ -534,7 +531,6 @@ public class NeoBuildAction extends Builder implements SimpleBuildStep, NeoLoadP
         } else if (projectType.toLowerCase().contains(PROJECT_SHARED)) {
             commands.add("-checkoutProject \"" + sharedProjectName + "\"");
             if (sharedProjectServer instanceof NTSServerInfo) {
-                // -NTS "http://10.0.5.11:18080" -NTSLogin "noure:QuM36humHJWA5uAvgKinWw=="
                 addNTSArguments(commands, (NTSServerInfo) sharedProjectServer, hashedPasswords);
                 commands.add("-NTSCollabPath \"" + ((NTSServerInfo) sharedProjectServer).getCollabPath() + "\"");
 
@@ -655,7 +651,7 @@ public class NeoBuildAction extends Builder implements SimpleBuildStep, NeoLoadP
      */
     public String isLicenseType(final String type) {
         if (StringUtils.trimToNull(licenseType) == null) {
-            return "licenseTypeLocal".equalsIgnoreCase(type) == true ? "true" : "false";
+            return "licenseTypeLocal".equalsIgnoreCase(type) ? "true" : "false";
         }
 
         return licenseType.equalsIgnoreCase(type) ? "true" : "false";
@@ -957,14 +953,16 @@ public class NeoBuildAction extends Builder implements SimpleBuildStep, NeoLoadP
 
         if (arePasswordsSafe()) {
 
-            final StringBuilder sb = prepareCommandLine(launcher, ws);
+            final StringBuilder sb = prepareCommandLine(launcher, ws, true);
             final SimpleBuildOption jobProp = SimpleBuildOption.fromNPO(this);
+            final EnvVars env = run.getEnvironment(listener);
+
             run.getParent().removeProperty(SimpleBuildOption.class);
             run.getParent().addProperty(jobProp);
             run.addAction(new NeoResultsAction(run, xmlReport, htmlReport));
 
             Launcher.ProcStarter procStarter = launcher.launch();
-            procStarter.cmdAsSingleString(sb.toString());
+            procStarter.cmdAsSingleString(env.expand(sb.toString()));
             procStarter.stdout(listener);
             Proc proc = launcher.launch(procStarter);
             int returnValue = proc.join();
