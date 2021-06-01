@@ -1,3 +1,4 @@
+<?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
 	<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
 
@@ -25,7 +26,6 @@
 
 	<f:entry title="Graphs" >
 		<f:repeatable field="graphOptionsInfo" minimum="0" add="Add Graph">
-			<table width="100%">
 				<f:entry title="Name" field="name" placeholder="(optional)">
 					<f:textbox />
 				</f:entry>
@@ -35,7 +35,6 @@
 
 					<f:repeatable name="curveName" field="curve" add="Add a Curve" minimum="1">
 
-						<table width="100%">
 							<f:entry title="Curve" field="path" >
 								<f:textbox value="${curveVar.path}" placeholder="UserPath>Actions>(Transaction or Page) OR Controller/User Load OR LG localhost:7100/CPU Load (required)" />
 							</f:entry>
@@ -45,7 +44,6 @@
 									<f:repeatableDeleteButton value="Delete Curve" />
 								</div>
 							</f:entry>
-						</table>
 
 					</f:repeatable>
 				</f:entry>
@@ -59,7 +57,6 @@
 					<f:repeatableDeleteButton value="Delete Graph" />
 				</div>
 
-			</table>
 		</f:repeatable>
 	</f:entry>
 	<f:entry title="Limit the number of points in trend charts" field="maxTrends"
