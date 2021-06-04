@@ -1,3 +1,4 @@
+<?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core"
          xmlns:f="/lib/form"
          xmlns:st="jelly:stapler">
@@ -10,7 +11,6 @@
         <f:entry title="Neotys Team Servers" >
             <f:repeatable name="ntsInfoName" var="ntsInfoVar" items="${descriptor.ntsInfo}" header="NTS Server" add="Add NTS Server">
 
-                <table width="100%">
                     <f:invisibleEntry title="UniqueID" >
                         <f:textbox field="uniqueID" value="${ntsInfoVar.uniqueID}" />
                     </f:invisibleEntry>
@@ -42,7 +42,6 @@
                             <f:repeatableDeleteButton value="Delete NTS Server Config" />
                         </div>
                     </f:entry>
-                </table>
             </f:repeatable>
         </f:entry>
 
@@ -51,7 +50,6 @@
             <f:repeatable name="collabInfoName" var="collabInfoVar" items="${descriptor.collabInfo}" header="Collaboration Server"
             	add="Add Collaboration Server">
 
-                <table width="100%">
                     <f:invisibleEntry title="UniqueID" >
                         <f:textbox field="uniqueID" value="${collabInfoVar.uniqueID}" />
                     </f:invisibleEntry>
@@ -81,7 +79,6 @@
                             <f:repeatableDeleteButton value="Delete Collaboration Server Config" />
                         </div>
                     </f:entry>
-                </table>
             </f:repeatable>
 
         </f:entry>
