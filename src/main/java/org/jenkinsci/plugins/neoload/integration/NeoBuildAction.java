@@ -323,13 +323,11 @@ public class NeoBuildAction extends Builder implements SimpleBuildStep, NeoLoadP
      * @throws InterruptedException the interrupted exception
      */
     @Override
-    public boolean perform(final AbstractBuild<?, ?> build, final Launcher launcher, final BuildListener listener) throws InterruptedException {
-
-        if (arePasswordsSafe()) {
-
-            final StringBuilder sb = prepareCommandLine(launcher, null, false);
+    public boolean perform(final AbstractBuild<?, ?> build, final Launcher launcher, final BuildListener listener) throws InterruptedException, IOException {
+    	  if (arePasswordsSafe()) {
+        	final EnvVars env = build.getEnvironment(listener);
             build.addAction(new NeoResultsAction(build, getXMLReportArtifactPath(), getHTMLReportArtifactPath()));
-            return runTheCommand(sb.toString(), build, launcher, listener);
+            return runTheCommand(env.expand(prepareCommandLine(launcher, null, false).toString()), build, launcher, listener);
 
         } else {
             listener.getLogger().println("\nWARNING: a non-ciphered password has been detected. Please follow the procedure below:" );

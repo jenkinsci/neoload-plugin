@@ -50,10 +50,18 @@
 		</repository>
 		<repository>
 			<id>neotys.com</id>
-			<url>http://maven.neotys.com/content/groups/public/</url>
+			<url>https://maven.neotys.com/content/groups/public/</url>
 		</repository>
-	</repositories>
-	<distributionManagement>
+    </repositories>
+
+    <pluginRepositories>
+        <pluginRepository>
+            <id>repo.jenkins-ci.org</id>
+            <url>https://repo.jenkins-ci.org/public/</url>
+        </pluginRepository>
+    </pluginRepositories>
+
+    <distributionManagement>
 		<repository>
 			<uniqueVersion>false</uniqueVersion>
 			<id>maven.jenkins-ci.org</id>
